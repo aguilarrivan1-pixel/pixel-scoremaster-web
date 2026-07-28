@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel ScoreMaster - Panel Master Administrador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Pixel ScoreMaster TKD</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -19,81 +19,169 @@
       firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
     </script>
-
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <style>
         :root {
-            --bg-dark: #07090e;
-            --panel-bg: #121824;
+            --bg-dark: #12141c;
+            --panel-bg: #1a1d26;
             --panel-border: #2a2f42;
-            --accent-cyan: #00f2fe;
-            --text-gray: #a0aec0;
+            --accent-blue: #0033cc;
+            --accent-rojo: #a00000;
+            --text-gray: #a0a5b5;
         }
 
-        body {
-            margin: 0; padding: 20px;
-            background: var(--bg-dark); color: white;
-            font-family: 'Segoe UI', -apple-system, sans-serif;
-            user-select: none;
+        html, body { 
+            margin: 0; padding: 0; width: 100%; height: 100dvh; 
+            overflow: hidden !important; touch-action: manipulation;
+            user-select: none; -webkit-user-select: none;
+            font-family: 'Segoe UI', -apple-system, sans-serif; 
+            background: var(--bg-dark); color: white; 
         }
 
         #toast-banner {
             position: fixed; top: -70px; left: 50%; transform: translateX(-50%);
-            background: #28a745; color: white; padding: 12px 24px; border-radius: 8px;
+            background: #ff2a2a; color: white; padding: 12px 24px; border-radius: 8px;
             font-weight: 800; font-size: 14px; z-index: 9999999;
-            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.5); border: 2px solid #ffffff;
+            box-shadow: 0 4px 20px rgba(255, 0, 0, 0.5); border: 2px solid #ffffff;
             transition: top 0.3s ease-in-out; text-align: center; pointer-events: none;
         }
         #toast-banner.show { top: 20px; }
 
-        #modalAdminAcceso {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(7, 9, 14, 0.98); display: flex;
-            justify-content: center; align-items: center; z-index: 99999;
+        #modalAcceso {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(7, 9, 14, 0.98); display: flex; 
+            justify-content: center; align-items: center; z-index: 999999;
         }
         .modal-box {
-            background: #121824; border: 2px solid var(--accent-cyan); border-radius: 12px;
-            padding: 30px; width: 360px; text-align: center; color: white;
+            background: #121824; border: 2px solid #00f2fe; border-radius: 12px; 
+            padding: 30px; width: 380px; text-align: center; color: white; 
             box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);
         }
 
-        .header-title {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--accent-cyan); padding-bottom: 12px; margin-bottom: 15px;
+        .top-bar { background: #0b0c10; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--panel-border); font-size: 13px; }
+        .stream-status { display: flex; align-items: center; gap: 8px; color: #28a745; font-weight: bold; }
+        .stream-dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
+        .top-buttons { display: flex; gap: 8px; }
+        .btn-top { background: #222633; color: white; border: 1px solid var(--panel-border); padding: 4px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;}
+        .btn-top:hover { background: #2d3247; }
+        .btn-stream { background: #ffaa00; color: #000; border: none; }
+
+        .main-container { display: flex; flex: 1; padding: 12px; gap: 12px; height: calc(100dvh - 40px); box-sizing: border-box; }
+        .left-arena { flex: 1.3; display: flex; flex-direction: column; gap: 10px; }
+        .scoreboard-frame { flex: 1; background: #07090e; border-radius: 12px; border: 1px solid var(--panel-border); display: flex; position: relative; overflow: hidden; }
+        .side { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
+        .side.b-side { background: var(--accent-blue); }
+        .side.r-side { background: var(--accent-rojo); }
+
+        .fighter-name-display { font-size: 26px; font-weight: 800; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); text-align: center; }
+        .fighter-club-display { font-size: 14px; color: rgba(255,255,255,0.7); font-weight: bold; margin-top: 2px; }
+        .score-display { font-size: clamp(120px, 14vw, 200px); font-family: 'Arial Black', sans-serif; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 10px rgba(0,0,0,0.7); }
+
+        .center-column { width: 240px; background: linear-gradient(to right, rgba(0,51,204,0.4) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 80%, rgba(160,0,0,0.4) 100%); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px 0; position: relative; z-index: 2; }
+        .arena-title { font-size: 13px; color: var(--text-gray); letter-spacing: 2px; font-weight: bold; text-align: center; }
+        .round-display { text-align: center; }
+        .round-lbl { font-size: 11px; color: var(--text-gray); font-weight: bold; }
+        .round-num { font-size: 36px; font-weight: 900; color: #ffaa00; }
+        
+        .rounds-won-container { display: flex; gap: 14px; justify-content: center; margin-bottom: 5px; }
+        .rw-dot { font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #222633; border: 1px solid var(--panel-border); color: #666; }
+        .rw-dot.b-won { background: #0033cc; border-color: #3366ff; color: white; box-shadow: 0 0 8px rgba(0,51,204,0.6); }
+        .rw-dot.r-won { background: #a00000; border-color: #ff3333; color: white; box-shadow: 0 0 8px rgba(160,0,0,0.6); }
+
+        .superiority-box { display: none; flex-direction: column; gap: 6px; background: #151821; border: 2px solid #ffaa00; padding: 8px; border-radius: 8px; width: 90%; text-align: center; }
+        .sup-buttons { display: flex; gap: 6px; }
+        .btn-sup { flex: 1; padding: 6px; font-size: 11px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; color: white; }
+        .btn-sup.b { background: #0033cc; }
+        .btn-sup.r { background: #a00000; }
+
+        .timer-display { background: #151821; border: 2px solid #ffaa00; color: white; font-size: 50px; padding: 4px 15px; border-radius: 8px; font-family: monospace; font-weight: bold; cursor: pointer; }
+        .gamjeom-row { display: flex; justify-content: space-around; width: 100%; font-size: 11px; color: var(--text-gray); font-weight: bold; }
+        .gamjeom-counter { font-size: 24px; color: white; font-weight: 900; }
+
+        .scoreboard-editor-container { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; }
+        .mesa-title { font-size: 12px; color: var(--text-gray); margin-bottom: 8px; font-weight: bold; text-transform: uppercase; }
+        .button-group-mesa { display: flex; gap: 4px; margin-bottom: 8px; }
+        .btn-m { flex: 1; padding: 10px 4px; border-radius: 6px; font-weight: bold; border: none; font-size: 11px; cursor: pointer; color: white; white-space: nowrap;}
+        .btn-m.b { background: #1a44cc; border: 1px solid #3366ff; }
+        .btn-m.r { background: #cc1a1a; border: 1px solid #ff3333; }
+        .gam-mesa-row { display: flex; gap: 8px; }
+        .btn-gam-m { flex: 1; background: #2d3247; color: white; border: 1px solid var(--panel-border); padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+        .right-panels { width: 450px; display: flex; flex-direction: column; gap: 12px; }
+        .panel-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px; }
+        .match-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        .btn-ctrl { padding: 10px; border-radius: 6px; border: none; font-weight: bold; color: white; background: #2a2f42; cursor: pointer; font-size: 11px; text-transform: uppercase;}
+        .btn-ctrl.start { background: #28a745; }
+        .btn-ctrl.doctor { background: #d9534f; grid-column: span 2; }
+        .btn-ctrl.cancel-doc { background: #ffaa00; color: black; grid-column: span 2; display: none; }
+
+        .tabs-header { display: flex; border-bottom: 2px solid var(--panel-border); margin-bottom: 12px; }
+        .tab-btn { background: none; border: none; color: var(--text-gray); padding: 6px 10px; cursor: pointer; font-weight: bold; font-size: 11px; }
+        .tab-btn.active { color: #ffaa00; border-bottom: 2px solid #ffaa00; margin-bottom: -2px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .config-scroll { max-height: 200px; overflow-y: auto; padding-right: 4px; }
+        .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; color: var(--text-gray); }
+        .config-row select, .config-row input { background: #12141c; border: 1px solid var(--panel-border); color: white; padding: 6px; border-radius: 4px; width: 160px; font-weight: bold;}
+
+        .history-list { height: 180px; overflow-y: auto; font-size: 11px; font-family: monospace; background: #12141c; padding: 6px; border-radius: 4px; border: 1px solid var(--panel-border); }
+        .history-item { padding: 6px; border-bottom: 1px solid #1a1d26; display: flex; justify-content: space-between; align-items: center; }
+        .btn-undo-action { background: #d9534f; color: white; border: none; border-radius: 4px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-weight: bold; margin-left: 6px; }
+
+        .history-table-wrapper { max-height: 200px; overflow-y: auto; background: #12141c; border-radius: 6px; border: 1px solid var(--panel-border); }
+        .tkd-table { width: 100%; border-collapse: collapse; font-size: 11px; color: white; text-align: left; }
+        .tkd-table th { background: #0b0c10; color: #ffaa00; padding: 8px; font-weight: bold; position: sticky; top: 0; border-bottom: 1px solid var(--panel-border); }
+        .tkd-table td { padding: 8px; border-bottom: 1px solid #1a1d26; vertical-align: top; }
+
+        .log-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; width: 280px; }
+        .qr-area { display: flex; justify-content: center; background: white; padding: 6px; border-radius: 6px; margin-top: 8px; width: fit-content; margin-left: auto; margin-right: auto;}
+
+        /* ANUNCIO / MODAL DE GANADOR Y NUEVO COMBATE */
+        #pantalla-ganador { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999998; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(0,0,0,0.96); }
+        .ganador-box { padding: 35px; border-radius: 20px; border: 3px solid #ffaa00; box-shadow: 0 0 40px rgba(255,170,0,0.3); max-width: 520px; width: 90%; background: #121824; color: white; }
+        .ganador-titulo { font-size: 20px; letter-spacing: 2px; margin-bottom: 5px; color: #ffaa00; font-weight: bold; }
+        .ganador-nombre { font-size: 42px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .ganador-club { font-size: 18px; opacity: 0.9; margin-bottom: 20px; font-weight: 600; }
+
+        .modal-nuevo-combate-inputs { background: #1a202c; border: 1px solid #2a2f42; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; }
+        .modal-nuevo-combate-inputs label { font-size: 11px; color: #a0aec0; font-weight: bold; display: block; margin-top: 6px; }
+        .modal-nuevo-combate-inputs input { width: 100%; padding: 8px; margin-top: 3px; background: #07090e; border: 1px solid #4a5568; color: white; border-radius: 4px; box-sizing: border-box; font-weight: bold; }
+
+        #mesa-overlay-descanso {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(17, 10, 0, 0.96); border: 3px solid #ff5500; border-radius: 12px;
+            z-index: 99; flex-direction: column; align-items: center; justify-content: center;
         }
-        .header-title h1 { margin: 0; font-size: 20px; letter-spacing: 1px; text-transform: uppercase; }
-        .live-tag { color: #28a745; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 6px; }
-        .dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
 
-        .event-tabs-bar { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid var(--panel-border); align-items: center; }
-        .tab-ev-btn { background: #1a202c; border: 1px solid var(--panel-border); color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; text-transform: uppercase; white-space: nowrap; }
-        .tab-ev-btn.active { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
+        #juez-ui { 
+            display: none; position: fixed; top: 0; left: 0; 
+            width: 100vw; height: 100dvh; background: #07090e; 
+            z-index: 999998; flex-direction: column; box-sizing: border-box; 
+            padding: 4px; overflow: hidden;
+        }
 
-        .main-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 20px; }
-        .panel-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        .header-juez { height: 30px; background: #121824; border: 1px solid #2a2f42; text-align: center; font-weight: 900; border-radius: 6px; color: #ffaa00; font-size: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+        .juez-container-grid { display: grid; grid-template-rows: 1fr 1.8fr 1.4fr 1fr; gap: 4px; height: calc(100dvh - 42px); width: 100%; }
+        .juez-split-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; height: 100%; }
+        .juez-split-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; height: 100%; }
 
-        .card-header { font-size: 15px; font-weight: bold; color: #ffaa00; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-juez-new { border: none; border-radius: 8px; color: white; font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; touch-action: manipulation; width: 100%; height: 100%; }
+        .btn-juez-new.azul { background: #0033cc; border: 1.5px solid #3366ff; }
+        .btn-juez-new.rojo { background: #a00000; border: 1.5px solid #ff3333; }
+        .btn-juez-new .lbl-tag { font-size: 11px; text-transform: uppercase; font-weight: bold; }
+        .btn-juez-new .lbl-val { font-size: 26px; font-weight: 900; }
 
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .admin-table th { background: #0b0c10; color: #ffaa00; padding: 8px; text-align: left; border-bottom: 1px solid var(--panel-border); }
-        .admin-table td { padding: 8px; border-bottom: 1px solid #1a1d26; vertical-align: top; }
-
-        .sec-input { width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 12px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight: bold; }
-        .btn-cyan { width: 100%; padding: 10px; background: var(--accent-cyan); border: none; color: #000; font-weight: 900; border-radius: 6px; cursor: pointer; text-transform: uppercase; font-size: 12px; }
-        .btn-refresh { background: var(--accent-cyan); color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; }
-        .btn-delete-ev { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-left: 8px; }
-        .btn-pdf { background: #0056b3; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; font-size: 12px; }
-
-        .areas-live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .area-box { background: #0d111a; border: 1px solid #2a2f42; padding: 10px; border-radius: 8px; text-align: center; }
-        .area-box.active { border-color: #28a745; box-shadow: 0 0 8px rgba(40,167,69,0.2); }
-
-        #printable-admin-zone { display: none; }
+        /* CORRECCIÓN DE ESTILOS DE IMPRESIÓN Y GENERACIÓN DE PDF */
+        #printable-print-zone { display: none; }
         @media print {
             body * { visibility: hidden !important; }
-            #printable-admin-zone, #printable-admin-zone * { visibility: visible !important; }
-            #printable-admin-zone { display: block !important; position: absolute; left: 0; top: 0; width: 100%; color: black !important; font-family: sans-serif; background: white !important; }
+            #printable-print-zone, #printable-print-zone * { visibility: visible !important; }
+            #printable-print-zone { display: block !important; position: absolute; left: 0; top: 0; width: 100%; color: black !important; font-family: sans-serif; background: white !important; }
             .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-            .print-table th, .print-table td { border: 1px solid #333; padding: 6px; font-size: 10px; text-align: left; color: black !important; }
+            .print-table th, .print-table td { border: 1px solid #333; padding: 6px; font-size: 11px; text-align: left; color: black !important; }
             .print-table th { background: #eee !important; font-weight: bold; }
             .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 4px; border-radius: 4px; font-size: 9px; margin-right: 4px; color: black; }
         }
@@ -101,332 +189,1143 @@
 </head>
 <body>
 
-<div id="toast-banner">MENSAJE DE CONFIRMACIÓN</div>
+<div id="toast-banner">⚠️ MENSAJE DE SISTEMA</div>
 
-<div id="modalAdminAcceso">
+<div id="modalAcceso">
   <div class="modal-box">
-    <h2 style="margin-top: 0; color: var(--accent-cyan); text-transform: uppercase;">Panel Master Central</h2>
-    <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 20px;">Ingreso exclusivo para la Administración</p>
-
-    <div style="text-align: left; margin-bottom: 20px;">
-      <label style="font-size: 12px; color: #cbd5e0;">Clave Maestra Administrador:</label>
-      <input type="password" id="adminPassword" placeholder="••••••••" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;" onkeydown="if(event.key==='Enter') autenticarAdminMaster()">
+    <h2 style="margin-top: 0; color: #00f2fe; text-transform: uppercase;">Mesa de Control</h2>
+    <p style="font-size: 13px; color: #a0aec0; margin-bottom: 20px;">Configura la sesión del torneo</p>
+    
+    <div style="text-align: left; margin-bottom: 15px;">
+      <label style="font-size: 12px; color: #cbd5e0;">Nombre del Evento:</label>
+      <input type="text" id="inputNombreEvento" placeholder="Ej: Copa Bogota 2026" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;">
     </div>
 
-    <button onclick="autenticarAdminMaster()" class="btn-cyan">Ingresar al Panel Master</button>
-    <p id="msgErrorAdmin" style="color: #ff4d4d; font-size: 12px; margin-top: 15px; display: none; font-weight: bold;"></p>
+    <div style="text-align: left; margin-bottom: 15px;">
+      <label style="font-size: 12px; color: #cbd5e0;">Número de Área:</label>
+      <input type="number" id="inputNumeroArea" placeholder="Ej: 1" value="1" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;">
+    </div>
+
+    <div style="text-align: left; margin-bottom: 20px;">
+      <label style="font-size: 12px; color: #cbd5e0;">Contraseña de Acceso:</label>
+      <input type="password" id="inputPassword" placeholder="••••••••" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;" onkeydown="if(event.key==='Enter') validarEIngresarMesa()">
+    </div>
+
+    <button onclick="validarEIngresarMesa()" style="width: 100%; padding: 12px; background: #00f2fe; border: none; color: #000; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px; text-transform: uppercase;">
+      Ingresar a la Mesa
+    </button>
+    <p id="mensajeErrorAcceso" style="color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; font-weight: bold;"></p>
   </div>
 </div>
 
-<div id="printable-admin-zone"></div>
+<div class="log-container" id="visual-log-container"></div>
 
-<div class="header-title">
-    <h1>🎛️ PANEL DE ADMINISTRACIÓN MASTER MULTI-EVENTO</h1>
-    <div class="live-tag"><div class="dot"></div> MONITOREO GENERAL EN VIVO</div>
-</div>
+<!-- ALERTA / FORMULARIO PARA INGRESO DEL SIGUIENTE COMBATE -->
+<div id="pantalla-ganador">
+    <div class="ganador-box" id="ganador-fondo">
+        <div class="ganador-titulo">🏆 COMBATE CONCLUIDO</div>
+        <div class="ganador-nombre" id="ganador-texto">AZUL</div>
+        <div class="ganador-club" id="ganador-club-texto">DELEGACIÓN</div>
 
-<!-- BARRA DINÁMICA DE EVENTOS DETECTADOS -->
-<div class="event-tabs-bar" id="eventTabsBar">
-    <button class="tab-ev-btn active" onclick="filtrarPorEvento('TODOS', this)">🌐 TODOS LOS EVENTOS</button>
-</div>
+        <div class="modal-nuevo-combate-inputs">
+            <div style="font-size:12px; font-weight:bold; color:#00f2fe; margin-bottom:8px; text-transform:uppercase; text-align:center;">
+                📝 Datos del Próximo Combate
+            </div>
+            <label>Categoría / Peso:</label>
+            <input type="text" id="modal-next-cat" placeholder="Ej: MAYORES AVANZADO">
 
-<!-- MONITOR DE ÁREAS ACTIVAS -->
-<div class="panel-card" style="margin-bottom: 15px;">
-    <div class="card-header">
-        <span>🌐 Áreas transmitiendo en vivo (<span id="cantAreasActivas">0</span> activas)</span>
-    </div>
-    <div class="areas-live-grid" id="areasLiveContainer">
-        <div style="color:gray; font-size:12px;">Cargando transmisión de áreas...</div>
-    </div>
-</div>
-
-<div class="main-grid">
-    <div class="panel-card">
-        <div class="card-header">
-            <span>Historial Oficial (<span id="lblFiltroEvento">TODOS LOS EVENTOS</span>)</span>
-            <div>
-                <button class="btn-refresh" onclick="cargarHistorialOficial()">🔄 ACTUALIZAR</button>
-                <button class="btn-delete-ev" id="btnBorrarEvento" style="display:none;" onclick="confirmarYEliminarEventoActual()">🗑️ ELIMINAR EVENTO</button>
+            <div style="display:flex; gap:8px;">
+                <div style="flex:1;">
+                    <label style="color:#4d7cff;">Nombre Azul:</label>
+                    <input type="text" id="modal-next-az-name" placeholder="Nombre">
+                    <label style="color:#4d7cff;">Delegación Azul:</label>
+                    <input type="text" id="modal-next-az-club" placeholder="Club/Liga">
+                </div>
+                <div style="flex:1;">
+                    <label style="color:#ff4d4d;">Nombre Rojo:</label>
+                    <input type="text" id="modal-next-rj-name" placeholder="Nombre">
+                    <label style="color:#ff4d4d;">Delegación Rojo:</label>
+                    <input type="text" id="modal-next-rj-club" placeholder="Club/Liga">
+                </div>
             </div>
         </div>
 
-        <div style="max-height: 380px; overflow-y: auto;">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Evento / Área</th>
-                        <th>Nº / Hora</th>
-                        <th>Categoría / Competidores</th>
-                        <th>Desglose por Round</th>
-                        <th>Ganador</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaHistorialMaster">
-                    <tr><td colspan="5" style="text-align:center; color:gray; padding:20px;">Cargando registros...</td></tr>
-                </tbody>
-            </table>
-        </div>
+        <button class="btn-ctrl" style="background:#ffaa00; color:black; padding:14px 25px; font-size:13px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; font-weight:bold; width:100%;" onclick="siguienteCombateListo()">➡️ CONFIRMAR E INICIAR SIGUIENTE COMBATE</button>
+    </div>
+</div>
 
-        <button class="btn-pdf" onclick="imprimirPDFConsolidadoMaster()">🖨️ IMPRIMIR / DESCARGAR PDF OFICIAL</button>
+<div id="printable-print-zone"></div>
+
+<div id="operator-ui" style="display: flex; flex-direction: column; height: 100%;">
+    <div class="top-bar">
+        <div class="stream-status"><div class="stream-dot"></div>ÁREA CONTROL — TRANSMISIÓN ACTIVA</div>
+        <div style="font-size: 13px; font-weight: bold; color: #ff4500; letter-spacing: 1px;">LIGA DE TAEKWONDO DE BOGOTÁ</div>
+        <div class="top-buttons">
+            <button class="btn-top btn-stream" onclick="abrirPantallaTV()">📺 SEGUNDA PANTALLA (TV)</button>
+            <button class="btn-top" onclick="resetMatch()">RESET ARENA</button>
+        </div>
     </div>
 
-    <div class="panel-card">
-        <div class="card-header">
-            <span>🔒 Seguridad Global</span>
+    <div class="main-container">
+        <div class="left-arena">
+            <div class="scoreboard-frame">
+                <div id="mesa-overlay-descanso">
+                    <div style="font-size: 20px; color: #ff5500; font-weight: bold; letter-spacing: 2px;">TIEMPO DE DESCANSO</div>
+                    <div id="mesa-descanso-tiempo" style="font-size: 90px; font-family: monospace; font-weight: bold; color: white; margin-top: 10px;">1:00</div>
+                </div>
+
+                <div class="side b-side">
+                    <div class="fighter-name-display" id="lbl-name-azul">AZUL</div>
+                    <div class="fighter-club-display" id="lbl-club-azul">CLUB/DELEGACIÓN</div>
+                    <div class="score-display" id="azul">0</div>
+                </div>
+                
+                <div class="center-column">
+                    <div class="arena-title" style="color: #ffaa00;">ÁREA <span id="displayArea">1</span></div>
+                    <div class="round-display">
+                        <div class="round-lbl" id="lbl-round-type">ROUND</div>
+                        <div class="round-num" id="round">1</div>
+                    </div>
+                    <div class="rounds-won-container">
+                        <div class="rw-dot" id="rw-azul">AZUL: 0</div>
+                        <div class="rw-dot" id="rw-rojo">ROJO: 0</div>
+                    </div>
+
+                    <div class="superiority-box" id="panel-superioridad">
+                        <div style="font-size:10px; font-weight:bold; color:#ffaa00; margin-bottom:4px;">DECISIÓN SUPERIORIDAD</div>
+                        <div class="sup-buttons">
+                            <button class="btn-sup b" onclick="decidirSuperioridad('azul')">Azul</button>
+                            <button class="btn-sup r" onclick="decidirSuperioridad('rojo')">Rojo</button>
+                        </div>
+                    </div>
+
+                    <div class="timer-display" id="tiempo" onclick="editarTiempoManual()">2:00</div>
+                    <div class="gamjeom-row">
+                        <div style="text-align: center;">GAM<div class="gamjeom-counter" id="gAzul">0</div></div>
+                        <div style="text-align: center;">GAM<div class="gamjeom-counter" id="gRojo">0</div></div>
+                    </div>
+                </div>
+
+                <div class="side r-side">
+                    <div class="fighter-name-display" id="lbl-name-rojo">ROJO</div>
+                    <div class="fighter-club-display" id="lbl-club-rojo">CLUB/DELEGACIÓN</div>
+                    <div class="score-display" id="rojo">0</div>
+                </div>
+            </div>
+
+            <div class="scoreboard-editor-container">
+                <div class="mesa-title">Controles Manuales de Mesa Central</div>
+                <div class="button-group-mesa">
+                    <button class="btn-m b" onclick="puntoMesa('azul', 1)">+1 Pño</button>
+                    <button class="btn-m b" onclick="puntoMesa('azul', 2)">+2 Peto</button>
+                    <button class="btn-m b" onclick="puntoMesa('azul', 3)">+3 Cab</button>
+                    <button class="btn-m b" onclick="puntoMesa('azul', 4)">+4 G-Peto</button>
+                    <button class="btn-m b" onclick="puntoMesa('azul', 6)">+6 G-Cab</button>
+                    <button class="btn-m r" onclick="puntoMesa('rojo', 1)">+1 Pño</button>
+                    <button class="btn-m r" onclick="puntoMesa('rojo', 2)">+2 Peto</button>
+                    <button class="btn-m r" onclick="puntoMesa('rojo', 3)">+3 Cab</button>
+                    <button class="btn-m r" onclick="puntoMesa('rojo', 4)">+4 G-Peto</button>
+                    <button class="btn-m r" onclick="puntoMesa('rojo', 6)">+6 G-Cab</button>
+                </div>
+                <div class="gam-mesa-row">
+                    <button class="btn-gam-m" onclick="penal('azul')">+1 Gam Azul <span class="hint-key">[Tecl B]</span></button>
+                    <button class="btn-gam-m" onclick="restarPenal('azul')" style="background-color: #5c0000; border-color: #ff4d4d; color: #ffb3b3;">-1 Gam Azul (Corregir)</button>
+                    <button class="btn-gam-m" onclick="restar('azul')">-1 Pts Azul</button>
+
+                    <button class="btn-gam-m" onclick="penal('rojo')">+1 Gam Rojo <span class="hint-key">[Tecl R]</span></button>
+                    <button class="btn-gam-m" onclick="restarPenal('rojo')" style="background-color: #5c0000; border-color: #ff4d4d; color: #ffb3b3;">-1 Gam Rojo (Corregir)</button>
+                    <button class="btn-gam-m" onclick="restar('rojo')">-1 Pts Rojo</button>
+                </div>
+            </div>
         </div>
 
-        <p style="font-size: 11px; color: var(--text-gray); margin-top: 0;">
-            Cambia la clave global de acceso para las mesas de control y juzgados.
-        </p>
+        <div class="right-panels">
+            <div class="panel-box">
+                <div class="mesa-title">Control del Estado de Tiempo</div>
+                <div class="match-grid">
+                    <button class="btn-ctrl start" id="btn-play" onclick="conmutarRelojMesa()">START ROUND <span class="hint-key">[Espacio]</span></button>
+                    <button class="btn-ctrl" onclick="pause()">PAUSE</button>
+                    <button class="btn-ctrl" onclick="finalizarRound()">FINISH ROUND</button>
+                    <button class="btn-ctrl" style="background: #444;" onclick="forzarSiguienteRoundManual()">FORZAR SIG. ROUND</button>
+                    <button class="btn-ctrl doctor" id="btn-medico" onclick="activarDoctor()">🏥 TIEMPO MÉDICO (1:00 MIN)</button>
+                    <button class="btn-ctrl cancel-doc" id="btn-cancel-medico" onclick="cancelarDoctorRápido()">⚠️ RETIRAR DOCTOR (REANUDAR)</button>
+                </div>
+            </div>
 
-        <label style="font-size: 11px; color: white; font-weight: bold;">Nueva Contraseña para Mesas:</label>
-        <input type="password" id="nuevaClaveMesas" class="sec-input" placeholder="Ej: BOGOTA2026">
+            <div class="panel-box" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                <div class="tabs-header">
+                    <button class="tab-btn active" id="tab-btn-history" onclick="switchTab('history')">LOGS EN VIVO</button>
+                    <button class="tab-btn" id="tab-btn-rules" onclick="switchTab('rules')">CONFIG COMBATE</button>
+                    <button class="tab-btn" id="tab-btn-global" onclick="switchTab('global')">HISTORIAL DÍA ÁREA</button>
+                </div>
 
-        <button class="btn-cyan" onclick="actualizarClaveMesasGlobal()">ACTUALIZAR CLAVE GLOBAL</button>
+                <div id="tab-history" class="tab-content active">
+                    <div style="font-size:10px; color:#a0a5b5; margin-bottom:4px;">Haz clic en <strong>[Corregir]</strong> para deshacer:</div>
+                    <div class="history-list" id="match-history-list">
+                        <div class="history-item" style="color: gray;">Esperando acciones de combate...</div>
+                    </div>
+                </div>
+
+                <div id="tab-rules" class="tab-content config-scroll">
+                    <div class="config-row"><label>Combate Nº:</label><input id="cfg-combate-num" value="1"></div>
+                    <div class="config-row"><label>Campeonato:</label><input id="cfg-campeonato" value="TORNEO OFICIAL LIGA BOGOTÁ"></div>
+                    <div class="config-row"><label>Categoría:</label><input id="cfg-cat" value="MAYORES AVANZADO"></div>
+                    <div class="config-row">
+                        <label>Competidor Azul:</label>
+                        <input id="aname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;"><input id="aclub" placeholder="Delegación" oninput="setNombres()" style="width:78px;">
+                    </div>
+                    <div class="config-row">
+                        <label>Competidor Rojo:</label>
+                        <input id="rname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;"><input id="rclub" placeholder="Delegación" oninput="setNombres()" style="width:78px;">
+                    </div>
+                    <div class="config-row">
+                        <label>Límite Gam-jeoms:</label>
+                        <input type="number" id="cfg-max-gamjeoms" value="5" min="1" max="99" style="text-align: center; font-weight: bold;">
+                    </div>
+                    <div class="config-row">
+                        <label>Descanso (Segundos):</label>
+                        <input type="number" id="cfg-rest-time" value="60" min="5" max="300" style="text-align: center; font-weight: bold;">
+                    </div>
+                    <div class="config-row">
+                        <label>Sistema Jueces:</label>
+                        <select id="judge-select" onchange="cambiarModoJueces()">
+                            <option value="1">1 Juez Directo</option>
+                            <option value="2" selected>2 Jueces (Coincidencia)</option>
+                            <option value="3">3 Jueces (Mayoría)</option>
+                        </select>
+                    </div>
+                    <div class="config-row"><label>Tiempo Asalto:</label><input type="text" id="time-input" value="2:00" oninput="cambiarConfigTiempo()"></div>
+                </div>
+
+                <div id="tab-global" class="tab-content">
+                    <div class="history-table-wrapper">
+                        <table class="tkd-table">
+                            <thead>
+                                <tr>
+                                    <th>Nº / Hora</th>
+                                    <th>Categoría / Competidores</th>
+                                    <th>Rounds</th>
+                                    <th>Ganador</th>
+                                </tr>
+                            </thead>
+                            <tbody id="day-global-table-body">
+                                <tr>
+                                    <td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay combates concluidos en esta mesa hoy.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="btn-ctrl" style="background:#0056b3; width:100%; margin-top:10px; font-size:12px;" onclick="imprimirHistorialDelDia()">🖨️ IMPRIMIR / DESCARGAR PDF (ÁREA)</button>
+                </div>
+
+                <div class="qr-area" id="qrcode"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="juez-ui">
+    <div class="header-juez">ÁREA <span id="displayAreaJuez">1</span> — MANDO REMOTO JUEZ</div>
+    <div class="juez-container-grid">
+        <div class="juez-split-2">
+            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 1)"><span class="lbl-tag">Puño</span><span class="lbl-val">+1</span></button>
+            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 1)"><span class="lbl-tag">Puño</span><span class="lbl-val">+1</span></button>
+        </div>
+        <div class="juez-split-2">
+            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 2)"><span class="lbl-tag">Peto</span><span class="lbl-val">+2</span></button>
+            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 2)"><span class="lbl-tag">Peto</span><span class="lbl-val">+2</span></button>
+        </div>
+        <div class="juez-split-2">
+            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 3)"><span class="lbl-tag">Casco</span><span class="lbl-val">+3</span></button>
+            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 3)"><span class="lbl-tag">Casco</span><span class="lbl-val">+3</span></button>
+        </div>
+        <div class="juez-split-4">
+            <button class="btn-juez-new azul sm" onclick="enviarPunto('azul', 4)"><span class="lbl-tag">G. Peto</span><span class="lbl-val">+4</span></button>
+            <button class="btn-juez-new azul sm" onclick="enviarPunto('azul', 6)"><span class="lbl-tag">G. Casco</span><span class="lbl-val">+6</span></button>
+            <button class="btn-juez-new rojo sm" onclick="enviarPunto('rojo', 4)"><span class="lbl-tag">G. Peto</span><span class="lbl-val">+4</span></button>
+            <button class="btn-juez-new rojo sm" onclick="enviarPunto('rojo', 6)"><span class="lbl-tag">G. Casco</span><span class="lbl-val">+6</span></button>
+        </div>
     </div>
 </div>
 
 <script>
-    let todosLosCombatesRaw = [];
-    let eventoSeleccionadoFiltro = "TODOS";
+    let accesoConcedido = false;
+    let EVENTO_ACTUAL = "";
+    let AREA_ACTUAL = "1";
+    let ABLY_CHANNEL_NAME = "";
 
-    function mostrarToast(msj) {
+    const API_KEY = 'lghMsA.rFblDA:Uo_Ya0lwt-osgx2EhIM1egWJb1pTR4seB8MQKN_Rqp8';
+    const params = new URLSearchParams(window.location.search);
+    const esJuez = window.innerWidth < 768 || params.get('mode') === 'juez';
+
+    let ably, canal;
+    let rojo=0, azul=0, gRojo=0, gAzul=0, tiempo=120, tiempoGuardadoAntesDoc=120, intervalo=null, round=1, wRojo=0, wAzul=0, clics=[];
+    let modoJueces = 2;
+    let ventanaTV = null;
+    let enModoDoctor = false;
+    let enModoDescanso = false;
+    let combatesFinalizadosLogs = [];
+    let bloqueoCombatePorVictoria = false;
+    let estadisticasRounds = [];
+    let historialAcciones = [];
+
+    function mostrarNotificacion(msj, tiempoMs = 2800) {
         const toast = document.getElementById("toast-banner");
         toast.innerText = msj;
         toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 2800);
+        setTimeout(() => { toast.classList.remove("show"); }, tiempoMs);
     }
 
-    async function autenticarAdminMaster() {
-        const passInput = document.getElementById("adminPassword").value.trim();
-        const lblError = document.getElementById("msgErrorAdmin");
+    const interfazSonidos = {
+        ctx: null,
+        inicializar() {
+            if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+            if (this.ctx.state === 'suspended') { this.ctx.resume(); }
+        },
+        playPunto() { 
+            this.inicializar();
+            try {
+                let osc = this.ctx.createOscillator(); let gain = this.ctx.createGain();
+                osc.type = 'sine'; osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.08);
 
-        if (!passInput) {
-            lblError.innerText = "Por favor ingresa la contraseña.";
+                let noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.05, this.ctx.sampleRate);
+                let output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < noiseBuffer.length; i++) { output[i] = Math.random() * 2 - 1; }
+                let whiteNoise = this.ctx.createBufferSource(); whiteNoise.buffer = noiseBuffer;
+                let noiseFilter = this.ctx.createBiquadFilter(); noiseFilter.type = 'lowpass';
+                noiseFilter.frequency.setValueAtTime(1000, this.ctx.currentTime);
+                let noiseGain = this.ctx.createGain(); noiseGain.gain.setValueAtTime(0.8, this.ctx.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+
+                whiteNoise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(this.ctx.destination);
+                gain.gain.setValueAtTime(1.0, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                whiteNoise.start(); osc.start(); osc.stop(this.ctx.currentTime + 0.1);
+            } catch(e){}
+        },
+        playFalta() {
+            this.inicializar();
+            try {
+                let osc = this.ctx.createOscillator(); let gain = this.ctx.createGain();
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(1.2, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.25);
+            } catch(e){}
+        },
+        playClickReloj() { 
+            this.inicializar();
+            try {
+                let osc = this.ctx.createOscillator(); let g = this.ctx.createGain();
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                g.gain.setValueAtTime(0.2, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.03);
+                osc.connect(g); g.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + 0.03);
+            } catch(e){}
+        },
+        playChicharraFinal() { 
+            this.inicializar();
+            try {
+                let osc1 = this.ctx.createOscillator(); let osc2 = this.ctx.createOscillator(); let g = this.ctx.createGain();
+                osc1.type = 'sawtooth'; osc2.type = 'square';
+                osc1.frequency.setValueAtTime(160, this.ctx.currentTime); osc2.frequency.setValueAtTime(165, this.ctx.currentTime);
+                g.gain.setValueAtTime(0.8, this.ctx.currentTime); g.gain.setValueAtTime(0.8, this.ctx.currentTime + 1.2);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.5);
+                osc1.connect(g); osc2.connect(g); g.connect(this.ctx.destination);
+                osc1.start(); osc2.start(); osc1.stop(this.ctx.currentTime + 1.5); osc2.stop(this.ctx.currentTime + 1.5);
+            } catch(e){}
+        }
+    };
+
+    function generarQRJuez() {
+        const contenedorQR = document.getElementById("qrcode");
+        if(!contenedorQR) return;
+        contenedorQR.innerHTML = "";
+        const urlGitHubPages = "https://aguilarrivan1-pixel.github.io/pixel-scoremaster-web/"; 
+        const urlJuez = `${urlGitHubPages}?mode=juez&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}`;
+        new QRCode(contenedorQR, { text: urlJuez, width: 85, height: 85 });
+    }
+
+    async function validarEIngresarMesa() {
+        const evento = document.getElementById("inputNombreEvento").value.trim();
+        const area = document.getElementById("inputNumeroArea").value.trim();
+        const passIngresada = document.getElementById("inputPassword").value.trim();
+        const lblError = document.getElementById("mensajeErrorAcceso");
+
+        if (!evento || !area || !passIngresada) {
+            lblError.innerText = "Por favor completa todos los campos.";
             lblError.style.display = "block";
             return;
         }
 
+        lblError.style.display = "none";
+
         try {
             const docRef = await db.collection("Configuracion").doc("Acceso").get();
-            if (docRef.exists && passInput === docRef.data().password) {
-                document.getElementById("modalAdminAcceso").style.display = "none";
-                mostrarToast("Autenticado como Administrador Master");
-                
-                escucharHistorialEnTiempoReal();
-                iniciarMonitoreoTodasLasAreasEnVivo();
-            } else {
-                lblError.innerText = "Contraseña maestra incorrecta.";
-                lblError.style.display = "block";
+            if (docRef.exists) {
+                const passCorrecta = docRef.data().password;
+                if (passIngresada === passCorrecta) {
+                    accesoConcedido = true;
+                    EVENTO_ACTUAL = evento.toLowerCase().replace(/\s+/g, '-');
+                    AREA_ACTUAL = area;
+                    ABLY_CHANNEL_NAME = `tkd-${EVENTO_ACTUAL}-area-${AREA_ACTUAL}`;
+
+                    document.getElementById("displayArea").innerText = AREA_ACTUAL;
+                    document.getElementById("displayAreaJuez").innerText = AREA_ACTUAL;
+
+                    ably = new Ably.Realtime({ key: API_KEY });
+                    canal = ably.channels.get(ABLY_CHANNEL_NAME);
+                    subscribirEventosAbly();
+
+                    generarQRJuez();
+                    try { interfazSonidos.inicializar(); } catch(e) {}
+                    document.getElementById("modalAcceso").style.display = "none";
+                    
+                    iniciarSincronizacionEstadoAreaEnVivo();
+                } else {
+                    lblError.innerText = "Contraseña incorrecta.";
+                    lblError.style.display = "block";
+                }
             }
         } catch (error) {
-            console.error("Error al autenticar:", error);
+            console.error("Error al validar clave:", error);
             lblError.innerText = "Error de conexión con Firebase.";
             lblError.style.display = "block";
         }
     }
 
-    async function actualizarClaveMesasGlobal() {
-        const nuevaPass = document.getElementById("nuevaClaveMesas").value.trim();
-        if(!nuevaPass) { mostrarToast("Escribe una contraseña válida"); return; }
-
-        try {
-            await db.collection("Configuracion").doc("Acceso").set({ password: nuevaPass }, { merge: true });
-            document.getElementById("nuevaClaveMesas").value = "";
-            mostrarToast("🔒 Clave global actualizada en Firebase");
-        } catch(e) {
-            console.error("Error cambiando clave:", e);
-        }
+    function iniciarSincronizacionEstadoAreaEnVivo() {
+        setInterval(() => {
+            if(!EVENTO_ACTUAL || !accesoConcedido) return;
+            let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+            db.collection("Eventos").doc(EVENTO_ACTUAL).collection("AreasActivas").doc(`Area_${AREA_ACTUAL}`).set({
+                evento: EVENTO_ACTUAL,
+                area: AREA_ACTUAL,
+                azul: azul,
+                rojo: rojo,
+                round: round,
+                tiempo: `${min}:${seg<10?'0':''}${seg}`,
+                ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        }, 1500);
     }
 
-    function iniciarMonitoreoTodasLasAreasEnVivo() {
-        db.collectionGroup("AreasActivas").onSnapshot(snapshot => {
-            const container = document.getElementById("areasLiveContainer");
-            const lblCant = document.getElementById("cantAreasActivas");
-            
-            if(snapshot.empty) {
-                container.innerHTML = '<div style="color:gray; font-size:12px;">No hay áreas transmitiendo en vivo actualmente.</div>';
-                lblCant.innerText = "0";
-                return;
-            }
+    if(esJuez) {
+        document.getElementById("operator-ui").style.display = "none";
+        document.getElementById("juez-ui").style.display = "flex";
+        accesoConcedido = true; 
+        document.getElementById("modalAcceso").style.display = "none";
 
-            let html = "";
-            let contador = 0;
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                if (eventoSeleccionadoFiltro === "TODOS" || (data.evento && data.evento.toUpperCase() === eventoSeleccionadoFiltro)) {
-                    contador++;
-                    html += `
-                    <div class="area-box active">
-                        <div style="font-size:10px; font-weight:bold; color:var(--accent-cyan); text-transform:uppercase;">${data.evento || 'EVENTO'}</div>
-                        <div style="font-size:12px; font-weight:bold; color:#ffaa00;">ÁREA ${data.area} (R${data.round})</div>
-                        <div style="font-size:16px; font-weight:900; margin: 2px 0;">
-                            <span style="color:#0033cc;">${data.azul}</span> vs <span style="color:#a00000;">${data.rojo}</span>
-                        </div>
-                        <div style="font-family:monospace; color:#20c997; font-weight:bold; font-size:12px;">⏱️ ${data.tiempo}</div>
-                    </div>`;
-                }
-            });
-            lblCant.innerText = contador;
-            container.innerHTML = html || '<div style="color:gray; font-size:12px;">No hay áreas activas en este evento.</div>';
-        });
-    }
-
-    function escucharHistorialEnTiempoReal() {
-        db.collection("HistorialOficial").onSnapshot(snapshot => {
-            const tbody = document.getElementById("tablaHistorialMaster");
-            if(snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">No hay combates archivados en Firebase.</td></tr>';
-                todosLosCombatesRaw = [];
-                reconstruirTabs([]);
-                return;
-            }
-
-            todosLosCombatesRaw = [];
-            let eventosSet = new Set();
-
-            snapshot.forEach(doc => {
-                const c = doc.data();
-                c._idDoc = doc.id; // Guarda ID para poder borrar
-                todosLosCombatesRaw.push(c);
-                if(c.evento) eventosSet.add(c.evento.toUpperCase());
-            });
-
-            reconstruirTabs(Array.from(eventosSet));
-            renderizarTablaFiltrada();
-        });
-    }
-
-    function reconstruirTabs(listaEventos) {
-        const tabsBar = document.getElementById("eventTabsBar");
-        let tabsHtml = `<button class="tab-ev-btn ${eventoSeleccionadoFiltro==='TODOS'?'active':''}" onclick="filtrarPorEvento('TODOS', this)">🌐 TODOS LOS EVENTOS</button>`;
-        listaEventos.forEach(ev => {
-            tabsHtml += `<button class="tab-ev-btn ${eventoSeleccionadoFiltro===ev?'active':''}" onclick="filtrarPorEvento('${ev}', this)">🏆 ${ev}</button>`;
-        });
-        tabsBar.innerHTML = tabsHtml;
-    }
-
-    function cargarHistorialOficial() {
-        renderizarTablaFiltrada();
-        mostrarToast("Historial actualizado");
-    }
-
-    function filtrarPorEvento(evNombre, btn) {
-        document.querySelectorAll('.tab-ev-btn').forEach(b => b.classList.remove('active'));
-        if(btn) btn.classList.add('active');
-        eventoSeleccionadoFiltro = evNombre;
-        document.getElementById("lblFiltroEvento").innerText = evNombre;
+        const areaParam = params.get('area') || '1';
+        const eventoParam = params.get('evento') || 'general';
         
-        // Muestra u oculta botón de eliminar si seleccionaste un evento específico
-        const btnDel = document.getElementById("btnBorrarEvento");
-        btnDel.style.display = (evNombre === "TODOS") ? "none" : "inline-block";
+        ABLY_CHANNEL_NAME = `tkd-${eventoParam.toLowerCase().replace(/\s+/g, '-')}-area-${areaParam}`;
+        document.getElementById("displayAreaJuez").innerText = areaParam;
 
-        renderizarTablaFiltrada();
+        ably = new Ably.Realtime({ key: API_KEY });
+        canal = ably.channels.get(ABLY_CHANNEL_NAME);
     }
 
-    function renderizarTablaFiltrada() {
-        const tbody = document.getElementById("tablaHistorialMaster");
-        let listaFiltrada = todosLosCombatesRaw.filter(c => {
-            if (eventoSeleccionadoFiltro === "TODOS") return true;
-            return c.evento && c.evento.toUpperCase() === eventoSeleccionadoFiltro;
-        });
+    window.addEventListener('keydown', function(e) {
+        if (!accesoConcedido || esJuez || bloqueoCombatePorVictoria) return;
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
 
-        if(listaFiltrada.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">No hay combates en este filtro.</td></tr>';
+        const tecla = e.key.toLowerCase();
+        if (e.code === "Space" || tecla === " ") { e.preventDefault(); conmutarRelojMesa(); } 
+        else if (tecla === "b") { penal('azul'); } 
+        else if (tecla === "r") { penal('rojo'); }
+    });
+
+    function subscribirEventosAbly() {
+        if(!canal) return;
+        canal.subscribe('p', (msg) => {
+            const d = msg.data;
+            if(msg.connectionId === ably.connection.id) {
+                if(d.type === 'LOCK_WINNER' || d.type === 'UNLOCK_WINNER') return;
+            }
+            if(d.type === 'LOCK_WINNER') { renderizarPantallaGanadorLocalYTV(d.color, d.name, d.club); return; }
+            if(d.type === 'UNLOCK_WINNER') { removerPantallaGanadorLocalYTV(); return; }
+            if(bloqueoCombatePorVictoria || enModoDescanso) return;
+
+            const jId = msg.connectionId ? msg.connectionId.substring(0, 3) : "Jz";
+            if (modoJueces === 1) {
+                efectuarPunto(d.e, d.p, `Jz. Directo (${jId})`);
+            } else {
+                clics.push({ e: d.e, pts: d.p, j: jId, t: Date.now() });
+                clics = clics.filter(c => (Date.now() - c.t) < 2000);
+                const coinciden = clics.filter(c => c.e === d.e && c.pts === d.p);
+                const juecesUnicos = new Set(coinciden.map(c => c.j));
+                if (juecesUnicos.size >= modoJueces) {
+                    efectuarPunto(d.e, d.p, `Jueces Sincronizados`);
+                    clics = clics.filter(c => (c.e !== d.e || c.pts !== d.p));
+                }
+            }
+        });
+    }
+
+    function efectuarPunto(equipo, puntos, juecesTxt) {
+        if(bloqueoCombatePorVictoria || enModoDescanso) return;
+        if(equipo === 'rojo') rojo += puntos; else azul += puntos;
+        
+        interfazSonidos.playPunto();
+        dispararLogVisual(equipo, puntos, juecesTxt);
+        
+        const idAccion = Date.now();
+        historialAcciones.unshift({ id: idAccion, tipo: 'punto', equipo, puntos, procedencia: juecesTxt });
+        
+        actualizar();
+        renderizarHistorialConCorrecion();
+    }
+
+    function deshacerAccion(idAccion) {
+        const idx = historialAcciones.findIndex(a => a.id === idAccion);
+        if(idx === -1) return;
+
+        const accion = historialAcciones[idx];
+        if(accion.tipo === 'punto') {
+            if(accion.equipo === 'rojo') rojo = Math.max(0, rojo - accion.puntos);
+            else azul = Math.max(0, azul - accion.puntos);
+        } else if(accion.tipo === 'falta') {
+            if(accion.equipo === 'rojo') { gRojo = Math.max(0, gRojo - 1); azul = Math.max(0, azul - 1); }
+            else { gAzul = Math.max(0, gAzul - 1); rojo = Math.max(0, rojo - 1); }
+        }
+
+        historialAcciones.splice(idx, 1);
+        actualizar();
+        renderizarHistorialConCorrecion();
+        mostrarNotificacion("⚠️ Acción corregida y revertida con éxito");
+    }
+
+    function renderizarHistorialConCorrecion() {
+        const lista = document.getElementById("match-history-list");
+        if(historialAcciones.length === 0) {
+            lista.innerHTML = '<div class="history-item" style="color: gray;">Esperando acciones de combate...</div>';
             return;
         }
 
         let html = "";
-        listaFiltrada.forEach(c => {
-            let roundsTxt = c.detalles ? c.detalles.map(r => `R${r.round}: Az ${r.ptsAzul}(${r.gamAzul}G) - Rj ${r.ptsRojo}(${r.gamRojo}G)`).join("<br>") : "-";
-            html += `
-            <tr>
-                <td style="font-weight:bold; color:var(--accent-cyan);">${c.evento ? c.evento.toUpperCase() : 'GENERAL'}<br><small style="color:gray">Área ${c.area || 1}</small></td>
+        historialAcciones.forEach(a => {
+            html += `<div class="history-item">
+                <span style="color:${a.equipo==='azul'?'#4d7cff':'#ff4d4d'}">[R${round}] ${a.equipo.toUpperCase()} +${a.puntos || 1} (${a.procedencia})</span>
+                <button class="btn-undo-action" onclick="deshacerAccion(${a.id})">🗑️ Corregir</button>
+            </div>`;
+        });
+        lista.innerHTML = html;
+    }
+
+    function dispararLogVisual(equipo, puntos, juecesTxt) {
+        let nombreTecnica = puntos === 1 ? "Puño" : puntos === 2 ? "Peto" : puntos === 3 ? "Cabeza" : puntos === 4 ? "Giro Peto" : "Giro Cabeza";
+        const HTMLCard = `<div><strong>${nombreTecnica}</strong><br><small>${juecesTxt}</small></div><div style="font-size:15px; font-weight:bold; margin-left:auto;">+${puntos}</div>`;
+        inyectarCardLog(document.getElementById("visual-log-container"), equipo, HTMLCard);
+        if (ventanaTV && !ventanaTV.closed) { inyectarCardLog(ventanaTV.document.getElementById("tv-visual-log-container"), equipo, HTMLCard); }
+    }
+
+    function inyectarCardLog(contenedor, equipo, contenido) {
+        if(!contenedor) return;
+        const card = document.createElement("div");
+        card.style.cssText = `background:rgba(20,24,36,0.95); border-radius:8px; padding:6px 12px; display:flex; align-items:center; border-left:5px solid ${equipo==='azul'?'#0033cc':'#a00000'}; color:white; margin-bottom:4px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); font-size:11px; width:220px;`;
+        card.innerHTML = contenido;
+        contenedor.appendChild(card);
+        setTimeout(() => { card.remove(); }, 2500);
+    }
+
+    function puntoMesa(equipo, puntos) { efectuarPunto(equipo, puntos, 'Mesa Control'); }
+    
+    function switchTab(t) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('tab-btn-' + t).classList.add('active');
+        document.getElementById('tab-' + t).classList.add('active');
+    }
+
+    function setNombres() {
+        let az = document.getElementById("aname").value || "AZUL";
+        let rj = document.getElementById("rname").value || "ROJO";
+        let clB = document.getElementById("aclub").value || "CLUB/DELEGACIÓN";
+        let clR = document.getElementById("rclub").value || "CLUB/DELEGACIÓN";
+        document.getElementById("lbl-name-azul").innerText = az;
+        document.getElementById("lbl-name-rojo").innerText = rj;
+        document.getElementById("lbl-club-azul").innerText = clB;
+        document.getElementById("lbl-club-rojo").innerText = clR;
+        actualizarTV();
+    }
+
+    function cambiarConfigTiempo() {
+        if(!intervalo) {
+            const arr = document.getElementById("time-input").value.split(":");
+            if(arr.length === 2) {
+                tiempo = (parseInt(arr[0]) * 60) + parseInt(arr[1]);
+                let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+                document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
+                actualizarTV();
+            }
+        }
+    }
+
+    function cambiarModoJueces() {
+        modoJueces = parseInt(document.getElementById("judge-select").value);
+        mostrarNotificacion(`Sistema cambiado a ${modoJueces} Jueces`);
+    }
+
+    function penal(equipo) {
+        if(bloqueoCombatePorVictoria || enModoDescanso) return;
+
+        if (intervalo && intervalo !== "ESPERANDO_VALIDACION") {
+            mostrarNotificacion("⚠️ REGLAMENTO TKD: Para sancionar con Gam-jeom (Falta) debes pausar el combate primero.");
+            return;
+        }
+
+        interfazSonidos.playFalta(); 
+        if(equipo === 'azul') { gAzul++; rojo += 1; } 
+        else { gRojo++; azul += 1; }
+        
+        const idAccion = Date.now();
+        historialAcciones.unshift({ id: idAccion, tipo: 'falta', equipo, puntos: 1, procedencia: 'Gam-jeom' });
+        actualizar();
+        renderizarHistorialConCorrecion();
+
+        let maxGam = parseInt(document.getElementById("cfg-max-gamjeoms").value) || 5;
+        if(gAzul >= maxGam) {
+            pause(); interfazSonidos.playChicharraFinal();
+            mostrarNotificacion(`Límite de Gam-jeoms alcanzado (${maxGam}). ROJO gana este round.`, 4000);
+            estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Victoria por Gam-jeoms" });
+            wRojo++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+        } else if(gRojo >= maxGam) {
+            pause(); interfazSonidos.playChicharraFinal();
+            mostrarNotificacion(`Límite de Gam-jeoms alcanzado (${maxGam}). AZUL gana este round.`, 4000);
+            estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Victoria por Gam-jeoms" });
+            wAzul++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+        }
+    }
+
+    function restarPenal(equipo) {
+        if(bloqueoCombatePorVictoria || enModoDescanso) return;
+        if(equipo === 'azul' && gAzul > 0) {
+            gAzul--; if(rojo > 0) rojo--; 
+        } else if(equipo === 'rojo' && gRojo > 0) {
+            gRojo--; if(azul > 0) azul--; 
+        }
+        actualizar();
+    }
+
+    function restar(equipo) {
+        if(bloqueoCombatePorVictoria || enModoDescanso) return;
+        if(equipo === 'azul' && azul > 0) { azul--; }
+        if(equipo === 'rojo' && rojo > 0) { rojo--; }
+        actualizar();
+    }
+
+    function actualizar() {
+        document.getElementById("azul").innerText = azul;
+        document.getElementById("rojo").innerText = rojo;
+        document.getElementById("gAzul").innerText = gAzul;
+        document.getElementById("gRojo").innerText = gRojo;
+        document.getElementById("round").innerText = round;
+        document.getElementById("rw-azul").className = "rw-dot" + (wAzul>0 ? " b-won" : "");
+        document.getElementById("rw-azul").innerText = `AZUL: ${wAzul}`;
+        document.getElementById("rw-rojo").className = "rw-dot" + (wRojo>0 ? " r-won" : "");
+        document.getElementById("rw-rojo").innerText = `ROJO: ${wRojo}`;
+        actualizarTV();
+    }
+
+    function conmutarRelojMesa() { 
+        if (intervalo === "ESPERANDO_VALIDACION") {
+            intervalo = null; finalizarRound(); 
+        } else if(intervalo) { 
+            pause(); 
+        } else { 
+            start(); 
+        } 
+    }
+    
+    function start() {
+        if(bloqueoCombatePorVictoria) return;
+        if(intervalo && intervalo !== "ESPERANDO_VALIDACION") return;
+        interfazSonidos.playClickReloj();
+        
+        if (enModoDoctor) {
+            document.getElementById("btn-play").innerHTML = `TIEMPO MÉDICO CORRIENDO <span class="hint-key">[Espacio]</span>`;
+            document.getElementById("btn-play").style.background = "#d9534f";
+        } else if (enModoDescanso) {
+            document.getElementById("btn-play").innerHTML = `DESCANSO CORRIENDO <span class="hint-key">[Espacio]</span>`;
+            document.getElementById("btn-play").style.background = "#ffaa00";
+        } else {
+            document.getElementById("btn-play").innerHTML = `ROUND CORRIENDO <span class="hint-key">[Espacio]</span>`;
+            document.getElementById("btn-play").style.background = "#ffaa00";
+        }
+
+        intervalo = setInterval(() => {
+            if(tiempo > 0) {
+                tiempo--;
+                let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+                let txtTiempo = `${min}:${seg<10?'0':''}${seg}`;
+                
+                document.getElementById("tiempo").innerText = txtTiempo;
+                if (enModoDescanso) { document.getElementById("mesa-descanso-tiempo").innerText = txtTiempo; }
+                actualizarTV();
+            } else {
+                clearInterval(intervalo); intervalo = null;
+                interfazSonidos.playChicharraFinal();
+                
+                if (enModoDoctor) {
+                    pause(); mostrarNotificacion("¡TIEMPO MÉDICO AGOTADO! El competidor debe reincorporarse.", 4000);
+                } else if (enModoDescanso) { 
+                    finalizarDescansoYEntrarAlSiguienteRound(); 
+                } else { 
+                    document.getElementById("btn-play").innerHTML = `⚠️ VALIDAR MARCADOR Y CERRAR ROUND <span class="hint-key">[Espacio]</span>`;
+                    document.getElementById("btn-play").style.background = "#d4a373"; 
+                    intervalo = "ESPERANDO_VALIDACION";
+                }
+            }
+        }, 1000);
+    }
+
+    function pause() {
+        if(!intervalo) return;
+        clearInterval(intervalo); intervalo = null;
+        interfazSonidos.playClickReloj();
+        document.getElementById("btn-play").innerHTML = enModoDescanso ? `REANUDAR DESC. <span class="hint-key">[Espacio]</span>` : `START ROUND <span class="hint-key">[Espacio]</span>`;
+        document.getElementById("btn-play").style.background = "#28a745";
+    }
+
+    function finalizarRound() {
+        pause();
+        if(bloqueoCombatePorVictoria || enModoDescanso) return;
+        if(azul > rojo) { 
+            wAzul++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por puntos" });
+            azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+        } else if(rojo > azul) { 
+            wRojo++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por puntos" });
+            azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+        } else {
+            if(gAzul < gRojo) { 
+                wAzul++; mostrarNotificacion(`Empate (${azul}-${rojo}). Azul gana por menos Gam-jeoms.`, 3500); 
+                estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por menos Gam-jeoms" });
+                azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+            } else if(gRojo < gAzul) { 
+                wRojo++; mostrarNotificacion(`Empate (${azul}-${rojo}). Rojo gana por menos Gam-jeoms.`, 3500); 
+                estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por menos Gam-jeoms" });
+                azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+            } else {
+                document.getElementById("panel-superioridad").style.display = "flex";
+                mostrarNotificacion("Empate absoluto. Mesa Técnica decide Superioridad.", 3500);
+            }
+        }
+    }
+
+    function decidirSuperioridad(color) {
+        document.getElementById("panel-superioridad").style.display = "none";
+        if(color === 'azul') { wAzul++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por Superioridad" }); } 
+        else { wRojo++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por Superioridad" }); }
+        azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+    }
+
+    function evaluarSiguientePasoDeRounds() {
+        actualizar();
+        if(wAzul >= 2) { finalizarCombatePorReglamento(`AZUL GANADOR (${wAzul} vs ${wRojo})`, document.getElementById("lbl-name-azul").innerText, document.getElementById("lbl-club-azul").innerText); } 
+        else if(wRojo >= 2) { finalizarCombatePorReglamento(`ROJO GANADOR (${wRojo} vs ${wAzul})`, document.getElementById("lbl-name-rojo").innerText, document.getElementById("lbl-club-rojo").innerText); } 
+        else { iniciarDescansoReglamentario(); }
+    }
+
+    function iniciarDescansoReglamentario() {
+        enModoDescanso = true;
+        tiempo = parseInt(document.getElementById("cfg-rest-time").value) || 60;
+        let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+        let txtTiempo = `${min}:${seg<10?'0':''}${seg}`;
+        
+        document.getElementById("lbl-round-type").innerText = "DESCANSO";
+        document.getElementById("lbl-round-type").style.color = "#ff4500";
+        document.getElementById("tiempo").innerText = txtTiempo;
+        
+        document.getElementById("mesa-descanso-tiempo").innerText = txtTiempo;
+        document.getElementById("mesa-overlay-descanso").style.display = "flex";
+
+        actualizarTV();
+        start();
+    }
+
+    function finalizarDescansoYEntrarAlSiguienteRound() {
+        enModoDescanso = false; round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0;
+        
+        document.getElementById("mesa-overlay-descanso").style.display = "none";
+        document.getElementById("lbl-round-type").innerText = "ROUND";
+        document.getElementById("lbl-round-type").style.color = "#a0a5b5";
+        
+        if(ventanaTV && !ventanaTV.closed) {
+            ventanaTV.document.getElementById("tv-pantalla-descanso").style.display = "none";
+        }
+        cambiarConfigTiempo(); actualizar();
+    }
+
+    function forzarSiguienteRoundManual() {
+        pause(); 
+        if(enModoDescanso) { 
+            finalizarDescansoYEntrarAlSiguienteRound(); 
+        } else { 
+            round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; 
+            cambiarConfigTiempo(); actualizar(); 
+        }
+    }
+
+    // REGISTRA COMBATE CON FECHA/HORA Y DESPLIEGA ANUNCIO OBLIGATORIO
+    async function finalizarCombatePorReglamento(dictamenText, ganadorNombre, ganadorClub) {
+        pause(); bloqueoCombatePorVictoria = true;
+        document.getElementById("mesa-overlay-descanso").style.display = "none";
+        
+        if(canal) {
+            canal.publish('p', { type: 'LOCK_WINNER', color: dictamenText.includes("AZUL") ? 'azul' : 'rojo', name: ganadorNombre, club: ganadorClub });
+        }
+
+        const ahora = new Date();
+        const fechaTxt = ahora.toISOString().split('T')[0];
+        const horaTxt = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        const registroCombate = {
+            evento: EVENTO_ACTUAL || "general",
+            area: AREA_ACTUAL,
+            num: document.getElementById("cfg-combate-num").value,
+            categoria: document.getElementById("cfg-cat").value,
+            az: document.getElementById("lbl-name-azul").innerText,
+            clubAzul: document.getElementById("lbl-club-azul").innerText,
+            rj: document.getElementById("lbl-name-rojo").innerText,
+            clubRojo: document.getElementById("lbl-club-rojo").innerText,
+            res: dictamenText, 
+            ganador: dictamenText.includes("AZUL") ? "AZUL" : "ROJO",
+            detalles: [...estadisticasRounds],
+            torneo: document.getElementById("cfg-campeonato").value,
+            fecha: fechaTxt,
+            hora: horaTxt,
+            fechaHoraServer: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        combatesFinalizadosLogs.push(registroCombate);
+        reconstruirTablaGlobal();
+
+        try {
+            await db.collection("HistorialOficial").add(registroCombate);
+        } catch(e) {
+            console.error("Error al guardar en Firebase:", e);
+        }
+
+        renderizarPantallaGanadorLocalYTV(dictamenText.includes("AZUL") ? 'azul' : 'rojo', ganadorNombre, ganadorClub);
+    }
+
+    function renderizarPantallaGanadorLocalYTV(color, nombre, club) {
+        bloqueoCombatePorVictoria = true;
+        const pLocal = document.getElementById("pantalla-ganador");
+        const fondo = document.getElementById("ganador-fondo");
+        document.getElementById("ganador-texto").innerText = nombre;
+        document.getElementById("ganador-club-texto").innerText = club;
+        fondo.style.borderColor = (color === 'azul') ? "#00f2fe" : "#ff4d4d";
+        
+        // Pre-carga valores por defecto para el siguiente combate en los inputs
+        document.getElementById("modal-next-cat").value = document.getElementById("cfg-cat").value;
+        document.getElementById("modal-next-az-name").value = "";
+        document.getElementById("modal-next-az-club").value = "";
+        document.getElementById("modal-next-rj-name").value = "";
+        document.getElementById("modal-next-rj-club").value = "";
+
+        pLocal.style.display = "flex";
+
+        if(ventanaTV && !ventanaTV.closed) {
+            const doc = ventanaTV.document;
+            const modalGanador = doc.getElementById("tv-pantalla-ganador");
+            if(modalGanador) {
+                doc.getElementById("tv-ganador-texto").innerText = nombre;
+                doc.getElementById("tv-ganador-club").innerText = club;
+                doc.getElementById("tv-ganador-fondo").style.background = (color === 'azul') ? "#0022aa" : "#800000";
+                doc.getElementById("tv-ganador-fondo").style.borderColor = "#fff";
+                modalGanador.style.display = "flex";
+            }
+        }
+    }
+
+    function removerPantallaGanadorLocalYTV() {
+        bloqueoCombatePorVictoria = false;
+        document.getElementById("pantalla-ganador").style.display = "none";
+        if(ventanaTV && !ventanaTV.closed) {
+            const modalGanador = ventanaTV.document.getElementById("tv-pantalla-ganador");
+            if(modalGanador) modalGanador.style.display = "none";
+        }
+    }
+
+    function siguienteCombateListo() {
+        // Asigna las nuevas configuraciones ingresadas en la alerta
+        const nCat = document.getElementById("modal-next-cat").value.trim();
+        const nAzName = document.getElementById("modal-next-az-name").value.trim();
+        const nAzClub = document.getElementById("modal-next-az-club").value.trim();
+        const nRjName = document.getElementById("modal-next-rj-name").value.trim();
+        const nRjClub = document.getElementById("modal-next-rj-club").value.trim();
+
+        if(nCat) document.getElementById("cfg-cat").value = nCat;
+        document.getElementById("aname").value = nAzName;
+        document.getElementById("aclub").value = nAzClub;
+        document.getElementById("rname").value = nRjName;
+        document.getElementById("rclub").value = nRjClub;
+
+        if(canal) canal.publish('p', { type: 'UNLOCK_WINNER' }); 
+        removerPantallaGanadorLocalYTV();
+
+        document.getElementById("mesa-overlay-descanso").style.display = "none";
+        document.getElementById("cfg-combate-num").value = (parseInt(document.getElementById("cfg-combate-num").value) || 1) + 1;
+        
+        rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
+        historialAcciones = [];
+        enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
+        document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
+        
+        setNombres(); cambiarConfigTiempo();
+        renderizarHistorialConCorrecion();
+        actualizar();
+        mostrarNotificacion("✅ Nuevo combate listo para iniciar", 2500);
+    }
+
+    function resetMatch() {
+        pause(); rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
+        historialAcciones = [];
+        enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
+        document.getElementById("mesa-overlay-descanso").style.display = "none";
+        document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
+        document.getElementById("btn-medico").style.display = "block"; document.getElementById("btn-cancel-medico").style.display = "none";
+        setNombres(); cambiarConfigTiempo();
+        renderizarHistorialConCorrecion();
+        actualizar(); removerPantallaGanadorLocalYTV();
+        mostrarNotificacion("Arena restablecida", 2000);
+    }
+
+    function reconstruirTablaGlobal() {
+        const tbody = document.getElementById("day-global-table-body");
+        if(combatesFinalizadosLogs.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay registros archivados.</td></tr>'; return; }
+        let html = '';
+        combatesFinalizadosLogs.forEach(c => {
+            let roundsDesglose = c.detalles ? c.detalles.map(r => `R${r.round}: A:${r.ptsAzul}(${r.gamAzul}G) | R:${r.ptsRojo}(${r.gamRojo}G)`).join(" <br> ") : "-";
+            html += `<tr>
                 <td style="font-weight:bold; color:#ffaa00;">#${c.num}<br><small style="color:gray">${c.hora || ''}</small></td>
-                <td><strong>${c.categoria}</strong><br><span style="color:#4d7cff">Azul: ${c.az}</span><br><span style="color:#ff4d4d">Rojo: ${c.rj}</span></td>
-                <td style="font-size:10px;">${roundsTxt}</td>
-                <td style="font-weight:bold; color:#28a745;">${c.ganador || ''}<br><small>${c.res}</small></td>
+                <td><strong>${c.categoria}</strong><br><span style="color:#4d7cff">Az: ${c.az}</span> vs <span style="color:#ff4d4d">Rj: ${c.rj}</span></td>
+                <td style="font-size:10px;">${roundsDesglose}</td>
+                <td style="font-weight:bold; color:#28a745;">${c.ganador}<br><small>${c.res}</small></td>
             </tr>`;
         });
         tbody.innerHTML = html;
     }
 
-    // ELIMINA TODOS LOS REGISTROS DEL EVENTO SELECCIONADO
-    async function confirmarYEliminarEventoActual() {
-        if(eventoSeleccionadoFiltro === "TODOS") return;
+    function activarDoctor() {
+        if(enModoDoctor || bloqueoCombatePorVictoria) return;
+        pause(); enModoDoctor = true; tiempoGuardadoAntesDoc = tiempo; tiempo = 60; 
+        document.getElementById("btn-medico").style.display = "none"; 
+        document.getElementById("btn-cancel-medico").style.display = "block";
+        document.getElementById("lbl-round-type").innerText = "MÉDICO"; 
+        document.getElementById("lbl-round-type").style.color = "#d9534f";
+        document.getElementById("tiempo").innerText = "1:00";
+        actualizarTV();
+        start();
+    }
 
-        const confirmacion = confirm(`⚠️ ¿Estás seguro de que deseas ELIMINAR POR COMPLETO el evento "${eventoSeleccionadoFiltro}" y todos sus combates registrados?\n\nEsta acción no se puede deshacer.`);
-        if(!confirmacion) return;
+    function cancelarDoctorRápido() {
+        if(!enModoDoctor) return;
+        pause(); enModoDoctor = false; tiempo = tiempoGuardadoAntesDoc; 
+        document.getElementById("btn-medico").style.background = "#d9534f";
+        document.getElementById("btn-medico").style.display = "block"; 
+        document.getElementById("btn-cancel-medico").style.display = "none";
+        document.getElementById("lbl-round-type").innerText = enModoDescanso ? "DESCANSO" : "ROUND";
+        document.getElementById("lbl-round-type").style.color = enModoDescanso ? "#ff4500" : "#a0a5b5";
+        let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+        document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`; 
+        actualizar(); 
+    }
 
-        mostrarToast("Eliminando evento de Firebase...");
-
-        try {
-            const batch = db.batch();
-            const paraEliminar = todosLosCombatesRaw.filter(c => c.evento && c.evento.toUpperCase() === eventoSeleccionadoFiltro);
-
-            paraEliminar.forEach(c => {
-                if(c._idDoc) {
-                    const docRef = db.collection("HistorialOficial").doc(c._idDoc);
-                    batch.delete(docRef);
-                }
-            });
-
-            await batch.commit();
-            mostrarToast(`✅ Evento "${eventoSeleccionadoFiltro}" eliminado con éxito.`);
-            eventoSeleccionadoFiltro = "TODOS";
-            document.getElementById("btnBorrarEvento").style.display = "none";
-            document.getElementById("lblFiltroEvento").innerText = "TODOS LOS EVENTOS";
-
-        } catch(e) {
-            console.error("Error al eliminar evento:", e);
-            mostrarToast("❌ Error al intentar eliminar el evento.");
+    function editarTiempoManual() {
+        if(intervalo) return;
+        let nuevo = prompt("Modificar tiempo (MM:SS):", document.getElementById("tiempo").innerText);
+        if(nuevo) {
+            let arr = nuevo.split(":");
+            if(arr.length === 2) { tiempo = (parseInt(arr[0]) * 60) + parseInt(arr[1]); let min = Math.floor(tiempo / 60); let seg = tiempo % 60; document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`; actualizarTV(); }
         }
     }
 
-    function imprimirPDFConsolidadoMaster() {
-        let listaFiltrada = todosLosCombatesRaw.filter(c => {
-            if (eventoSeleccionadoFiltro === "TODOS") return true;
-            return c.evento && c.evento.toUpperCase() === eventoSeleccionadoFiltro;
-        });
+    function enviarPunto(equipo, puntos) { if(canal) canal.publish('p', { e: equipo, p: puntos }); }
 
-        if(listaFiltrada.length === 0) { mostrarToast("No hay registros para exportar."); return; }
-        const pz = document.getElementById("printable-admin-zone");
+    // GENERACIÓN CORREGIDA DE IMPRESIÓN Y DESCARGA PDF EN MESA
+    async function imprimirHistorialDelDia() {
+        mostrarNotificacion("Cargando reporte de combates...");
+        try {
+            const snapshot = await db.collection("HistorialOficial")
+                .where("evento", "==", EVENTO_ACTUAL)
+                .where("area", "==", AREA_ACTUAL)
+                .get();
+
+            let datosParaImprimir = [];
+            if (!snapshot.empty) {
+                snapshot.forEach(doc => datosParaImprimir.push(doc.data()));
+            } else {
+                datosParaImprimir = [...combatesFinalizadosLogs];
+            }
+
+            if (datosParaImprimir.length === 0) {
+                mostrarNotificacion("No hay combates registrados para imprimir.");
+                return;
+            }
+
+            const pz = document.getElementById("printable-print-zone");
+            let html = `<h2 style="text-align:center;margin-bottom:2px;color:black;">REPORTE OFICIAL DE RESULTADOS - ÁREA ${AREA_ACTUAL}</h2>
+                        <h4 style="text-align:center;margin-top:2px;color:#555;">EVENTO: ${EVENTO_ACTUAL.toUpperCase()} - FECHA: ${new Date().toLocaleDateString()}</h4>
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th>COMBATE / HORA</th>
+                                    <th>CATEGORÍA</th>
+                                    <th>COMPETIDORES</th>
+                                    <th>DESGLOSE POR ROUND</th>
+                                    <th>GANADOR Y DICTAMEN</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                            
+            datosParaImprimir.forEach(c => {
+                let rSub = c.detalles ? c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ") : "-";
+                html += `<tr>
+                    <td style="text-align:center;font-weight:bold;">#${c.num}<br><small>${c.hora || ''}</small></td>
+                    <td><strong>${c.categoria}</strong></td>
+                    <td>
+                        <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.clubAzul || 'SIN CLUB'})<br>
+                        <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
+                    </td>
+                    <td>${rSub}</td>
+                    <td style="font-weight:bold;color:green;">${c.ganador || ''}<br><small>${c.res}</small></td>
+                </tr>`;
+            });
+            
+            html += `</tbody></table>`; 
+            pz.innerHTML = html; 
+            
+            setTimeout(() => { window.print(); }, 250);
+
+        } catch (e) {
+            console.error("Error al generar PDF:", e);
+            mostrarNotificacion("Error al consultar combates para PDF.");
+        }
+    }
+
+    function abrirPantallaTV() {
+        if(ventanaTV && !ventanaTV.closed) { ventanaTV.focus(); return; }
+        ventanaTV = window.open("", "ScoreMasterTV", "width=1200,height=800");
+        let numCombateActual = document.getElementById("cfg-combate-num").value || "1";
+
+        let htmlTV = `<!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>TKD Bogotá Score Master - Pantalla Pública</title>
+            <style>
+                body { margin:0; background:#07090e; color:white; font-family:'Segoe UI', sans-serif; overflow:hidden; user-select:none; }
+                .tv-frame { display:flex; height:100vh; position:relative; }
+                .side { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2vh; }
+                .side.b { background:#0033cc; }
+                .side.r { background:#a00000; }
+                .name { font-size:6vh; font-weight:900; text-transform:uppercase; text-shadow:0 4px 8px rgba(0,0,0,0.6); text-align:center; max-width:95%; }
+                .club-sub { font-size:3vh; opacity:0.8; font-weight:bold; margin-top:1vh; text-transform:uppercase; }
+                .score { font-size:38vh; font-family:'Arial Black', sans-serif; font-weight:900; line-height:0.85; text-shadow:0 10px 20px rgba(0,0,0,0.8); margin-top:2vh; }
+                .center { width:26vw; background:linear-gradient(to right, rgba(160,0,0,0.3) 0%, #000 15%, #000 85%, rgba(0,51,204,0.3) 100%); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:4vh 0; box-sizing:border-box; z-index:5; }
+                .lbl { font-size:2.5vh; color:#a0a5b5; font-weight:bold; letter-spacing:3px; text-transform:uppercase; }
+                .r-num { font-size:10vh; font-weight:900; color:#ffaa00; line-height:1; }
+                .time { background:#151821; border:3px solid #ffaa00; color:white; font-size:10vh; padding:1vh 3vh; border-radius:15px; font-family:monospace; font-weight:bold; }
+                .gam-num { font-size:7vh; font-weight:900; color:white; }
+                .rw-dot { font-size: 2.8vh; font-weight: bold; padding: 0.5vh 2vh; border-radius: 8px; background: #222633; border: 2px solid #2a2f42; color: #666; width: 80%; text-align: center; }
+                #tv-pantalla-ganador, #tv-pantalla-descanso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); }
+                .tv-ganador-box, .tv-descanso-box { padding: 6vh; border-radius: 35px; border: 5px solid #ffaa00; max-width: 70%; width: 60%; text-align:center; }
+                .tv-descanso-box { background: #110a00; border-color: #ff5500; box-shadow: 0 0 50px rgba(255, 85, 0, 0.4); }
+                .tv-ganador-titulo, .tv-descanso-titulo { font-size: 4vh; color: #ffaa00; font-weight: bold; }
+                .tv-descanso-titulo { color: #ff5500; letter-spacing: 2px; }
+                .tv-ganador-nombre { font-size: 8vh; font-weight: 900; text-transform: uppercase; }
+                .tv-descanso-tiempo-gigante { font-size: 18vh; font-family: monospace; font-weight: bold; color: white; margin-top: 2vh; text-shadow: 0 0 20px rgba(255,255,255,0.4); }
+                .tv-ganador-club { font-size: 4vh; opacity: 0.9; }
+                .tv-log-container { position: absolute; top: 3vh; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 1vh; width: 22vw; }
+                .tv-combate-tag { background: #ffaa00; color: black; font-weight: 900; padding: 0.4vh 1.5vw; border-radius: 6px; font-size: 2.3vh; display: inline-block; margin-top: 0.8vh; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+            </style>
+        </head>
+        <body>
+            <div class="tv-log-container" id="tv-visual-log-container"></div>
+            <div id="tv-pantalla-ganador">
+                <div class="tv-ganador-box" id="tv-ganador-fondo">
+                    <div class="tv-ganador-titulo">COMBATE CONCLUIDO</div>
+                    <div class="tv-ganador-nombre" id="tv-ganador-texto">AZUL</div>
+                    <div class="tv-ganador-club" id="tv-ganador-club">DELEGACIÓN</div>
+                </div>
+            </div>
+            <div id="tv-pantalla-descanso">
+                <div class="tv-descanso-box">
+                    <div class="tv-descanso-titulo">TIEMPO DE DESCANSO</div>
+                    <div class="tv-descanso-tiempo-gigante" id="tv-descanso-tiempo">1:00</div>
+                </div>
+            </div>
+            <div class="tv-frame">
+                <div class="side r">
+                    <div class="name" id="tv-name-rojo">ROJO</div>
+                    <div class="club-sub" id="tv-club-rojo">CLUB</div>
+                    <div class="score" id="tv-rojo">0</div>
+                </div>
+                <div class="center">
+                    <div style="text-align:center;">
+                        <div class="lbl">ÁREA ${AREA_ACTUAL}</div>
+                        <div class="tv-combate-tag" id="tv-combate-label">COMBATE #${numCombateActual}</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div class="lbl" id="tv-lbl-round">ROUND</div>
+                        <div class="r-num" id="tv-round">1</div>
+                    </div>
+                    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1vh;">
+                        <div class="rw-dot" id="tv-rw-rojo">ROJO: 0</div>
+                        <div class="rw-dot" id="tv-rw-azul">AZUL: 0</div>
+                    </div>
+                    <div class="time" id="tv-tiempo">2:00</div>
+                    <div style="display:flex; justify-content:space-around; width:100%; font-size:2.5vh; font-weight:bold; color:#a0a5b5;">
+                        <div style="text-align:center;">GAM<div class="gam-num" id="tv-gRojo">0</div></div>
+                        <div style="text-align:center;">GAM<div class="gam-num" id="tv-gAzul">0</div></div>
+                    </div>
+                </div>
+                <div class="side b">
+                    <div class="name" id="tv-name-azul">AZUL</div>
+                    <div class="club-sub" id="tv-club-azul">CLUB</div>
+                    <div class="score" id="tv-azul">0</div>
+                </div>
+            </div>
+        </body>
+        </html>`;
+
+        ventanaTV.document.open(); 
+        ventanaTV.document.write(htmlTV); 
+        ventanaTV.document.close();
+        setTimeout(() => { actualizarTV(); }, 300);
+    }
+
+    function actualizarTV() {
+        if (!ventanaTV || ventanaTV.closed) return;
+        const doc = ventanaTV.document;
+        if (doc.getElementById("tv-name-azul")) doc.getElementById("tv-name-azul").innerText = document.getElementById("lbl-name-azul").innerText;
+        if (doc.getElementById("tv-name-rojo")) doc.getElementById("tv-name-rojo").innerText = document.getElementById("lbl-name-rojo").innerText;
+        if (doc.getElementById("tv-club-azul")) doc.getElementById("tv-club-azul").innerText = document.getElementById("lbl-club-azul").innerText;
+        if (doc.getElementById("tv-club-rojo")) doc.getElementById("tv-club-rojo").innerText = document.getElementById("lbl-club-rojo").innerText;
+        if (doc.getElementById("tv-azul")) doc.getElementById("tv-azul").innerText = azul;
+        if (doc.getElementById("tv-rojo")) doc.getElementById("tv-rojo").innerText = rojo;
+        if (doc.getElementById("tv-tiempo")) doc.getElementById("tv-tiempo").innerText = document.getElementById("tiempo").innerText;
+        if (doc.getElementById("tv-round")) doc.getElementById("tv-round").innerText = round;
+        if (doc.getElementById("tv-gAzul")) doc.getElementById("tv-gAzul").innerText = gAzul;
+        if (doc.getElementById("tv-gRojo")) doc.getElementById("tv-gRojo").innerText = gRojo;
+        if (doc.getElementById("tv-combate-label")) doc.getElementById("tv-combate-label").innerText = "COMBATE #" + (document.getElementById("cfg-combate-num").value || "1");
+        if (doc.getElementById("tv-lbl-round")) { doc.getElementById("tv-lbl-round").innerText = document.getElementById("lbl-round-type").innerText; doc.getElementById("tv-lbl-round").style.color = document.getElementById("lbl-round-type").style.color; }
+        if (doc.getElementById("tv-rw-azul")) { doc.getElementById("tv-rw-azul").className = "rw-dot" + (wAzul > 0 ? " b-won" : ""); doc.getElementById("tv-rw-azul").innerText = `AZUL: ${wAzul}`; }
+        if (doc.getElementById("tv-rw-rojo")) { doc.getElementById("tv-rw-rojo").className = "rw-dot" + (wRojo > 0 ? " r-won" : ""); doc.getElementById("tv-rw-rojo").innerText = `ROJO: ${wRojo}`; }
         
-        let html = `<h2 style="text-align:center;margin-bottom:2px;color:black;">REPORTE OFICIAL DE RESULTADOS</h2>
-                    <h4 style="text-align:center;margin-top:2px;color:#555;">FILTRO: ${eventoSeleccionadoFiltro} - FECHA GENERACIÓN: ${new Date().toLocaleDateString()}</h4>
-                    <table class="print-table">
-                        <thead>
-                            <tr>
-                                <th>EVENTO / ÁREA</th>
-                                <th>Nº / HORA</th>
-                                <th>CATEGORÍA</th>
-                                <th>COMPETIDORES</th>
-                                <th>DESGLOSE POR ROUND</th>
-                                <th>GANADOR Y DICTAMEN</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                        
-        listaFiltrada.forEach(c => {
-            let rSub = c.detalles ? c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ") : "-";
-            html += `<tr>
-                <td style="text-align:center;font-weight:bold;">${c.evento ? c.evento.toUpperCase() : 'GENERAL'}<br>Área ${c.area}</td>
-                <td style="text-align:center;font-weight:bold;">#${c.num}<br><small>${c.hora || ''}</small></td>
-                <td><strong>${c.categoria}</strong></td>
-                <td>
-                    <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.clubAzul || 'SIN CLUB'})<br>
-                    <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
-                </td>
-                <td>${rSub}</td>
-                <td style="font-weight:bold;color:green;">${c.ganador}<br><small>${c.res}</small></td>
-            </tr>`;
-        });
-        
-        html += `</tbody></table>`; 
-        pz.innerHTML = html; 
-        
-        setTimeout(() => { window.print(); }, 250);
+        const modalDescansoTV = doc.getElementById("tv-pantalla-descanso");
+        if (modalDescansoTV) {
+            if (enModoDescanso) {
+                doc.getElementById("tv-descanso-tiempo").innerText = document.getElementById("tiempo").innerText;
+                modalDescansoTV.style.display = "flex";
+            } else {
+                modalDescansoTV.style.display = "none";
+            }
+        }
     }
 </script>
 </body>
-</html>
