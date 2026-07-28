@@ -2,10 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Meta-tags para bloquear zoom táctil, escalado y gestos en móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pixel ScoreMaster TKD</title>
-    <!-- Carga de SDKs de Firebase vía CDN -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -34,41 +32,22 @@
             --text-gray: #a0a5b5;
         }
 
-        /* Bloqueo total de gestos y selecciones accidentales en el móvil */
         html, body { 
-            margin: 0; 
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden !important; 
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
+            margin: 0; padding: 0; width: 100%; height: 100dvh; 
+            overflow: hidden !important; touch-action: manipulation;
+            user-select: none; -webkit-user-select: none;
             font-family: 'Segoe UI', -apple-system, sans-serif; 
-            background: var(--bg-dark); 
-            color: white; 
+            background: var(--bg-dark); color: white; 
         }
 
-        /* MODAL DE CONFIGURACIÓN E INGRESO A LA MESA */
         #modalAcceso {
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            background: rgba(7, 9, 14, 0.98); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            z-index: 9999999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(7, 9, 14, 0.98); display: flex; 
+            justify-content: center; align-items: center; z-index: 9999999;
         }
         .modal-box {
-            background: #121824; 
-            border: 2px solid #00f2fe; 
-            border-radius: 12px; 
-            padding: 30px; 
-            width: 380px; 
-            text-align: center; 
-            color: white; 
+            background: #121824; border: 2px solid #00f2fe; border-radius: 12px; 
+            padding: 30px; width: 380px; text-align: center; color: white; 
             box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);
         }
 
@@ -80,7 +59,7 @@
         .btn-top:hover { background: #2d3247; }
         .btn-stream { background: #ffaa00; color: #000; border: none; }
 
-        .main-container { display: flex; flex: 1; padding: 12px; gap: 12px; height: calc(100vh - 40px); box-sizing: border-box; }
+        .main-container { display: flex; flex: 1; padding: 12px; gap: 12px; height: calc(100dvh - 40px); box-sizing: border-box; }
         .left-arena { flex: 1.3; display: flex; flex-direction: column; gap: 10px; }
         .scoreboard-frame { flex: 1; background: #07090e; border-radius: 12px; border: 1px solid var(--panel-border); display: flex; position: relative; overflow: hidden; }
         .side { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
@@ -157,98 +136,55 @@
         .ganador-club { font-size: 20px; opacity: 0.9; margin-bottom: 30px; font-weight: 600; }
 
         /* ==========================================
-           INTERFAZ JUEZ REDISEÑADA CON CSS GRID
-           (Garantiza que el 100% quepa sin scroll)
+           INTERFAZ JUEZ ULTRA-COMPACTA (AJUSTE DINÁMICO REAL 100dvh)
            ========================================== */
         #juez-ui { 
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100vw; 
-            height: 100vh; 
-            background: #0b0c10; 
-            z-index: 999999; 
-            flex-direction: column; 
-            box-sizing: border-box;
-            padding: 4px;
-            overflow: hidden;
+            display: none; position: fixed; top: 0; left: 0; 
+            width: 100vw; height: 100dvh; background: #07090e; 
+            z-index: 999999; flex-direction: column; box-sizing: border-box; 
+            padding: 4px; overflow: hidden;
         }
 
         .header-juez {
-            height: 35px;
-            background: #121824;
-            border: 1px solid #2a2f42;
-            text-align: center;
-            font-weight: 900;
-            border-radius: 6px;
-            color: #ffaa00;
-            font-size: 13px;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            height: 30px; background: #121824; border: 1px solid #2a2f42; 
+            text-align: center; font-weight: 900; border-radius: 6px; 
+            color: #ffaa00; font-size: 12px; letter-spacing: 1px; 
+            display: flex; align-items: center; justify-content: center; 
+            flex-shrink: 0; margin-bottom: 4px;
         }
 
-        .juez-main-grid {
+        .juez-container-grid {
             display: grid;
-            grid-template-rows: 1fr 1.6fr 1.4fr 1.1fr;
+            grid-template-rows: 1fr 1.8fr 1.4fr 1fr;
             gap: 4px;
-            height: calc(100vh - 47px);
+            height: calc(100dvh - 42px);
             width: 100%;
         }
 
-        .juez-row-split {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4px;
-            height: 100%;
-        }
-
-        .juez-row-quad {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 4px;
-            height: 100%;
-        }
+        .juez-split-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; height: 100%; }
+        .juez-split-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; height: 100%; }
 
         .btn-juez-new {
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: 900;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-sizing: border-box;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            touch-action: manipulation;
-            width: 100%;
-            height: 100%;
+            border: none; border-radius: 8px; color: white; font-weight: 900;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; box-sizing: border-box; text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            touch-action: manipulation; width: 100%; height: 100%;
         }
 
-        .btn-juez-new:active {
-            transform: scale(0.96);
-            filter: brightness(1.3);
-        }
+        .btn-juez-new:active { transform: scale(0.95); filter: brightness(1.2); }
 
-        /* Colores */
         .btn-juez-new.azul { background: #0033cc; border: 1.5px solid #3366ff; }
         .btn-juez-new.rojo { background: #a00000; border: 1.5px solid #ff3333; }
 
-        /* Fuentes adaptables */
-        .btn-juez-new .lbl-tag { font-size: clamp(10px, 2vh, 14px); text-transform: uppercase; opacity: 0.9; font-weight: bold; }
-        .btn-juez-new .lbl-val { font-size: clamp(20px, 4vh, 36px); line-height: 1; margin-top: 2px; }
-        .btn-juez-new.sm .lbl-tag { font-size: clamp(9px, 1.5vh, 12px); }
-        .btn-juez-new.sm .lbl-val { font-size: clamp(16px, 3vh, 26px); }
+        .btn-juez-new .lbl-tag { font-size: 11px; text-transform: uppercase; opacity: 0.9; font-weight: bold; }
+        .btn-juez-new .lbl-val { font-size: 26px; line-height: 1; font-weight: 900; margin-top: 1px; }
+
+        .btn-juez-new.sm .lbl-tag { font-size: 9px; }
+        .btn-juez-new.sm .lbl-val { font-size: 18px; }
     </style>
 </head>
 <body>
 
-<!-- MODAL FLOTANTE DE CONFIGURACIÓN E INGRESO -->
 <div id="modalAcceso">
   <div class="modal-box">
     <h2 style="margin-top: 0; color: #00f2fe; text-transform: uppercase; letter-spacing: 1px;">Mesa de Control</h2>
@@ -452,13 +388,11 @@
     </div>
 </div>
 
-<!-- MANDO DEL JUEZ ESTRUCTURADO EN GRID (NUNCA SE HACE SCROLL) -->
 <div id="juez-ui">
     <div class="header-juez">ÁREA <span id="displayAreaJuez">1</span> — MANDO REMOTO JUEZ</div>
     
-    <div class="juez-main-grid">
-        <!-- Fila 1: PUÑO -->
-        <div class="juez-row-split">
+    <div class="juez-container-grid">
+        <div class="juez-split-2">
             <button class="btn-juez-new azul" onclick="enviarPunto('azul', 1)">
                 <span class="lbl-tag">Puño</span>
                 <span class="lbl-val">+1</span>
@@ -469,8 +403,7 @@
             </button>
         </div>
 
-        <!-- Fila 2: PETO -->
-        <div class="juez-row-split">
+        <div class="juez-split-2">
             <button class="btn-juez-new azul" onclick="enviarPunto('azul', 2)">
                 <span class="lbl-tag">Peto</span>
                 <span class="lbl-val">+2</span>
@@ -481,8 +414,7 @@
             </button>
         </div>
 
-        <!-- Fila 3: CASCO -->
-        <div class="juez-row-split">
+        <div class="juez-split-2">
             <button class="btn-juez-new azul" onclick="enviarPunto('azul', 3)">
                 <span class="lbl-tag">Casco</span>
                 <span class="lbl-val">+3</span>
@@ -493,8 +425,7 @@
             </button>
         </div>
 
-        <!-- Fila 4: GIROS (+4 Y +6) -->
-        <div class="juez-row-quad">
+        <div class="juez-split-4">
             <button class="btn-juez-new azul sm" onclick="enviarPunto('azul', 4)">
                 <span class="lbl-tag">G. Peto</span>
                 <span class="lbl-val">+4</span>
@@ -516,7 +447,6 @@
 </div>
 
 <script>
-    // Variables de control global
     let accesoConcedido = false;
     let EVENTO_ACTUAL = "";
     let AREA_ACTUAL = "1";
@@ -528,6 +458,26 @@
 
     let ably, canal;
 
+    /* REPRODUCTOR DE SONIDOS MP3 REALES DE ALTA CALIDAD */
+    const interfazSonidos = {
+        sndPunto: new Audio("https://actions.google.com/sounds/v1/user_interface/button_click.ogg"),
+        sndFalta: new Audio("https://actions.google.com/sounds/v1/sports/whistle_short.ogg"),
+        sndClick: new Audio("https://actions.google.com/sounds/v1/user_interface/digital_button_press.ogg"),
+        sndBuzzer: new Audio("https://actions.google.com/sounds/v1/emergency/beeper_emergency.ogg"),
+
+        playPunto() { this.reproducir(this.sndPunto); },
+        playFalta() { this.reproducir(this.sndFalta); },
+        playClickReloj() { this.reproducir(this.sndClick); },
+        playChicharraFinal() { this.reproducir(this.sndBuzzer); },
+
+        reproducir(audio) {
+            try {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log("Audio bloqueado por el navegador:", e));
+            } catch(e) {}
+        }
+    };
+
     function generarQRJuez() {
         const contenedorQR = document.getElementById("qrcode");
         if(!contenedorQR) return;
@@ -536,11 +486,7 @@
         const urlGitHubPages = "https://aguilarrivan1-pixel.github.io/pixel-scoremaster-web/"; 
         const urlJuez = `${urlGitHubPages}?mode=juez&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}`;
         
-        new QRCode(contenedorQR, { 
-            text: urlJuez, 
-            width: 85, 
-            height: 85 
-        });
+        new QRCode(contenedorQR, { text: urlJuez, width: 85, height: 85 });
     }
 
     async function validarEIngresarMesa() {
@@ -578,9 +524,6 @@
                     subscribirEventosAbly();
 
                     generarQRJuez();
-
-                    try { interfazSonidos.inicializar(); } catch(e) {}
-
                     document.getElementById("modalAcceso").style.display = "none";
                 } else {
                     lblError.innerText = "Contraseña incorrecta.";
@@ -613,52 +556,6 @@
         ably = new Ably.Realtime({ key: API_KEY });
         canal = ably.channels.get(ABLY_CHANNEL_NAME);
     }
-
-    /* REGENERACIÓN COMPLETA DE SINTETIZADOR DE SONIDOS */
-    const interfazSonidos = {
-        ctx: null,
-        inicializar() {
-            if (!this.ctx) {
-                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        },
-        emitirTono(frecuencia, tipo, duracion, volumen, retrasoInicio = 0) {
-            this.inicializar();
-            try {
-                let osc = this.ctx.createOscillator();
-                let gain = this.ctx.createGain();
-                
-                osc.type = tipo;
-                osc.frequency.setValueAtTime(frecuencia, this.ctx.currentTime + retrasoInicio);
-                
-                gain.gain.setValueAtTime(volumen, this.ctx.currentTime + retrasoInicio);
-                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + retrasoInicio + duracion);
-                
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                
-                osc.start(this.ctx.currentTime + retrasoInicio);
-                osc.stop(this.ctx.currentTime + retrasoInicio + duracion);
-            } catch(e) { console.log("Error de Audio:", e); }
-        },
-        // Sonido de Punto: Tono agudo y ultracorto tipo click electrónico
-        playPunto() { 
-            this.emitirTono(1200, 'sine', 0.08, 0.4); 
-        },
-        // Sonido de Falta (Gam-jeom): Dos golpes graves y secos
-        playFalta() {
-            this.emitirTono(300, 'sawtooth', 0.1, 0.4);
-            this.emitirTono(200, 'sawtooth', 0.15, 0.4, 0.08); 
-        },
-        // Click del reloj
-        playClickReloj() { 
-            this.emitirTono(600, 'triangle', 0.03, 0.2); 
-        },
-        // Chicharra final de Round
-        playChicharraFinal() { 
-            this.emitirTono(180, 'sawtooth', 1.5, 0.6); 
-        }
-    };
 
     let rojo=0, azul=0, gRojo=0, gAzul=0, tiempo=120, tiempoGuardadoAntesDoc=120, intervalo=null, round=1, wRojo=0, wAzul=0, clics=[];
     let modoJueces = 2;
@@ -883,7 +780,7 @@
                 
                 if (enModoDoctor) {
                     pause();
-                    window.alert("¡TIEMPO MÉDICO AGOTADO! El competidor debe reincorporarse o se declarará K.O. Técnico / Retiro.");
+                    window.alert("¡TIEMPO MÉDICO AGOTADO! El competidor debe reincorporarse.");
                 } else if (enModoDescanso) { 
                     finalizarDescansoYEntrarAlSiguienteRound(); 
                 } else { 
