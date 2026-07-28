@@ -500,14 +500,16 @@
 
     let ably, canal;
 
-    // Generador de QR dinámico para los jueces
+    // Generador de QR dinámico para los jueces vía GitHub Pages
     function generarQRJuez() {
         const contenedorQR = document.getElementById("qrcode");
         if(!contenedorQR) return;
         contenedorQR.innerHTML = "";
         
-        const urlBase = window.location.href.split('?')[0];
-        const urlJuez = `${urlBase}?mode=juez&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}`;
+        // Pega aquí la URL pública de tu repositorio en GitHub Pages:
+        const urlGitHubPages = "https://TU-USUARIO.github.io/pixel-scoremaster-web/index.html"; 
+        
+        const urlJuez = `${https://aguilarrivan1-pixel.github.io/pixel-scoremaster-web/}?mode=juez&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}`;
         
         new QRCode(contenedorQR, { 
             text: urlJuez, 
