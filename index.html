@@ -500,16 +500,14 @@
 
     let ably, canal;
 
-    // Generador de QR dinámico para los jueces vía GitHub Pages
+    // Generador de QR dinámico para los jueces
     function generarQRJuez() {
         const contenedorQR = document.getElementById("qrcode");
         if(!contenedorQR) return;
         contenedorQR.innerHTML = "";
         
-        // Pega aquí la URL pública de tu repositorio en GitHub Pages:
-        const urlGitHubPages = "https://TU-USUARIO.github.io/pixel-scoremaster-web/index.html"; 
-        
-        const urlJuez = `${https://aguilarrivan1-pixel.github.io/pixel-scoremaster-web/}?mode=juez&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}`;
+        const urlBase = window.location.href.split('?')[0];
+        const urlJuez = `${urlBase}?mode=juez&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}`;
         
         new QRCode(contenedorQR, { 
             text: urlJuez, 
@@ -1190,7 +1188,7 @@
                     <div class="time" id="tv-tiempo">2:00</div>
                     <div style="display:flex; justify-content:space-around; width:100%; font-size:2.5vh; font-weight:bold; color:#a0a5b5;">
                         <div style="text-align:center;">GAM<div class="gam-num" id="tv-gRojo">0</div></div>
-                        <div style="text-align:center;">GAM<div class="gam-num" id="tv-gRojo">0</div></div>
+                        <div style="text-align:center;">GAM<div class="gam-num" id="tv-gAzul">0</div></div>
                     </div>
                 </div>
                 <div class="side b">
