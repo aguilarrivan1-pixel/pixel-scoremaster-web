@@ -135,12 +135,11 @@
         .ganador-nombre { font-size: 48px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .ganador-club { font-size: 20px; opacity: 0.9; margin-bottom: 30px; font-weight: 600; }
 
-        /* OVERLAY VISUAL DE DESCANSO PARA LA MESA DE CONTROL */
         #mesa-overlay-descanso {
             display: none;
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(17, 10, 0, 0.94);
+            background: rgba(17, 10, 0, 0.96);
             border: 3px solid #ff5500;
             border-radius: 12px;
             z-index: 99;
@@ -149,7 +148,6 @@
             justify-content: center;
         }
 
-        /* INTERFAZ JUEZ ERGONÓMICA CON GRID */
         #juez-ui { 
             display: none; position: fixed; top: 0; left: 0; 
             width: 100vw; height: 100dvh; background: #07090e; 
@@ -251,10 +249,9 @@
     <div class="main-container">
         <div class="left-arena">
             <div class="scoreboard-frame">
-                <!-- OVERLAY VISUAL EN LA MESA DURANTE DESCANSO -->
                 <div id="mesa-overlay-descanso">
-                    <div style="font-size: 18px; color: #ff5500; font-weight: bold; letter-spacing: 2px;">TIEMPO DE DESCANSO</div>
-                    <div id="mesa-descanso-tiempo" style="font-size: 80px; font-family: monospace; font-weight: bold; color: white; margin-top: 10px;">1:00</div>
+                    <div style="font-size: 20px; color: #ff5500; font-weight: bold; letter-spacing: 2px;">TIEMPO DE DESCANSO</div>
+                    <div id="mesa-descanso-tiempo" style="font-size: 90px; font-family: monospace; font-weight: bold; color: white; margin-top: 10px;">1:00</div>
                 </div>
 
                 <div class="side b-side">
@@ -476,7 +473,7 @@
 
     let ably, canal;
 
-    /* SINTETIZADOR DE AUDIOS NATIVO 100% COMPATIBLE SIN RIESGO DE BLOQUEO EN NAVEGADOR */
+    /* SINTETIZADOR POTENTE DE AUDIOS COMPUESTOS (POTENCIA DE COLISEO) */
     const interfazSonidos = {
         ctx: null,
         inicializar() {
@@ -487,37 +484,89 @@
                 this.ctx.resume();
             }
         },
-        emitirTono(frecuencia, tipo, duracion, volumen, retrasoInicio = 0) {
+        playPunto() { 
+            this.inicializar();
+            try {
+                // Tono dual compuesto brillante para marcar el punto con contundencia
+                let o1 = this.ctx.createOscillator();
+                let o2 = this.ctx.createOscillator();
+                let g = this.ctx.createGain();
+
+                o1.type = 'sawtooth';
+                o2.type = 'sine';
+                
+                o1.frequency.setValueAtTime(880, this.ctx.currentTime); // Nota La5
+                o1.frequency.exponentialRampToValueAtTime(1760, this.ctx.currentTime + 0.12);
+                
+                o2.frequency.setValueAtTime(1320, this.ctx.currentTime);
+                o2.frequency.exponentialRampToValueAtTime(2640, this.ctx.currentTime + 0.12);
+
+                g.gain.setValueAtTime(0.6, this.ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+
+                o1.connect(g); o2.connect(g);
+                g.connect(this.ctx.destination);
+
+                o1.start(); o2.start();
+                o1.stop(this.ctx.currentTime + 0.12);
+                o2.stop(this.ctx.currentTime + 0.12);
+            } catch(e){}
+        },
+        playFalta() {
+            this.inicializar();
+            try {
+                // Alarma doble grave y pesada para penalizaciones (Gam-jeom)
+                [0, 0.12].forEach((delay, idx) => {
+                    let osc = this.ctx.createOscillator();
+                    let g = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(idx === 0 ? 280 : 200, this.ctx.currentTime + delay);
+                    g.gain.setValueAtTime(0.7, this.ctx.currentTime + delay);
+                    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + 0.18);
+                    osc.connect(g); g.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + delay);
+                    osc.stop(this.ctx.currentTime + delay + 0.18);
+                });
+            } catch(e){}
+        },
+        playClickReloj() { 
             this.inicializar();
             try {
                 let osc = this.ctx.createOscillator();
-                let gain = this.ctx.createGain();
-                
-                osc.type = tipo;
-                osc.frequency.setValueAtTime(frecuencia, this.ctx.currentTime + retrasoInicio);
-                
-                gain.gain.setValueAtTime(volumen, this.ctx.currentTime + retrasoInicio);
-                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + retrasoInicio + duracion);
-                
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                
-                osc.start(this.ctx.currentTime + retrasoInicio);
-                osc.stop(this.ctx.currentTime + retrasoInicio + duracion);
-            } catch(e) { console.log("Error de Audio:", e); }
-        },
-        playPunto() { 
-            this.emitirTono(1400, 'sine', 0.08, 0.5); 
-        },
-        playFalta() {
-            this.emitirTono(350, 'sawtooth', 0.12, 0.5);
-            this.emitirTono(220, 'sawtooth', 0.18, 0.5, 0.1); 
-        },
-        playClickReloj() { 
-            this.emitirTono(700, 'triangle', 0.04, 0.2); 
+                let g = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(900, this.ctx.currentTime);
+                g.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+                osc.connect(g); g.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.04);
+            } catch(e){}
         },
         playChicharraFinal() { 
-            this.emitirTono(200, 'sawtooth', 1.3, 0.7); 
+            this.inicializar();
+            try {
+                // Bocina masiva de estadio (siren/buzzer) con modulación profunda
+                let osc1 = this.ctx.createOscillator();
+                let osc2 = this.ctx.createOscillator();
+                let g = this.ctx.createGain();
+
+                osc1.type = 'sawtooth';
+                osc2.type = 'square';
+
+                osc1.frequency.setValueAtTime(160, this.ctx.currentTime);
+                osc2.frequency.setValueAtTime(165, this.ctx.currentTime); // Desafinación para efecto distorsionado potente
+
+                g.gain.setValueAtTime(0.8, this.ctx.currentTime);
+                g.gain.setValueAtTime(0.8, this.ctx.currentTime + 1.2);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.5);
+
+                osc1.connect(g); osc2.connect(g);
+                g.connect(this.ctx.destination);
+
+                osc1.start(); osc2.start();
+                osc1.stop(this.ctx.currentTime + 1.5);
+                osc2.stop(this.ctx.currentTime + 1.5);
+            } catch(e){}
         }
     };
 
@@ -724,8 +773,15 @@
         registrarEnHistorial('azul', 0, `Sistema cambiado a ${modoJueces} Jueces`);
     }
 
+    /* APLICACIÓN REGLAMENTARIA: GAM-JEOMS SOLO SE APLICAN EN PAUSA */
     function penal(equipo) {
         if(bloqueoCombatePorVictoria || enModoDescanso) return;
+
+        if (intervalo && intervalo !== "ESPERANDO_VALIDACION") {
+            window.alert("⚠️ REGLAMENTO TKD: Para sancionar con Gam-jeom (Falta) debes pausar el combate primero.");
+            return;
+        }
+
         interfazSonidos.playFalta(); 
         if(equipo === 'azul') { gAzul++; rojo += 1; registrarEnHistorial('azul', 0, 'Gam-jeom otorgado (Punto a Rojo)'); } 
         else { gRojo++; azul += 1; registrarEnHistorial('rojo', 0, 'Gam-jeom otorgado (Punto a Azul)'); }
@@ -792,7 +848,7 @@
     
     function start() {
         if(bloqueoCombatePorVictoria) return;
-        if(intervalo) return;
+        if(intervalo && intervalo !== "ESPERANDO_VALIDACION") return;
         interfazSonidos.playClickReloj();
         
         if (enModoDoctor) {
@@ -818,12 +874,7 @@
                     document.getElementById("mesa-descanso-tiempo").innerText = txtTiempo;
                 }
                 
-                if(ventanaTV && !ventanaTV.closed) { 
-                    ventanaTV.document.getElementById("tv-tiempo").innerText = txtTiempo; 
-                    if(enModoDescanso) {
-                        ventanaTV.document.getElementById("tv-descanso-tiempo").innerText = txtTiempo;
-                    }
-                }
+                actualizarTV();
             } else {
                 clearInterval(intervalo); intervalo = null;
                 interfazSonidos.playChicharraFinal();
@@ -892,30 +943,23 @@
     function iniciarDescansoReglamentario() {
         enModoDescanso = true;
         tiempo = parseInt(document.getElementById("cfg-rest-time").value) || 60;
-        let txtTiempo = `1:00`;
+        let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+        let txtTiempo = `${min}:${seg<10?'0':''}${seg}`;
         
         document.getElementById("lbl-round-type").innerText = "DESCANSO";
         document.getElementById("lbl-round-type").style.color = "#ff4500";
         document.getElementById("tiempo").innerText = txtTiempo;
         
-        /* MOSTRAR OVERLAY DE DESCANSO EN LA MESA */
         document.getElementById("mesa-descanso-tiempo").innerText = txtTiempo;
         document.getElementById("mesa-overlay-descanso").style.display = "flex";
 
-        /* MOSTRAR OVERLAY DE DESCANSO EN LA TV */
-        if(ventanaTV && !ventanaTV.closed) {
-            ventanaTV.document.getElementById("tv-lbl-round").innerText = "DESCANSO";
-            ventanaTV.document.getElementById("tv-lbl-round").style.color = "#ff4500";
-            ventanaTV.document.getElementById("tv-descanso-tiempo").innerText = txtTiempo;
-            ventanaTV.document.getElementById("tv-pantalla-descanso").style.display = "flex";
-        }
+        actualizarTV();
         start();
     }
 
     function finalizarDescansoYEntrarAlSiguienteRound() {
         enModoDescanso = false; round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0;
         
-        /* OCULTAR OVERLAYS DE DESCANSO */
         document.getElementById("mesa-overlay-descanso").style.display = "none";
         document.getElementById("lbl-round-type").innerText = "ROUND";
         document.getElementById("lbl-round-type").style.color = "#a0a5b5";
@@ -1045,11 +1089,7 @@
         document.getElementById("lbl-round-type").innerText = "MÉDICO"; 
         document.getElementById("lbl-round-type").style.color = "#d9534f";
         document.getElementById("tiempo").innerText = "1:00";
-        if(ventanaTV && !ventanaTV.closed) { 
-            ventanaTV.document.getElementById("tv-lbl-round").innerText = "MÉDICO"; 
-            ventanaTV.document.getElementById("tv-lbl-round").style.color = "#d9534f"; 
-            ventanaTV.document.getElementById("tv-tiempo").innerText = "1:00";
-        }
+        actualizarTV();
         start();
     }
 
@@ -1223,6 +1263,17 @@
         if (doc.getElementById("tv-lbl-round")) { doc.getElementById("tv-lbl-round").innerText = document.getElementById("lbl-round-type").innerText; doc.getElementById("tv-lbl-round").style.color = document.getElementById("lbl-round-type").style.color; }
         if (doc.getElementById("tv-rw-azul")) { doc.getElementById("tv-rw-azul").className = "rw-dot" + (wAzul > 0 ? " b-won" : ""); doc.getElementById("tv-rw-azul").innerText = `AZUL: ${wAzul}`; }
         if (doc.getElementById("tv-rw-rojo")) { doc.getElementById("tv-rw-rojo").className = "rw-dot" + (wRojo > 0 ? " r-won" : ""); doc.getElementById("tv-rw-rojo").innerText = `ROJO: ${wRojo}`; }
+        
+        /* SINCRONIZAR PANTALLA FLOTANTE DE DESCANSO EN LA TV */
+        const modalDescansoTV = doc.getElementById("tv-pantalla-descanso");
+        if (modalDescansoTV) {
+            if (enModoDescanso) {
+                doc.getElementById("tv-descanso-tiempo").innerText = document.getElementById("tiempo").innerText;
+                modalDescansoTV.style.display = "flex";
+            } else {
+                modalDescansoTV.style.display = "none";
+            }
+        }
     }
 </script>
 </body>
