@@ -64,8 +64,7 @@
         .live-tag { color: #28a745; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 6px; }
         .dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
 
-        /* BARRA DE PESTAÑAS DETECTADAS EN TIEMPO REAL */
-        .event-tabs-bar { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid var(--panel-border); }
+        .event-tabs-bar { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid var(--panel-border); align-items: center; }
         .tab-ev-btn { background: #1a202c; border: 1px solid var(--panel-border); color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; text-transform: uppercase; white-space: nowrap; }
         .tab-ev-btn.active { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
 
@@ -81,13 +80,13 @@
         .sec-input { width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 12px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight: bold; }
         .btn-cyan { width: 100%; padding: 10px; background: var(--accent-cyan); border: none; color: #000; font-weight: 900; border-radius: 6px; cursor: pointer; text-transform: uppercase; font-size: 12px; }
         .btn-refresh { background: var(--accent-cyan); color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; }
+        .btn-delete-ev { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-left: 8px; }
         .btn-pdf { background: #0056b3; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; font-size: 12px; }
 
         .areas-live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 15px; }
         .area-box { background: #0d111a; border: 1px solid #2a2f42; padding: 10px; border-radius: 8px; text-align: center; }
         .area-box.active { border-color: #28a745; box-shadow: 0 0 8px rgba(40,167,69,0.2); }
 
-        /* CORRECCIÓN DE IMPRESIÓN PDF */
         #printable-admin-zone { display: none; }
         @media print {
             body * { visibility: hidden !important; }
@@ -126,7 +125,7 @@
     <div class="live-tag"><div class="dot"></div> MONITOREO GENERAL EN VIVO</div>
 </div>
 
-<!-- BARRA DINÁMICA DE EVENTOS REGISTRADOS EN VIVO -->
+<!-- BARRA DINÁMICA DE EVENTOS DETECTADOS -->
 <div class="event-tabs-bar" id="eventTabsBar">
     <button class="tab-ev-btn active" onclick="filtrarPorEvento('TODOS', this)">🌐 TODOS LOS EVENTOS</button>
 </div>
@@ -134,7 +133,7 @@
 <!-- MONITOR DE ÁREAS ACTIVAS -->
 <div class="panel-card" style="margin-bottom: 15px;">
     <div class="card-header">
-        <span>🌐 Áreas transmitiendo en vivo</span>
+        <span>🌐 Áreas transmitiendo en vivo (<span id="cantAreasActivas">0</span> activas)</span>
     </div>
     <div class="areas-live-grid" id="areasLiveContainer">
         <div style="color:gray; font-size:12px;">Cargando transmisión de áreas...</div>
@@ -144,8 +143,11 @@
 <div class="main-grid">
     <div class="panel-card">
         <div class="card-header">
-            <span>Historial Oficial de Combates (<span id="lblFiltroEvento">TODOS LOS EVENTOS</span>)</span>
-            <button class="btn-refresh" onclick="cargarHistorialOficial()">🔄 ACTUALIZAR</button>
+            <span>Historial Oficial (<span id="lblFiltroEvento">TODOS LOS EVENTOS</span>)</span>
+            <div>
+                <button class="btn-refresh" onclick="cargarHistorialOficial()">🔄 ACTUALIZAR</button>
+                <button class="btn-delete-ev" id="btnBorrarEvento" style="display:none;" onclick="confirmarYEliminarEventoActual()">🗑️ ELIMINAR EVENTO</button>
+            </div>
         </div>
 
         <div style="max-height: 380px; overflow-y: auto;">
@@ -174,7 +176,7 @@
         </div>
 
         <p style="font-size: 11px; color: var(--text-gray); margin-top: 0;">
-            Cambia la clave global de acceso para que los juzgados y mesas de control puedan ingresar en sus áreas.
+            Cambia la clave global de acceso para las mesas de control y juzgados.
         </p>
 
         <label style="font-size: 11px; color: white; font-weight: bold;">Nueva Contraseña para Mesas:</label>
@@ -240,15 +242,20 @@
     function iniciarMonitoreoTodasLasAreasEnVivo() {
         db.collectionGroup("AreasActivas").onSnapshot(snapshot => {
             const container = document.getElementById("areasLiveContainer");
+            const lblCant = document.getElementById("cantAreasActivas");
+            
             if(snapshot.empty) {
                 container.innerHTML = '<div style="color:gray; font-size:12px;">No hay áreas transmitiendo en vivo actualmente.</div>';
+                lblCant.innerText = "0";
                 return;
             }
 
             let html = "";
+            let contador = 0;
             snapshot.forEach(doc => {
                 const data = doc.data();
                 if (eventoSeleccionadoFiltro === "TODOS" || (data.evento && data.evento.toUpperCase() === eventoSeleccionadoFiltro)) {
+                    contador++;
                     html += `
                     <div class="area-box active">
                         <div style="font-size:10px; font-weight:bold; color:var(--accent-cyan); text-transform:uppercase;">${data.evento || 'EVENTO'}</div>
@@ -260,17 +267,18 @@
                     </div>`;
                 }
             });
+            lblCant.innerText = contador;
             container.innerHTML = html || '<div style="color:gray; font-size:12px;">No hay áreas activas en este evento.</div>';
         });
     }
 
-    // ESCUCHA AUTOMÁTICA EN TIEMPO REAL SIEMPRE QUE UN ÁREA REGISTRE OTRA COPA O TORNEO
     function escucharHistorialEnTiempoReal() {
         db.collection("HistorialOficial").onSnapshot(snapshot => {
             const tbody = document.getElementById("tablaHistorialMaster");
             if(snapshot.empty) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">No hay combates archivados en Firebase.</td></tr>';
                 todosLosCombatesRaw = [];
+                reconstruirTabs([]);
                 return;
             }
 
@@ -279,19 +287,23 @@
 
             snapshot.forEach(doc => {
                 const c = doc.data();
+                c._idDoc = doc.id; // Guarda ID para poder borrar
                 todosLosCombatesRaw.push(c);
                 if(c.evento) eventosSet.add(c.evento.toUpperCase());
             });
 
-            const tabsBar = document.getElementById("eventTabsBar");
-            let tabsHtml = `<button class="tab-ev-btn ${eventoSeleccionadoFiltro==='TODOS'?'active':''}" onclick="filtrarPorEvento('TODOS', this)">🌐 TODOS LOS EVENTOS</button>`;
-            eventosSet.forEach(ev => {
-                tabsHtml += `<button class="tab-ev-btn ${eventoSeleccionadoFiltro===ev?'active':''}" onclick="filtrarPorEvento('${ev}', this)">🏆 ${ev}</button>`;
-            });
-            tabsBar.innerHTML = tabsHtml;
-
+            reconstruirTabs(Array.from(eventosSet));
             renderizarTablaFiltrada();
         });
+    }
+
+    function reconstruirTabs(listaEventos) {
+        const tabsBar = document.getElementById("eventTabsBar");
+        let tabsHtml = `<button class="tab-ev-btn ${eventoSeleccionadoFiltro==='TODOS'?'active':''}" onclick="filtrarPorEvento('TODOS', this)">🌐 TODOS LOS EVENTOS</button>`;
+        listaEventos.forEach(ev => {
+            tabsHtml += `<button class="tab-ev-btn ${eventoSeleccionadoFiltro===ev?'active':''}" onclick="filtrarPorEvento('${ev}', this)">🏆 ${ev}</button>`;
+        });
+        tabsBar.innerHTML = tabsHtml;
     }
 
     function cargarHistorialOficial() {
@@ -304,6 +316,11 @@
         if(btn) btn.classList.add('active');
         eventoSeleccionadoFiltro = evNombre;
         document.getElementById("lblFiltroEvento").innerText = evNombre;
+        
+        // Muestra u oculta botón de eliminar si seleccionaste un evento específico
+        const btnDel = document.getElementById("btnBorrarEvento");
+        btnDel.style.display = (evNombre === "TODOS") ? "none" : "inline-block";
+
         renderizarTablaFiltrada();
     }
 
@@ -332,6 +349,38 @@
             </tr>`;
         });
         tbody.innerHTML = html;
+    }
+
+    // ELIMINA TODOS LOS REGISTROS DEL EVENTO SELECCIONADO
+    async function confirmarYEliminarEventoActual() {
+        if(eventoSeleccionadoFiltro === "TODOS") return;
+
+        const confirmacion = confirm(`⚠️ ¿Estás seguro de que deseas ELIMINAR POR COMPLETO el evento "${eventoSeleccionadoFiltro}" y todos sus combates registrados?\n\nEsta acción no se puede deshacer.`);
+        if(!confirmacion) return;
+
+        mostrarToast("Eliminando evento de Firebase...");
+
+        try {
+            const batch = db.batch();
+            const paraEliminar = todosLosCombatesRaw.filter(c => c.evento && c.evento.toUpperCase() === eventoSeleccionadoFiltro);
+
+            paraEliminar.forEach(c => {
+                if(c._idDoc) {
+                    const docRef = db.collection("HistorialOficial").doc(c._idDoc);
+                    batch.delete(docRef);
+                }
+            });
+
+            await batch.commit();
+            mostrarToast(`✅ Evento "${eventoSeleccionadoFiltro}" eliminado con éxito.`);
+            eventoSeleccionadoFiltro = "TODOS";
+            document.getElementById("btnBorrarEvento").style.display = "none";
+            document.getElementById("lblFiltroEvento").innerText = "TODOS LOS EVENTOS";
+
+        } catch(e) {
+            console.error("Error al eliminar evento:", e);
+            mostrarToast("❌ Error al intentar eliminar el evento.");
+        }
     }
 
     function imprimirPDFConsolidadoMaster() {
@@ -376,7 +425,7 @@
         html += `</tbody></table>`; 
         pz.innerHTML = html; 
         
-        setTimeout(() => { window.print(); }, 200);
+        setTimeout(() => { window.print(); }, 250);
     }
 </script>
 </body>
