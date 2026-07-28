@@ -157,7 +157,7 @@
         .ganador-club { font-size: 20px; opacity: 0.9; margin-bottom: 30px; font-weight: 600; }
 
         /* ==========================================
-           NUEVA INTERFAZ ERGONÓMICA PARA JUECES
+           INTERFAZ ERGONÓMICA PARA JUECES
            ========================================== */
         #juez-ui { 
             display: none; 
@@ -214,7 +214,6 @@
             cursor: pointer;
             box-sizing: border-box;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            /* Transición ultrarrápida al tocar */
             transition: transform 0.05s ease, filter 0.05s ease;
             touch-action: manipulation;
         }
@@ -224,11 +223,9 @@
             filter: brightness(1.3);
         }
 
-        /* Colores específicos con bordes luminosos */
         .col-juez.b .btn-juez-new { background: #0033cc; border: 1.5px solid #3366ff; }
         .col-juez.r .btn-juez-new { background: #a00000; border: 1.5px solid #ff3333; }
 
-        /* Jerarquía de tamaños táctiles */
         .btn-juez-new.puno { flex: 0.8; }
         .btn-juez-new.peto { flex: 2; }
         .btn-juez-new.casco { flex: 1.8; }
@@ -524,15 +521,13 @@
 
     let ably, canal;
 
- // Generador de QR dinámico para los jueces con URL de GitHub Pages
+    // Generador de QR dinámico para los jueces con URL de GitHub Pages
     function generarQRJuez() {
         const contenedorQR = document.getElementById("qrcode");
         if(!contenedorQR) return;
         contenedorQR.innerHTML = "";
         
-        // Coloca aquí tu enlace público real de GitHub Pages:
         const urlGitHubPages = "https://aguilarrivan1-pixel.github.io/pixel-scoremaster-web/"; 
-        
         const urlJuez = `${urlGitHubPages}?mode=juez&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}`;
         
         new QRCode(contenedorQR, { 
@@ -558,7 +553,6 @@
         lblError.style.display = "none";
 
         try {
-            // Consultamos la contraseña centralizada en Firebase
             const docRef = await db.collection("Configuracion").doc("Acceso").get();
             
             if (docRef.exists) {
@@ -569,23 +563,19 @@
                     EVENTO_ACTUAL = evento.toLowerCase().replace(/\s+/g, '-');
                     AREA_ACTUAL = area;
                     
-                    // Definimos el canal único de Ably para este evento y área
                     ABLY_CHANNEL_NAME = `tkd-${EVENTO_ACTUAL}-area-${AREA_ACTUAL}`;
 
                     document.getElementById("displayArea").innerText = AREA_ACTUAL;
                     document.getElementById("displayAreaJuez").innerText = AREA_ACTUAL;
 
-                    // Inicializamos conexión de Ably con la sala única
                     ably = new Ably.Realtime({ key: API_KEY });
                     canal = ably.channels.get(ABLY_CHANNEL_NAME);
                     subscribirEventosAbly();
 
-                    // Generamos el código QR dinámico
                     generarQRJuez();
 
                     try { interfazSonidos.inicializar(); } catch(e) {}
 
-                    // Ocultamos la ventana modal de acceso
                     document.getElementById("modalAcceso").style.display = "none";
                 } else {
                     lblError.innerText = "Contraseña incorrecta.";
@@ -608,11 +598,9 @@
         accesoConcedido = true; 
         document.getElementById("modalAcceso").style.display = "none";
 
-        // Extraemos evento y área desde los parámetros de la URL del QR
         const areaParam = params.get('area') || '1';
         const eventoParam = params.get('evento') || 'general';
         
-        // Construimos exactamente el mismo nombre de canal que la mesa de control
         ABLY_CHANNEL_NAME = `tkd-${eventoParam.toLowerCase().replace(/\s+/g, '-')}-area-${areaParam}`;
 
         document.getElementById("displayAreaJuez").innerText = areaParam;
@@ -621,11 +609,15 @@
         canal = ably.channels.get(ABLY_CHANNEL_NAME);
     }
 
+    // INTERFAZ DE SONIDOS REFORZADA Y MÁS FUERTE
     const interfazSonidos = {
         ctx: null,
         inicializar() {
             if (!this.ctx) {
                 this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (this.ctx.state === 'suspended') {
+                this.ctx.resume();
             }
         },
         emitirTono(frecuencia, tipo, duracion, volumen, retrasoInicio = 0) {
@@ -637,6 +629,7 @@
                 osc.type = tipo;
                 osc.frequency.setValueAtTime(frecuencia, this.ctx.currentTime + retrasoInicio);
                 
+                // Volumen aumentado a nivel máximo sin distorsión
                 gain.gain.setValueAtTime(volumen, this.ctx.currentTime + retrasoInicio);
                 gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + retrasoInicio + duracion);
                 
@@ -647,13 +640,22 @@
                 osc.stop(this.ctx.currentTime + retrasoInicio + duracion);
             } catch(e) { console.log("Error de Audio:", e); }
         },
-        playPunto() { this.emitirTono(950, 'sine', 0.10, 0.3); },
-        playFalta() {
-            this.emitirTono(440, 'sine', 0.12, 0.3);
-            this.emitirTono(330, 'sine', 0.15, 0.3, 0.08); 
+        playPunto() { 
+            // Doble tono ascendente tipo "ding-dong" de alta frecuencia y volumen fuerte (0.9)
+            this.emitirTono(880, 'triangle', 0.12, 0.9, 0); 
+            this.emitirTono(1320, 'triangle', 0.18, 0.9, 0.08); 
         },
-        playClickReloj() { this.emitirTono(500, 'triangle', 0.04, 0.3); },
-        playChicharraFinal() { this.emitirTono(200, 'square', 1.3, 0.4); }
+        playFalta() {
+            // Sonido grave disonante y potente para Gam-jeom
+            this.emitirTono(300, 'sawtooth', 0.15, 0.8, 0);
+            this.emitirTono(220, 'sawtooth', 0.25, 0.8, 0.1); 
+        },
+        playClickReloj() { this.emitirTono(600, 'sine', 0.05, 0.5); },
+        playChicharraFinal() { 
+            // Chicharra de cierre tipo arena oficial
+            this.emitirTono(180, 'sawtooth', 1.4, 1.0); 
+            this.emitirTono(240, 'square', 1.4, 0.8); 
+        }
     };
 
     let rojo=0, azul=0, gRojo=0, gAzul=0, tiempo=120, tiempoGuardadoAntesDoc=120, intervalo=null, round=1, wRojo=0, wAzul=0, clics=[];
@@ -996,7 +998,6 @@
         combatesFinalizadosLogs.push(registroCombate);
         reconstruirTablaGlobal();
 
-        // Guardado pasivo en Firebase
         try {
             await db.collection("HistorialOficial").add(registroCombate);
             console.log("Combate registrado con éxito en Firebase!");
@@ -1111,7 +1112,15 @@
         }
     }
 
-    function enviarPunto(equipo, puntos) { if(canal) canal.publish('p', { e: equipo, p: puntos }); }
+    // ENVÍO DE PUNTOS CON VIBRACIÓN EN MÓVIL
+    function enviarPunto(equipo, puntos) { 
+        if ("vibrate" in navigator) {
+            navigator.vibrate(40);
+        }
+        if(canal) {
+            canal.publish('p', { e: equipo, p: puntos }); 
+        }
+    }
 
     function imprimirHistorialDelDia() {
         if(combatesFinalizadosLogs.length === 0) { window.alert("No hay combates para descargar."); return; }
