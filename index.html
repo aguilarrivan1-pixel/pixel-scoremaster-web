@@ -1092,26 +1092,44 @@
 
     function enviarPunto(equipo, puntos) { if(canal) canal.publish('p', { e: equipo, p: puntos }); }
 
-    function imprimirHistorialDelDia() {
-        if(combatesFinalizadosLogs.length === 0) { mostrarNotificacion("No hay combates para descargar."); return; }
+    async function imprimirHistorialDelDia() {
+    mostrarNotificacion("Cargando reporte de combates...");
+    try {
+        // Consulta Firestore para asegurar que traiga todos los combates concluidos
+        const snapshot = await db.collection("HistorialOficial")
+            .where("evento", "==", EVENTO_ACTUAL)
+            .where("area", "==", AREA_ACTUAL)
+            .get();
+
+        if (snapshot.empty && combatesFinalizadosLogs.length === 0) {
+            mostrarNotificacion("No hay combates registrados para imprimir.");
+            return;
+        }
+
+        let datosParaImprimir = [];
+        if (!snapshot.empty) {
+            snapshot.forEach(doc => datosParaImprimir.push(doc.data()));
+        } else {
+            datosParaImprimir = [...combatesFinalizadosLogs];
+        }
+
         const pz = document.getElementById("printable-print-zone");
-        
-        let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL DE RESULTADOS (ÁREA ${AREA_ACTUAL})</h2>
-                    <h4 style="text-align:center;margin-top:2px;color:#555;">${document.getElementById("cfg-campeonato").value} - FECHA: ${new Date().toLocaleDateString()}</h4>
+        let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL DE RESULTADOS - ÁREA ${AREA_ACTUAL}</h2>
+                    <h4 style="text-align:center;margin-top:2px;color:#555;">EVENTO: ${EVENTO_ACTUAL.toUpperCase()} - FECHA: ${new Date().toLocaleDateString()}</h4>
                     <table class="print-table">
                         <thead>
                             <tr>
-                                <th>Nº / HORA</th>
+                                <th>COMBATE / HORA</th>
                                 <th>CATEGORÍA</th>
                                 <th>COMPETIDORES</th>
                                 <th>DESGLOSE POR ROUND</th>
-                                <th>GANADOR Y RESULTADO</th>
+                                <th>GANADOR Y DICTAMEN</th>
                             </tr>
                         </thead>
                         <tbody>`;
                         
-        combatesFinalizadosLogs.forEach(c => {
-            let rSub = c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ");
+        datosParaImprimir.forEach(c => {
+            let rSub = c.detalles ? c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ") : "-";
             html += `<tr>
                 <td style="text-align:center;font-weight:bold;">#${c.num}<br><small>${c.hora || ''}</small></td>
                 <td><strong>${c.categoria}</strong></td>
@@ -1120,15 +1138,21 @@
                     <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
                 </td>
                 <td>${rSub}</td>
-                <td style="font-weight:bold;color:green;">${c.ganador}<br><small>${c.res}</small></td>
+                <td style="font-weight:bold;color:green;">${c.ganador || ''}<br><small>${c.res}</small></td>
             </tr>`;
         });
         
         html += `</tbody></table>`; 
         pz.innerHTML = html; 
-        window.print();
-    }
+        
+        // Ejecuta la ventana de impresión/Guardar como PDF
+        setTimeout(() => { window.print(); }, 300);
 
+    } catch (e) {
+        console.error("Error al generar PDF:", e);
+        mostrarNotificacion("Error al consultar combates para PDF.");
+    }
+}
     function abrirPantallaTV() {
         if(ventanaTV && !ventanaTV.closed) { ventanaTV.focus(); return; }
         ventanaTV = window.open("", "ScoreMasterTV", "width=1200,height=800");
