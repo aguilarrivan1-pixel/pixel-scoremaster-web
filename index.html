@@ -2,13 +2,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- Meta-tags para bloquear zoom táctil, escalado y gestos en móviles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Pixel ScoreMaster TKD</title>
     <!-- Carga de SDKs de Firebase vía CDN -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-      // 1. Configuración de Firebase con tus credenciales
       const firebaseConfig = {
         apiKey: "AIzaSyBEdyO9hJzWC34qI9G0kchpNGVCpVb_MdA",
         authDomain: "AIzaSyBEdyO9hJzWC34qI9G0kchpNGVCpVb_MdA",
@@ -17,15 +18,12 @@
         messagingSenderId: "824804321113",
         appId: "1:824804321113:web:6d20f06c67eb564cd78e48"
       };
-
-      // 2. Inicialización de Firebase
       firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
-      
-      console.log("Firebase conectado correctamente con CDN!");
     </script>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <style>
         :root {
             --bg-dark: #12141c;
@@ -36,16 +34,20 @@
             --text-gray: #a0a5b5;
         }
 
-        body { 
-            margin:0; 
+        /* Bloqueo total de gestos y selecciones accidentales en el móvil */
+        html, body { 
+            margin: 0; 
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden !important; 
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
             font-family: 'Segoe UI', -apple-system, sans-serif; 
             background: var(--bg-dark); 
             color: white; 
-            display: flex; 
-            flex-direction: column;
-            height: 100vh; 
-            overflow: hidden; 
-            user-select: none;
         }
 
         /* MODAL DE CONFIGURACIÓN E INGRESO A LA MESA */
@@ -66,99 +68,30 @@
             padding: 30px; 
             width: 380px; 
             text-align: center; 
-            font-family: sans-serif; 
             color: white; 
             box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);
         }
 
-        .top-bar {
-            background: #0b0c10;
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--panel-border);
-            font-size: 13px;
-        }
+        .top-bar { background: #0b0c10; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--panel-border); font-size: 13px; }
         .stream-status { display: flex; align-items: center; gap: 8px; color: #28a745; font-weight: bold; }
         .stream-dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
         .top-buttons { display: flex; gap: 8px; }
         .btn-top { background: #222633; color: white; border: 1px solid var(--panel-border); padding: 4px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;}
         .btn-top:hover { background: #2d3247; }
         .btn-stream { background: #ffaa00; color: #000; border: none; }
-        .btn-stream:hover { background: #e09500; }
 
-        .main-container {
-            display: flex;
-            flex: 1;
-            padding: 12px;
-            gap: 12px;
-            height: calc(100vh - 40px);
-            box-sizing: border-box;
-        }
-
-        .left-arena {
-            flex: 1.3;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .scoreboard-frame {
-            flex: 1;
-            background: #07090e;
-            border-radius: 12px;
-            border: 1px solid var(--panel-border);
-            display: flex;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .side {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: relative;
-        }
+        .main-container { display: flex; flex: 1; padding: 12px; gap: 12px; height: calc(100vh - 40px); box-sizing: border-box; }
+        .left-arena { flex: 1.3; display: flex; flex-direction: column; gap: 10px; }
+        .scoreboard-frame { flex: 1; background: #07090e; border-radius: 12px; border: 1px solid var(--panel-border); display: flex; position: relative; overflow: hidden; }
+        .side { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
         .side.b-side { background: var(--accent-blue); }
         .side.r-side { background: var(--accent-rojo); }
 
-        .fighter-name-display {
-            font-size: 26px;
-            font-weight: 800;
-            text-transform: uppercase;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-        .fighter-club-display {
-            font-size: 14px;
-            color: rgba(255,255,255,0.7);
-            font-weight: bold;
-            margin-top: 2px;
-        }
+        .fighter-name-display { font-size: 26px; font-weight: 800; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); text-align: center; }
+        .fighter-club-display { font-size: 14px; color: rgba(255,255,255,0.7); font-weight: bold; margin-top: 2px; }
+        .score-display { font-size: clamp(120px, 14vw, 200px); font-family: 'Arial Black', sans-serif; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 10px rgba(0,0,0,0.7); }
 
-        .score-display {
-            font-size: clamp(120px, 14vw, 200px);
-            font-family: 'Arial Black', sans-serif;
-            font-weight: 900;
-            line-height: 0.9;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.7);
-        }
-
-        .center-column {
-            width: 240px;
-            background: linear-gradient(to right, rgba(0,51,204,0.4) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 80%, rgba(160,0,0,0.4) 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 0;
-            position: relative;
-            z-index: 2;
-        }
+        .center-column { width: 240px; background: linear-gradient(to right, rgba(0,51,204,0.4) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 80%, rgba(160,0,0,0.4) 100%); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px 0; position: relative; z-index: 2; }
         .arena-title { font-size: 13px; color: var(--text-gray); letter-spacing: 2px; font-weight: bold; text-align: center; }
         .round-display { text-align: center; }
         .round-lbl { font-size: 11px; color: var(--text-gray); font-weight: bold; }
@@ -169,17 +102,7 @@
         .rw-dot.b-won { background: #0033cc; border-color: #3366ff; color: white; box-shadow: 0 0 8px rgba(0,51,204,0.6); }
         .rw-dot.r-won { background: #a00000; border-color: #ff3333; color: white; box-shadow: 0 0 8px rgba(160,0,0,0.6); }
 
-        .superiority-box {
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            background: #151821;
-            border: 2px solid #ffaa00;
-            padding: 8px;
-            border-radius: 8px;
-            width: 90%;
-            text-align: center;
-        }
+        .superiority-box { display: none; flex-direction: column; gap: 6px; background: #151821; border: 2px solid #ffaa00; padding: 8px; border-radius: 8px; width: 90%; text-align: center; }
         .sup-buttons { display: flex; gap: 6px; }
         .btn-sup { flex: 1; padding: 6px; font-size: 11px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; color: white; }
         .btn-sup.b { background: #0033cc; }
@@ -189,12 +112,7 @@
         .gamjeom-row { display: flex; justify-content: space-around; width: 100%; font-size: 11px; color: var(--text-gray); font-weight: bold; }
         .gamjeom-counter { font-size: 24px; color: white; font-weight: 900; }
 
-        .scoreboard-editor-container {
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 12px;
-            padding: 12px;
-        }
+        .scoreboard-editor-container { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; }
         .mesa-title { font-size: 12px; color: var(--text-gray); margin-bottom: 8px; font-weight: bold; text-transform: uppercase; }
         .button-group-mesa { display: flex; gap: 4px; margin-bottom: 8px; }
         .btn-m { flex: 1; padding: 10px 4px; border-radius: 6px; font-weight: bold; border: none; font-size: 11px; cursor: pointer; color: white; white-space: nowrap;}
@@ -228,7 +146,6 @@
         .tkd-table { width: 100%; border-collapse: collapse; font-size: 11px; color: white; text-align: left; }
         .tkd-table th { background: #0b0c10; color: #ffaa00; padding: 8px; font-weight: bold; position: sticky; top: 0; border-bottom: 1px solid var(--panel-border); }
         .tkd-table td { padding: 8px; border-bottom: 1px solid #1a1d26; vertical-align: top; }
-        .tkd-table tr:hover { background: #161922; }
 
         .log-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; width: 280px; }
         .qr-area { display: flex; justify-content: center; background: white; padding: 6px; border-radius: 6px; margin-top: 8px; width: fit-content; margin-left: auto; margin-right: auto;}
@@ -239,26 +156,89 @@
         .ganador-nombre { font-size: 48px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         .ganador-club { font-size: 20px; opacity: 0.9; margin-bottom: 30px; font-weight: 600; }
 
-        @media print {
-            body * { display: none !important; }
-            #printable-print-zone, #printable-print-zone * { display: block !important; background: white !important; color: black !important; }
-            #printable-print-zone { position: absolute; left: 0; top: 0; width: 100%; font-family: 'Segoe UI', Arial, sans-serif; padding: 10px; }
-            .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11px; }
-            .print-table th { background: #eee !important; color: black !important; padding: 8px; border: 1px solid #333; text-transform: uppercase; font-size: 10px; }
-            .print-table td { padding: 8px; border: 1px solid #333; }
-            .rd-badge { display: block; margin-top: 3px; font-size: 10px; font-family: monospace; background: #f0f0f0; padding: 2px 5px; border-radius: 3px;}
+        /* ==========================================
+           NUEVA INTERFAZ ERGONÓMICA PARA JUECES
+           ========================================== */
+        #juez-ui { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100vw; 
+            height: 100vh; 
+            background: #0b0c10; 
+            z-index: 999999; 
+            flex-direction: column; 
+            box-sizing: border-box;
+            padding: 6px;
         }
 
-        #juez-ui { display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:#12141c; z-index:99999; flex-direction: column; padding: 10px; box-sizing: border-box;}
-        .grid-juez { display: grid; grid-template-columns: 1fr 1fr; flex: 1; gap: 10px; }
-        .col-juez-side { display: flex; flex-direction: column; gap: 8px; }
-        .btn-juez-pts { flex: 1; color: white; border: none; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
-        .btn-juez-pts.b { background: #0033cc; border: 1px solid #3366ff; }
-        .btn-juez-pts.r { background: #a00000; border: 1px solid #ff3333; }
-        .btn-juez-pts span { font-size: 26px; font-weight: 900; }
-        .lbl-juez-t { font-size: 10px; opacity: 0.9; text-transform: uppercase;}
-        
-        .hint-key { color: #ffaa00; font-size: 11px; font-family: monospace; margin-left: 4px; font-weight: normal; }
+        .header-juez {
+            background: #121824;
+            border: 1px solid #2a2f42;
+            padding: 6px;
+            text-align: center;
+            font-weight: 900;
+            border-radius: 6px;
+            color: #ffaa00;
+            font-size: 13px;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            flex-shrink: 0;
+        }
+
+        .grid-juez-flex {
+            display: flex;
+            flex: 1;
+            gap: 6px;
+            width: 100%;
+            height: calc(100% - 35px);
+        }
+
+        .col-juez {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            height: 100%;
+        }
+
+        .btn-juez-new {
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 900;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-sizing: border-box;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            /* Transición ultrarrápida al tocar */
+            transition: transform 0.05s ease, filter 0.05s ease;
+            touch-action: manipulation;
+        }
+
+        .btn-juez-new:active {
+            transform: scale(0.96);
+            filter: brightness(1.3);
+        }
+
+        /* Colores específicos con bordes luminosos */
+        .col-juez.b .btn-juez-new { background: #0033cc; border: 1.5px solid #3366ff; }
+        .col-juez.r .btn-juez-new { background: #a00000; border: 1.5px solid #ff3333; }
+
+        /* Jerarquía de tamaños táctiles */
+        .btn-juez-new.puno { flex: 0.8; }
+        .btn-juez-new.peto { flex: 2; }
+        .btn-juez-new.casco { flex: 1.8; }
+        .btn-juez-new.giro { flex: 1; }
+
+        .btn-juez-new .lbl-tag { font-size: 11px; text-transform: uppercase; opacity: 0.85; font-weight: bold; }
+        .btn-juez-new .lbl-val { font-size: 28px; line-height: 1; margin-top: 2px; }
+
+        .row-giros { display: flex; gap: 5px; flex: 1; }
+        .row-giros .btn-juez-new { flex: 1; }
     </style>
 </head>
 <body>
@@ -468,21 +448,65 @@
 </div>
 
 <div id="juez-ui">
-    <div style="background: #000; padding: 10px; text-align: center; font-weight: bold; border-radius: 6px; margin-bottom: 10px; color:#ffaa00;">VÍNCULO REMOTO - ÁREA <span id="displayAreaJuez">1</span></div>
-    <div class="grid-juez">
-        <div class="col-juez-side">
-            <button class="btn-juez-pts b" onclick="enviarPunto('azul', 1)"><div class="lbl-juez-t">Puño</div><span>+1</span></button>
-            <button class="btn-juez-pts b" onclick="enviarPunto('azul', 2)"><div class="lbl-juez-t">Peto</div><span>+2</span></button>
-            <button class="btn-juez-pts b" onclick="enviarPunto('azul', 3)"><div class="lbl-juez-t">Casco</div><span>+3</span></button>
-            <button class="btn-juez-pts b" onclick="enviarPunto('azul', 4)"><div class="lbl-juez-t">Giro P.</div><span>+4</span></button>
-            <button class="btn-juez-pts b" onclick="enviarPunto('azul', 6)"><div class="lbl-juez-t">Giro C.</div><span>+6</span></button>
+    <div class="header-juez">ÁREA <span id="displayAreaJuez">1</span> — MANDO REMOTO JUEZ</div>
+    
+    <div class="grid-juez-flex">
+        <!-- COLUMNA AZUL -->
+        <div class="col-juez b">
+            <button class="btn-juez-new puno" onclick="enviarPunto('azul', 1)">
+                <span class="lbl-tag">Puño</span>
+                <span class="lbl-val">+1</span>
+            </button>
+
+            <button class="btn-juez-new peto" onclick="enviarPunto('azul', 2)">
+                <span class="lbl-tag">Peto</span>
+                <span class="lbl-val">+2</span>
+            </button>
+
+            <button class="btn-juez-new casco" onclick="enviarPunto('azul', 3)">
+                <span class="lbl-tag">Casco</span>
+                <span class="lbl-val">+3</span>
+            </button>
+
+            <div class="row-giros">
+                <button class="btn-juez-new giro" onclick="enviarPunto('azul', 4)">
+                    <span class="lbl-tag">G. Peto</span>
+                    <span class="lbl-val">+4</span>
+                </button>
+                <button class="btn-juez-new giro" onclick="enviarPunto('azul', 6)">
+                    <span class="lbl-tag">G. Casco</span>
+                    <span class="lbl-val">+6</span>
+                </button>
+            </div>
         </div>
-        <div class="col-juez-side">
-            <button class="btn-juez-pts r" onclick="enviarPunto('rojo', 1)"><div class="lbl-juez-t">Puño</div><span>+1</span></button>
-            <button class="btn-juez-pts r" onclick="enviarPunto('rojo', 2)"><div class="lbl-juez-t">Peto</div><span>+2</span></button>
-            <button class="btn-juez-pts r" onclick="enviarPunto('rojo', 3)"><div class="lbl-juez-t">Casco</div><span>+3</span></button>
-            <button class="btn-juez-pts r" onclick="enviarPunto('rojo', 4)"><div class="lbl-juez-t">Giro P.</div><span>+4</span></button>
-            <button class="btn-juez-pts r" onclick="enviarPunto('rojo', 6)"><div class="lbl-juez-t">Giro C.</div><span>+6</span></button>
+
+        <!-- COLUMNA ROJA -->
+        <div class="col-juez r">
+            <button class="btn-juez-new puno" onclick="enviarPunto('rojo', 1)">
+                <span class="lbl-tag">Puño</span>
+                <span class="lbl-val">+1</span>
+            </button>
+
+            <button class="btn-juez-new peto" onclick="enviarPunto('rojo', 2)">
+                <span class="lbl-tag">Peto</span>
+                <span class="lbl-val">+2</span>
+            </button>
+
+            <button class="btn-juez-new casco" onclick="enviarPunto('rojo', 3)">
+                <span class="lbl-tag">Casco</span>
+                <span class="lbl-val">+3</span>
+            </button>
+
+            <div class="row-giros">
+                <button class="btn-juez-new giro" onclick="enviarPunto('rojo', 4)">
+                    <span class="lbl-tag">G. Peto</span>
+                    <span class="lbl-val">+4</span>
+                </button>
+                <button class="btn-juez-new giro" onclick="enviarPunto('rojo', 6)">
+                    <span class="lbl-tag">G. Casco</span>
+                    <span class="lbl-val">+6</span>
+                </button>
+            </div>
         </div>
     </div>
 </div>
