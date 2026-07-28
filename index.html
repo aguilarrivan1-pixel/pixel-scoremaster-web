@@ -40,10 +40,34 @@
             background: var(--bg-dark); color: white; 
         }
 
+        /* Banner de Notificación Personalizada (Toast) */
+        #toast-banner {
+            position: fixed;
+            top: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff2a2a;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 14px;
+            z-index: 9999999;
+            box-shadow: 0 4px 20px rgba(255, 0, 0, 0.5);
+            border: 2px solid #ffffff;
+            transition: top 0.3s ease-in-out;
+            text-align: center;
+            letter-spacing: 0.5px;
+            pointer-events: none;
+        }
+        #toast-banner.show {
+            top: 20px;
+        }
+
         #modalAcceso {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(7, 9, 14, 0.98); display: flex; 
-            justify-content: center; align-items: center; z-index: 9999999;
+            justify-content: center; align-items: center; z-index: 999999;
         }
         .modal-box {
             background: #121824; border: 2px solid #00f2fe; border-radius: 12px; 
@@ -129,7 +153,7 @@
         .log-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; width: 280px; }
         .qr-area { display: flex; justify-content: center; background: white; padding: 6px; border-radius: 6px; margin-top: 8px; width: fit-content; margin-left: auto; margin-right: auto;}
 
-        #pantalla-ganador { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(0,0,0,0.96); }
+        #pantalla-ganador { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999998; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(0,0,0,0.96); }
         .ganador-box { padding: 45px; border-radius: 25px; border: 3px solid #ffaa00; box-shadow: 0 0 40px rgba(255,170,0,0.3); max-width: 500px; width: 90%; }
         .ganador-titulo { font-size: 22px; letter-spacing: 2px; margin-bottom: 5px; color: #ffaa00; font-weight: bold; }
         .ganador-nombre { font-size: 48px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -151,7 +175,7 @@
         #juez-ui { 
             display: none; position: fixed; top: 0; left: 0; 
             width: 100vw; height: 100dvh; background: #07090e; 
-            z-index: 999999; flex-direction: column; box-sizing: border-box; 
+            z-index: 999998; flex-direction: column; box-sizing: border-box; 
             padding: 4px; overflow: hidden;
         }
 
@@ -194,6 +218,8 @@
     </style>
 </head>
 <body>
+
+<div id="toast-banner">⚠️ MENSAJE DE SISTEMA</div>
 
 <div id="modalAcceso">
   <div class="modal-box">
@@ -473,7 +499,17 @@
 
     let ably, canal;
 
-    /* SINTETIZADOR DE IMPACTOS REALES (PUNCH FÍSICO Y GOLPE SECO) */
+    // SISTEMA DE NOTIFICACIONES PERSONALIZADAS (Reemplaza los alert)
+    function mostrarNotificacion(msj, tiempo = 2800) {
+        const toast = document.getElementById("toast-banner");
+        toast.innerText = msj;
+        toast.classList.add("show");
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, tiempo);
+    }
+
+    /* SINTETIZADOR DE IMPACTOS REALES */
     const interfazSonidos = {
         ctx: null,
         inicializar() {
@@ -484,19 +520,16 @@
                 this.ctx.resume();
             }
         },
-        // EFECTO PUNCH 3 (Impacto de Peto / Puño contundente)
         playPunto() { 
             this.inicializar();
             try {
                 let osc = this.ctx.createOscillator();
                 let gain = this.ctx.createGain();
                 
-                // Golpe de frecuencia descendente ultrarrápida (Punch de impacto)
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(180, this.ctx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.08);
 
-                // Ruido de chasquido inicial para dar sensación de golpe seco táctil
                 let noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.05, this.ctx.sampleRate);
                 let output = noiseBuffer.getChannelData(0);
                 for (let i = 0; i < noiseBuffer.length; i++) {
@@ -528,7 +561,6 @@
                 osc.stop(this.ctx.currentTime + 0.1);
             } catch(e){}
         },
-        // EFECTO GAM-JEOM (Golpe pesado sordo e impacto grave)
         playFalta() {
             this.inicializar();
             try {
@@ -796,7 +828,7 @@
         if(bloqueoCombatePorVictoria || enModoDescanso) return;
 
         if (intervalo && intervalo !== "ESPERANDO_VALIDACION") {
-            window.alert("⚠️ REGLAMENTO TKD: Para sancionar con Gam-jeom (Falta) debes pausar el combate primero.");
+            mostrarNotificacion("⚠️ REGLAMENTO TKD: Para sancionar con Gam-jeom (Falta) debes pausar el combate primero.");
             return;
         }
 
@@ -808,12 +840,12 @@
         let maxGam = parseInt(document.getElementById("cfg-max-gamjeoms").value) || 5;
         if(gAzul >= maxGam) {
             pause(); interfazSonidos.playChicharraFinal();
-            window.alert(`Límite de Gam-jeoms alcanzado (${maxGam}). ROJO gana este round.`);
+            mostrarNotificacion(`Límite de Gam-jeoms alcanzado (${maxGam}). ROJO gana este round.`, 4000);
             estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Victoria por Gam-jeoms" });
             wRojo++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
         } else if(gRojo >= maxGam) {
             pause(); interfazSonidos.playChicharraFinal();
-            window.alert(`Límite de Gam-jeoms alcanzado (${maxGam}). AZUL gana este round.`);
+            mostrarNotificacion(`Límite de Gam-jeoms alcanzado (${maxGam}). AZUL gana este round.`, 4000);
             estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Victoria por Gam-jeoms" });
             wAzul++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
         }
@@ -899,7 +931,7 @@
                 
                 if (enModoDoctor) {
                     pause();
-                    window.alert("¡TIEMPO MÉDICO AGOTADO! El competidor debe reincorporarse.");
+                    mostrarNotificacion("¡TIEMPO MÉDICO AGOTADO! El competidor debe reincorporarse.", 4000);
                 } else if (enModoDescanso) { 
                     finalizarDescansoYEntrarAlSiguienteRound(); 
                 } else { 
@@ -930,16 +962,16 @@
             azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
         } else {
             if(gAzul < gRojo) { 
-                wAzul++; window.alert(`Empate (${azul}-${rojo}). Azul gana por menos Gam-jeoms.`); 
+                wAzul++; mostrarNotificacion(`Empate (${azul}-${rojo}). Azul gana por menos Gam-jeoms.`, 3500); 
                 estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por menos Gam-jeoms" });
                 azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
             } else if(gRojo < gAzul) { 
-                wRojo++; window.alert(`Empate (${azul}-${rojo}). Rojo gana por menos Gam-jeoms.`); 
+                wRojo++; mostrarNotificacion(`Empate (${azul}-${rojo}). Rojo gana por menos Gam-jeoms.`, 3500); 
                 estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por menos Gam-jeoms" });
                 azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
             } else {
                 document.getElementById("panel-superioridad").style.display = "flex";
-                window.alert("Empate absoluto. Mesa Técnica decide Superioridad.");
+                mostrarNotificacion("Empate absoluto. Mesa Técnica decide Superioridad.", 3500);
             }
         }
     }
@@ -989,8 +1021,12 @@
     }
 
     function forzarSiguienteRoundManual() {
-        if(window.confirm("¿Saltar al siguiente round borrando puntajes parciales?")) {
-            pause(); if(enModoDescanso) { finalizarDescansoYEntrarAlSiguienteRound(); } else { round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; cambiarConfigTiempo(); actualizar(); }
+        pause(); 
+        if(enModoDescanso) { 
+            finalizarDescansoYEntrarAlSiguienteRound(); 
+        } else { 
+            round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; 
+            cambiarConfigTiempo(); actualizar(); 
         }
     }
 
@@ -1077,16 +1113,15 @@
     }
 
     function resetMatch() {
-        if(window.confirm("¿Restablecer el combate actual?")){
-            pause(); rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
-            enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
-            document.getElementById("mesa-overlay-descanso").style.display = "none";
-            document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
-            document.getElementById("btn-medico").style.display = "block"; document.getElementById("btn-cancel-medico").style.display = "none";
-            setNombres(); cambiarConfigTiempo();
-            document.getElementById("match-history-list").innerHTML = '<div class="history-item" style="color: gray;">Arena reseteada.</div>';
-            actualizar(); removerPantallaGanadorLocalYTV();
-        }
+        pause(); rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
+        enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
+        document.getElementById("mesa-overlay-descanso").style.display = "none";
+        document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
+        document.getElementById("btn-medico").style.display = "block"; document.getElementById("btn-cancel-medico").style.display = "none";
+        setNombres(); cambiarConfigTiempo();
+        document.getElementById("match-history-list").innerHTML = '<div class="history-item" style="color: gray;">Arena reseteada.</div>';
+        actualizar(); removerPantallaGanadorLocalYTV();
+        mostrarNotificacion("Arena restablecida", 2000);
     }
 
     function reconstruirTablaGlobal() {
@@ -1126,7 +1161,7 @@
 
     function editarTiempoManual() {
         if(intervalo) return;
-        let nuevo = window.prompt("Modificar tiempo (MM:SS):", document.getElementById("tiempo").innerText);
+        let nuevo = prompt("Modificar tiempo (MM:SS):", document.getElementById("tiempo").innerText);
         if(nuevo) {
             let arr = nuevo.split(":");
             if(arr.length === 2) { tiempo = (parseInt(arr[0]) * 60) + parseInt(arr[1]); let min = Math.floor(tiempo / 60); let seg = tiempo % 60; document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`; actualizarTV(); }
@@ -1136,7 +1171,7 @@
     function enviarPunto(equipo, puntos) { if(canal) canal.publish('p', { e: equipo, p: puntos }); }
 
     function imprimirHistorialDelDia() {
-        if(combatesFinalizadosLogs.length === 0) { window.alert("No hay combates para descargar."); return; }
+        if(combatesFinalizadosLogs.length === 0) { mostrarNotificacion("No hay combates para descargar."); return; }
         const pz = document.getElementById("printable-print-zone");
         
         let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL DE RESULTADOS</h2>
