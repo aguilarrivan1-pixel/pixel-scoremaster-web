@@ -583,8 +583,18 @@
         document.getElementById("juez-ui").style.display = "flex";
         accesoConcedido = true; 
         document.getElementById("modalAcceso").style.display = "none";
+
+        // Extraemos evento y área desde los parámetros de la URL del QR
+        const areaParam = params.get('area') || '1';
+        const eventoParam = params.get('evento') || 'general';
+        
+        // Construimos exactamente el mismo nombre de canal que la mesa de control
+        ABLY_CHANNEL_NAME = `tkd-${eventoParam.toLowerCase().replace(/\s+/g, '-')}-area-${areaParam}`;
+
+        document.getElementById("displayAreaJuez").innerText = areaParam;
+
         ably = new Ably.Realtime({ key: API_KEY });
-        canal = ably.channels.get('tkd-area-' + (params.get('area') || '1'));
+        canal = ably.channels.get(ABLY_CHANNEL_NAME);
     }
 
     const interfazSonidos = {
