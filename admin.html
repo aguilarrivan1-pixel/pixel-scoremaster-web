@@ -58,51 +58,43 @@
 
         .header-title {
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--accent-cyan); padding-bottom: 12px; margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent-cyan); padding-bottom: 12px; margin-bottom: 15px;
         }
-        .header-title h1 { margin: 0; font-size: 22px; letter-spacing: 1px; text-transform: uppercase; }
+        .header-title h1 { margin: 0; font-size: 20px; letter-spacing: 1px; text-transform: uppercase; }
         .live-tag { color: #28a745; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 6px; }
         .dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
 
-        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-        .panel-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        /* PESTAÑAS DICHAS POR EVENTO SIMULTÁNEO */
+        .event-tabs-bar { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid var(--panel-border); }
+        .tab-ev-btn { background: #1a202c; border: 1px solid var(--panel-border); color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; text-transform: uppercase; white-space: nowrap; }
+        .tab-ev-btn.active { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
 
-        .card-header {
-            font-size: 16px; font-weight: bold; color: #ffaa00; margin-bottom: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .main-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 20px; }
+        .panel-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
 
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .admin-table th { background: #0b0c10; color: #ffaa00; padding: 10px; text-align: left; border-bottom: 1px solid var(--panel-border); }
-        .admin-table td { padding: 10px; border-bottom: 1px solid #1a1d26; vertical-align: top; }
+        .card-header { font-size: 15px; font-weight: bold; color: #ffaa00; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
 
-        .sec-input {
-            width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 15px;
-            background: #1a202c; border: 1px solid #4a5568; color: white;
-            border-radius: 6px; box-sizing: border-box; font-weight: bold;
-        }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .admin-table th { background: #0b0c10; color: #ffaa00; padding: 8px; text-align: left; border-bottom: 1px solid var(--panel-border); }
+        .admin-table td { padding: 8px; border-bottom: 1px solid #1a1d26; vertical-align: top; }
 
-        .btn-cyan {
-            width: 100%; padding: 12px; background: var(--accent-cyan); border: none;
-            color: #000; font-weight: 900; border-radius: 6px; cursor: pointer;
-            text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;
-        }
+        .sec-input { width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 12px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight: bold; }
+        .btn-cyan { width: 100%; padding: 10px; background: var(--accent-cyan); border: none; color: #000; font-weight: 900; border-radius: 6px; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+        .btn-refresh { background: var(--accent-cyan); color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; }
+        .btn-pdf { background: #0056b3; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; font-size: 12px; }
 
-        .btn-refresh { background: var(--accent-cyan); color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; }
-        .btn-pdf { background: #0056b3; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
-
-        .areas-live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px; }
-        .area-box { background: #0d111a; border: 1px solid #2a2f42; padding: 12px; border-radius: 8px; text-align: center; }
-        .area-box.active { border-color: #28a745; box-shadow: 0 0 10px rgba(40,167,69,0.2); }
+        .areas-live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .area-box { background: #0d111a; border: 1px solid #2a2f42; padding: 10px; border-radius: 8px; text-align: center; }
+        .area-box.active { border-color: #28a745; box-shadow: 0 0 8px rgba(40,167,69,0.2); }
 
         @media print {
             body * { visibility: hidden; }
             #printable-admin-zone, #printable-admin-zone * { visibility: visible; }
             #printable-admin-zone { position: absolute; left: 0; top: 0; width: 100%; color: black; font-family: sans-serif; }
             .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-            .print-table th, .print-table td { border: 1px solid #333; padding: 8px; font-size: 11px; text-align: left; }
+            .print-table th, .print-table td { border: 1px solid #333; padding: 6px; font-size: 10px; text-align: left; }
             .print-table th { background: #eee; }
-            .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; border-radius: 4px; font-size: 9px; margin-right: 4px; }
+            .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 4px; border-radius: 4px; font-size: 9px; margin-right: 4px; }
         }
     </style>
 </head>
@@ -110,15 +102,11 @@
 
 <div id="toast-banner">MENSAJE DE CONFIRMACIÓN</div>
 
+<!-- MODAL ACCESO MASTER SÓLO PIDE CLAVE MAESTRA -->
 <div id="modalAdminAcceso">
   <div class="modal-box">
     <h2 style="margin-top: 0; color: var(--accent-cyan); text-transform: uppercase;">Panel Master Central</h2>
-    <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 20px;">Ingreso exclusivo para la Administración</p>
-    
-    <div style="text-align: left; margin-bottom: 15px;">
-      <label style="font-size: 12px; color: #cbd5e0;">Seleccionar Evento:</label>
-      <input type="text" id="adminNombreEvento" placeholder="Ej: copa-bogota-2026" value="copa-bogota-2026" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;">
-    </div>
+    <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 20px;">Ingreso exclusivo para la Administración</p>
 
     <div style="text-align: left; margin-bottom: 20px;">
       <label style="font-size: 12px; color: #cbd5e0;">Clave Maestra Administrador:</label>
@@ -126,31 +114,36 @@
     </div>
 
     <button onclick="autenticarAdminMaster()" class="btn-cyan">Ingresar al Panel Master</button>
-    <p id="msgErrorAdmin" style="color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; font-weight: bold;"></p>
+    <p id="msgErrorAdmin" style="color: #ff4d4d; font-size: 12px; margin-top: 15px; display: none; font-weight: bold;"></p>
   </div>
 </div>
 
 <div id="printable-admin-zone" style="display:none;"></div>
 
 <div class="header-title">
-    <h1>🎛️ PANEL DE ADMINISTRACIÓN CENTRAL</h1>
-    <div class="live-tag"><div class="dot"></div> MONITOREO DEL EVENTO: <span id="nombreEventoHeader" style="color:#00f2fe; margin-left:4px;">-</span></div>
+    <h1>🎛️ PANEL DE ADMINISTRACIÓN MASTER MULTI-EVENTO</h1>
+    <div class="live-tag"><div class="dot"></div> MONITOREO GENERAL EN VIVO</div>
+</div>
+
+<!-- BARRA DINÁMICA DE EVENTOS REGISTRADOS -->
+<div class="event-tabs-bar" id="eventTabsBar">
+    <button class="tab-ev-btn active" onclick="filtrarPorEvento('TODOS', this)">🌐 TODOS LOS EVENTOS</button>
 </div>
 
 <!-- MONITOR DE ÁREAS ACTIVAS -->
-<div class="panel-card" style="margin-bottom: 20px;">
+<div class="panel-card" style="margin-bottom: 15px;">
     <div class="card-header">
         <span>🌐 Áreas transmitiendo en vivo</span>
     </div>
     <div class="areas-live-grid" id="areasLiveContainer">
-        <div style="color:gray; font-size:12px;">Ingresa para cargar las áreas del evento...</div>
+        <div style="color:gray; font-size:12px;">Cargando transmisión de áreas...</div>
     </div>
 </div>
 
 <div class="main-grid">
     <div class="panel-card">
         <div class="card-header">
-            <span>Historial Oficial de Combates (Evento Completo)</span>
+            <span>Historial Oficial de Combates (<span id="lblFiltroEvento">TODOS LOS EVENTOS</span>)</span>
             <button class="btn-refresh" onclick="cargarHistorialOficial()">🔄 ACTUALIZAR</button>
         </div>
 
@@ -158,8 +151,8 @@
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>Área / Hora</th>
-                        <th>Combate #</th>
+                        <th>Evento / Área</th>
+                        <th>Nº / Hora</th>
                         <th>Categoría / Competidores</th>
                         <th>Desglose por Round</th>
                         <th>Ganador</th>
@@ -171,19 +164,19 @@
             </table>
         </div>
 
-        <button class="btn-pdf" onclick="imprimirPDFConsolidadoMaster()">🖨️ GENERAR / DESCARGAR PDF OFICIAL DE RESULTADOS</button>
+        <button class="btn-pdf" onclick="imprimirPDFConsolidadoMaster()">🖨️ IMPRIMIR / DESCARGAR PDF OFICIAL</button>
     </div>
 
     <div class="panel-card">
         <div class="card-header">
-            <span>🔒 Seguridad de Mesas</span>
+            <span>🔒 Seguridad Global</span>
         </div>
 
-        <p style="font-size: 12px; color: var(--text-gray); margin-top: 0;">
+        <p style="font-size: 11px; color: var(--text-gray); margin-top: 0;">
             Cambia la clave global de acceso para que los juzgados y mesas de control puedan ingresar en sus áreas.
         </p>
 
-        <label style="font-size: 12px; color: white; font-weight: bold;">Nueva Contraseña para Mesas:</label>
+        <label style="font-size: 11px; color: white; font-weight: bold;">Nueva Contraseña para Mesas:</label>
         <input type="password" id="nuevaClaveMesas" class="sec-input" placeholder="Ej: BOGOTA2026">
 
         <button class="btn-cyan" onclick="actualizarClaveMesasGlobal()">ACTUALIZAR CLAVE GLOBAL</button>
@@ -191,8 +184,8 @@
 </div>
 
 <script>
-    let EVENTO_ACTIVO = "";
-    let listaCombatesConsolidada = [];
+    let todosLosCombatesRaw = [];
+    let eventoSeleccionadoFiltro = "TODOS";
 
     function mostrarToast(msj) {
         const toast = document.getElementById("toast-banner");
@@ -202,35 +195,29 @@
     }
 
     async function autenticarAdminMaster() {
-        const eventoInput = document.getElementById("adminNombreEvento").value.trim();
         const passInput = document.getElementById("adminPassword").value.trim();
         const lblError = document.getElementById("msgErrorAdmin");
 
-        if (!eventoInput || !passInput) {
-            lblError.innerText = "Por favor completa todos los campos.";
+        if (!passInput) {
+            lblError.innerText = "Por favor ingresa la contraseña.";
             lblError.style.display = "block";
             return;
         }
 
         try {
             const docRef = await db.collection("Configuracion").doc("Acceso").get();
-            if (docRef.exists) {
-                const passCorrecta = docRef.data().password;
-                if (passInput === passCorrecta) {
-                    EVENTO_ACTIVO = eventoInput.toLowerCase().replace(/\s+/g, '-');
-                    document.getElementById("nombreEventoHeader").innerText = EVENTO_ACTIVO.toUpperCase();
-                    document.getElementById("modalAdminAcceso").style.display = "none";
-                    mostrarToast("Autenticado como Administrador Central");
-                    
-                    cargarHistorialOficial();
-                    iniciarMonitoreoAreasEnVivo();
-                } else {
-                    lblError.innerText = "Contraseña maestra incorrecta.";
-                    lblError.style.display = "block";
-                }
+            if (docRef.exists && passInput === docRef.data().password) {
+                document.getElementById("modalAdminAcceso").style.display = "none";
+                mostrarToast("Autenticado como Administrador Master");
+                
+                cargarHistorialOficial();
+                iniciarMonitoreoTodasLasAreasEnVivo();
+            } else {
+                lblError.innerText = "Contraseña maestra incorrecta.";
+                lblError.style.display = "block";
             }
         } catch (error) {
-            console.error("Error al autenticar admin:", error);
+            console.error("Error al autenticar:", error);
             lblError.innerText = "Error de conexión con Firebase.";
             lblError.style.display = "block";
         }
@@ -249,73 +236,118 @@
         }
     }
 
-    function iniciarMonitoreoAreasEnVivo() {
-        db.collection("Eventos").doc(EVENTO_ACTIVO).collection("AreasActivas")
-            .onSnapshot(snapshot => {
-                const container = document.getElementById("areasLiveContainer");
-                if(snapshot.empty) {
-                    container.innerHTML = '<div style="color:gray; font-size:12px;">No hay áreas transmitiendo en vivo actualmente.</div>';
-                    return;
-                }
-
-                let html = "";
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    html += `
-                    <div class="area-box active">
-                        <div style="font-size:12px; font-weight:bold; color:#ffaa00;">ÁREA ${data.area} (R${data.round})</div>
-                        <div style="font-size:18px; font-weight:900; margin: 4px 0;">
-                            <span style="color:#0033cc;">${data.azul}</span> vs <span style="color:#a00000;">${data.rojo}</span>
-                        </div>
-                        <div style="font-family:monospace; color:#20c997; font-weight:bold; font-size:13px;">⏱️ ${data.tiempo}</div>
-                    </div>`;
-                });
-                container.innerHTML = html;
-            });
-    }
-
-    async function cargarHistorialOficial() {
-        const tbody = document.getElementById("tablaHistorialMaster");
-        try {
-            const snapshot = await db.collection("HistorialOficial").where("evento", "==", EVENTO_ACTIVO).get();
+    // MONITOR QUE BUSCA ÁREAS EN TODOS LOS EVENTOS DE MANERA AUTOMÁTICA
+    function iniciarMonitoreoTodasLasAreasEnVivo() {
+        db.collectionGroup("AreasActivas").onSnapshot(snapshot => {
+            const container = document.getElementById("areasLiveContainer");
             if(snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">No hay combates archivados en este evento.</td></tr>';
-                listaCombatesConsolidada = [];
+                container.innerHTML = '<div style="color:gray; font-size:12px;">No hay áreas transmitiendo en vivo actualmente.</div>';
                 return;
             }
 
-            listaCombatesConsolidada = [];
             let html = "";
             snapshot.forEach(doc => {
-                const c = doc.data();
-                listaCombatesConsolidada.push(c);
-                let roundsTxt = c.detalles ? c.detalles.map(r => `R${r.round}: Az ${r.ptsAzul}(${r.gamAzul}G) - Rj ${r.ptsRojo}(${r.gamRojo}G)`).join("<br>") : "-";
-
-                html += `
-                <tr>
-                    <td style="font-weight:bold; color:var(--accent-cyan);">Área ${c.area || 1}<br><small style="color:gray">${c.fecha || ''} ${c.hora || ''}</small></td>
-                    <td style="font-weight:bold; color:#ffaa00;">#${c.num}</td>
-                    <td><strong>${c.categoria}</strong><br><span style="color:#4d7cff">Azul: ${c.az}</span><br><span style="color:#ff4d4d">Rojo: ${c.rj}</span></td>
-                    <td style="font-size:11px;">${roundsTxt}</td>
-                    <td style="font-weight:bold; color:#28a745;">${c.ganador}<br><small>${c.res}</small></td>
-                </tr>`;
+                const data = doc.data();
+                if (eventoSeleccionadoFiltro === "TODOS" || (data.evento && data.evento.toUpperCase() === eventoSeleccionadoFiltro)) {
+                    html += `
+                    <div class="area-box active">
+                        <div style="font-size:10px; font-weight:bold; color:var(--accent-cyan); text-transform:uppercase;">${data.evento || 'EVENTO'}</div>
+                        <div style="font-size:12px; font-weight:bold; color:#ffaa00;">ÁREA ${data.area} (R${data.round})</div>
+                        <div style="font-size:16px; font-weight:900; margin: 2px 0;">
+                            <span style="color:#0033cc;">${data.azul}</span> vs <span style="color:#a00000;">${data.rojo}</span>
+                        </div>
+                        <div style="font-family:monospace; color:#20c997; font-weight:bold; font-size:12px;">⏱️ ${data.tiempo}</div>
+                    </div>`;
+                }
             });
-            tbody.innerHTML = html;
+            container.innerHTML = html || '<div style="color:gray; font-size:12px;">No hay áreas activas en este evento.</div>';
+        });
+    }
+
+    // CARGA TODOS LOS COMBATES REGISTRADOS Y CREA LAS PESTAÑAS AUTOMÁTICAMENTE
+    async function cargarHistorialOficial() {
+        const tbody = document.getElementById("tablaHistorialMaster");
+        try {
+            const snapshot = await db.collection("HistorialOficial").get();
+            if(snapshot.empty) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">No hay combates archivados en Firebase.</td></tr>';
+                todosLosCombatesRaw = [];
+                return;
+            }
+
+            todosLosCombatesRaw = [];
+            let eventosSet = new Set();
+
+            snapshot.forEach(doc => {
+                const c = doc.data();
+                todosLosCombatesRaw.push(c);
+                if(c.evento) eventosSet.add(c.evento.toUpperCase());
+            });
+
+            // Reconstruye las pestañas de eventos
+            const tabsBar = document.getElementById("eventTabsBar");
+            let tabsHtml = `<button class="tab-ev-btn ${eventoSeleccionadoFiltro==='TODOS'?'active':''}" onclick="filtrarPorEvento('TODOS', this)">🌐 TODOS LOS EVENTOS</button>`;
+            eventosSet.forEach(ev => {
+                tabsHtml += `<button class="tab-ev-btn ${eventoSeleccionadoFiltro===ev?'active':''}" onclick="filtrarPorEvento('${ev}', this)">🏆 ${ev}</button>`;
+            });
+            tabsBar.innerHTML = tabsHtml;
+
+            renderizarTablaFiltrada();
         } catch(e) {
             console.error("Error cargando historial:", e);
         }
     }
 
+    function filtrarPorEvento(evNombre, btn) {
+        document.querySelectorAll('.tab-ev-btn').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        eventoSeleccionadoFiltro = evNombre;
+        document.getElementById("lblFiltroEvento").innerText = evNombre;
+        renderizarTablaFiltrada();
+    }
+
+    function renderizarTablaFiltrada() {
+        const tbody = document.getElementById("tablaHistorialMaster");
+        let listaFiltrada = todosLosCombatesRaw.filter(c => {
+            if (eventoSeleccionadoFiltro === "TODOS") return true;
+            return c.evento && c.evento.toUpperCase() === eventoSeleccionadoFiltro;
+        });
+
+        if(listaFiltrada.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">No hay combates en este filtro.</td></tr>';
+            return;
+        }
+
+        let html = "";
+        listaFiltrada.forEach(c => {
+            let roundsTxt = c.detalles ? c.detalles.map(r => `R${r.round}: Az ${r.ptsAzul}(${r.gamAzul}G) - Rj ${r.ptsRojo}(${r.gamRojo}G)`).join("<br>") : "-";
+            html += `
+            <tr>
+                <td style="font-weight:bold; color:var(--accent-cyan);">${c.evento ? c.evento.toUpperCase() : 'GENERAL'}<br><small style="color:gray">Área ${c.area || 1}</small></td>
+                <td style="font-weight:bold; color:#ffaa00;">#${c.num}<br><small style="color:gray">${c.hora || ''}</small></td>
+                <td><strong>${c.categoria}</strong><br><span style="color:#4d7cff">Azul: ${c.az}</span><br><span style="color:#ff4d4d">Rojo: ${c.rj}</span></td>
+                <td style="font-size:10px;">${roundsTxt}</td>
+                <td style="font-weight:bold; color:#28a745;">${c.ganador || ''}<br><small>${c.res}</small></td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
     function imprimirPDFConsolidadoMaster() {
-        if(listaCombatesConsolidada.length === 0) { mostrarToast("No hay registros para exportar a PDF."); return; }
+        let listaFiltrada = todosLosCombatesRaw.filter(c => {
+            if (eventoSeleccionadoFiltro === "TODOS") return true;
+            return c.evento && c.evento.toUpperCase() === eventoSeleccionadoFiltro;
+        });
+
+        if(listaFiltrada.length === 0) { mostrarToast("No hay registros para exportar."); return; }
         const pz = document.getElementById("printable-admin-zone");
         
-        let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL CONSOLIDADO DE RESULTADOS</h2>
-                    <h4 style="text-align:center;margin-top:2px;color:#555;">EVENTO: ${EVENTO_ACTIVO.toUpperCase()} - FECHA GENERACIÓN: ${new Date().toLocaleDateString()}</h4>
+        let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL DE RESULTADOS</h2>
+                    <h4 style="text-align:center;margin-top:2px;color:#555;">FILTRO: ${eventoSeleccionadoFiltro} - FECHA GENERACIÓN: ${new Date().toLocaleDateString()}</h4>
                     <table class="print-table">
                         <thead>
                             <tr>
-                                <th>ÁREA</th>
+                                <th>EVENTO / ÁREA</th>
                                 <th>Nº / HORA</th>
                                 <th>CATEGORÍA</th>
                                 <th>COMPETIDORES</th>
@@ -325,10 +357,10 @@
                         </thead>
                         <tbody>`;
                         
-        listaCombatesConsolidada.forEach(c => {
+        listaFiltrada.forEach(c => {
             let rSub = c.detalles ? c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ") : "-";
             html += `<tr>
-                <td style="text-align:center;font-weight:bold;">Área ${c.area}</td>
+                <td style="text-align:center;font-weight:bold;">${c.evento ? c.evento.toUpperCase() : 'GENERAL'}<br>Área ${c.area}</td>
                 <td style="text-align:center;font-weight:bold;">#${c.num}<br><small>${c.hora || ''}</small></td>
                 <td><strong>${c.categoria}</strong></td>
                 <td>
