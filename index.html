@@ -473,7 +473,7 @@
 
     let ably, canal;
 
-    /* SINTETIZADOR REDISEÑADO CON FRECUENCIAS ARMÓNICAS PURAS */
+    /* SINTETIZADOR DE IMPACTOS REALES (PUNCH FÍSICO Y GOLPE SECO) */
     const interfazSonidos = {
         ctx: null,
         inicializar() {
@@ -484,46 +484,69 @@
                 this.ctx.resume();
             }
         },
+        // EFECTO PUNCH 3 (Impacto de Peto / Puño contundente)
         playPunto() { 
             this.inicializar();
             try {
-                // Acorde agudo brillante y limpio (Efecto "Chime/Beep" profesional)
-                let o1 = this.ctx.createOscillator();
-                let o2 = this.ctx.createOscillator();
-                let g = this.ctx.createGain();
-
-                o1.type = 'triangle';
-                o2.type = 'sine';
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
                 
-                o1.frequency.setValueAtTime(1046.50, this.ctx.currentTime); // C6
-                o2.frequency.setValueAtTime(1318.51, this.ctx.currentTime); // E6
+                // Golpe de frecuencia descendente ultrarrápida (Punch de impacto)
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.08);
 
-                g.gain.setValueAtTime(0.4, this.ctx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
+                // Ruido de chasquido inicial para dar sensación de golpe seco táctil
+                let noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.05, this.ctx.sampleRate);
+                let output = noiseBuffer.getChannelData(0);
+                for (let i = 0; i < noiseBuffer.length; i++) {
+                    output[i] = Math.random() * 2 - 1;
+                }
+                let whiteNoise = this.ctx.createBufferSource();
+                whiteNoise.buffer = noiseBuffer;
 
-                o1.connect(g); o2.connect(g);
-                g.connect(this.ctx.destination);
+                let noiseFilter = this.ctx.createBiquadFilter();
+                noiseFilter.type = 'lowpass';
+                noiseFilter.frequency.setValueAtTime(1000, this.ctx.currentTime);
 
-                o1.start(); o2.start();
-                o1.stop(this.ctx.currentTime + 0.15);
-                o2.stop(this.ctx.currentTime + 0.15);
+                let noiseGain = this.ctx.createGain();
+                noiseGain.gain.setValueAtTime(0.8, this.ctx.currentTime);
+                noiseGain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+
+                whiteNoise.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(this.ctx.destination);
+
+                gain.gain.setValueAtTime(1.0, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                whiteNoise.start();
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
             } catch(e){}
         },
+        // EFECTO GAM-JEOM (Golpe pesado sordo e impacto grave)
         playFalta() {
             this.inicializar();
             try {
-                // Doble golpe grave metálico de alerta (Gam-jeom)
-                [0, 0.10].forEach((delay, idx) => {
-                    let osc = this.ctx.createOscillator();
-                    let g = this.ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(idx === 0 ? 320 : 220, this.ctx.currentTime + delay);
-                    g.gain.setValueAtTime(0.6, this.ctx.currentTime + delay);
-                    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + 0.15);
-                    osc.connect(g); g.connect(this.ctx.destination);
-                    osc.start(this.ctx.currentTime + delay);
-                    osc.stop(this.ctx.currentTime + delay + 0.15);
-                });
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 0.25);
+
+                gain.gain.setValueAtTime(1.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
             } catch(e){}
         },
         playClickReloj() { 
@@ -542,7 +565,6 @@
         playChicharraFinal() { 
             this.inicializar();
             try {
-                // Bocina masiva de estadio (siren/buzzer)
                 let osc1 = this.ctx.createOscillator();
                 let osc2 = this.ctx.createOscillator();
                 let g = this.ctx.createGain();
