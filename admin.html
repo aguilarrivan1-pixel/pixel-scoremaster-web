@@ -2,13 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Administración - Pixel ScoreMaster</title>
-    <!-- Firebase SDKs -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel ScoreMaster - Panel Master Administrador</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-      // Misma configuración de Firebase que la app principal
       const firebaseConfig = {
         apiKey: "AIzaSyBEdyO9hJzWC34qI9G0kchpNGVCpVb_MdA",
         authDomain: "AIzaSyBEdyO9hJzWC34qI9G0kchpNGVCpVb_MdA",
@@ -17,100 +16,156 @@
         messagingSenderId: "824804321113",
         appId: "1:824804321113:web:6d20f06c67eb564cd78e48"
       };
-
       firebase.initializeApp(firebaseConfig);
       const db = firebase.firestore();
     </script>
 
     <style>
+        :root {
+            --bg-dark: #07090e;
+            --panel-bg: #121824;
+            --panel-border: #2a2f42;
+            --accent-cyan: #00f2fe;
+            --text-gray: #a0aec0;
+        }
+
         body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: #0b0c10;
-            color: white;
-            padding: 20px;
+            margin: 0; padding: 20px;
+            background: var(--bg-dark); color: white;
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            user-select: none;
         }
 
-        .header-panel {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #00f2fe;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+        /* Banner Notificaciones */
+        #toast-banner {
+            position: fixed; top: -70px; left: 50%; transform: translateX(-50%);
+            background: #28a745; color: white; padding: 12px 24px; border-radius: 8px;
+            font-weight: 800; font-size: 14px; z-index: 9999999;
+            box-shadow: 0 4px 20px rgba(40, 167, 69, 0.5); border: 2px solid #ffffff;
+            transition: top 0.3s ease-in-out; text-align: center; pointer-events: none;
+        }
+        #toast-banner.show { top: 20px; }
+
+        /* Modal Acceso Administrador */
+        #modalAdminAcceso {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(7, 9, 14, 0.98); display: flex;
+            justify-content: center; align-items: center; z-index: 99999;
+        }
+        .modal-box {
+            background: #121824; border: 2px solid var(--accent-cyan); border-radius: 12px;
+            padding: 30px; width: 360px; text-align: center; color: white;
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);
         }
 
-        .card {
-            background: #121824;
-            border: 1px solid #2a2f42;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+        .header-title {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--accent-cyan); padding-bottom: 12px; margin-bottom: 20px;
+        }
+        .header-title h1 { margin: 0; font-size: 22px; letter-spacing: 1px; text-transform: uppercase; }
+        .live-tag { color: #28a745; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
+
+        .main-grid {
+            display: grid; grid-template-columns: 2fr 1fr; gap: 20px;
         }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
+        .panel-card {
+            background: var(--panel-bg); border: 1px solid var(--panel-border);
+            border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
 
-        input, button, select {
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #2a2f42;
-            background: #1a202c;
-            color: white;
-            font-weight: bold;
+        .card-header {
+            font-size: 16px; font-weight: bold; color: #ffaa00; margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        button.btn-action {
-            background: #00f2fe;
-            color: #000;
-            cursor: pointer;
-            border: none;
-            text-transform: uppercase;
+        /* Tabla Estilo Cyberpunk */
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .admin-table th { background: #0b0c10; color: #ffaa00; padding: 10px; text-align: left; border-bottom: 1px solid var(--panel-border); }
+        .admin-table td { padding: 10px; border-bottom: 1px solid #1a1d26; }
+
+        /* Formulario de Seguridad */
+        .sec-input {
+            width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 15px;
+            background: #1a202c; border: 1px solid #4a5568; color: white;
+            border-radius: 6px; box-sizing: border-box; font-weight: bold;
         }
 
-        button.btn-action:hover {
-            background: #00b8c4;
+        .btn-cyan {
+            width: 100%; padding: 12px; background: var(--accent-cyan); border: none;
+            color: #000; font-weight: 900; border-radius: 6px; cursor: pointer;
+            text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;
+        }
+        .btn-cyan:hover { background: #00c8d4; }
+
+        .btn-refresh {
+            background: var(--accent-cyan); color: #000; border: none; padding: 6px 14px;
+            border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
+        .btn-excel {
+            background: #28a745; color: white; border: none; padding: 12px; width: 100%;
+            border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase;
         }
 
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #2a2f42;
-            text-align: left;
-        }
-
-        th {
-            background: #1a202c;
-            color: #ffaa00;
-        }
+        /* Grid de Áreas en Vivo */
+        .areas-live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .area-box { background: #0d111a; border: 1px solid #2a2f42; padding: 12px; border-radius: 8px; text-align: center; }
+        .area-box.active { border-color: #28a745; box-shadow: 0 0 10px rgba(40,167,69,0.2); }
     </style>
 </head>
 <body>
 
-    <div class="header-panel">
-        <h2>🎛️ PANEL DE ADMINISTRACIÓN CENTRAL</h2>
-        <div>
-            <span style="color: #28a745; font-weight: bold;">● CONEXIÓN EN VIVO</span>
-        </div>
+<div id="toast-banner">MENSAJE DE CONFIRMACIÓN</div>
+
+<!-- MODAL DE ACCESO MESA CENTRAL MASTER -->
+<div id="modalAdminAcceso">
+  <div class="modal-box">
+    <h2 style="margin-top: 0; color: var(--accent-cyan); text-transform: uppercase;">Panel Master Central</h2>
+    <p style="font-size: 13px; color: var(--text-gray); margin-bottom: 20px;">Ingreso exclusivo para la Administración</p>
+    
+    <div style="text-align: left; margin-bottom: 15px;">
+      <label style="font-size: 12px; color: #cbd5e0;">Seleccionar Evento:</label>
+      <input type="text" id="adminNombreEvento" placeholder="Ej: copa-bogota-2026" value="copa-bogota-2026" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;">
     </div>
 
-    <div class="grid-2">
-        <!-- SECCIÓN 1: HISTORIAL DE COMBATES EN TIEMPO REAL -->
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin: 0; color: #ffaa00;">Historial de Combates Archivados</h3>
-                <button class="btn-action" onclick="cargarHistorialFirestore()">🔄 Actualizar</button>
-            </div>
+    <div style="text-align: left; margin-bottom: 20px;">
+      <label style="font-size: 12px; color: #cbd5e0;">Clave Maestra Administrador:</label>
+      <input type="password" id="adminPassword" placeholder="••••••••" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;" onkeydown="if(event.key==='Enter') autenticarAdminMaster()">
+    </div>
 
-            <table>
+    <button onclick="autenticarAdminMaster()" class="btn-cyan">Ingresar al Panel Master</button>
+    <p id="msgErrorAdmin" style="color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; font-weight: bold;"></p>
+  </div>
+</div>
+
+<!-- PANEL ADMINISTRATIVO EN VIVO -->
+<div class="header-title">
+    <h1>🎛️ Panel de Administración Central</h1>
+    <div class="live-tag"><div class="dot"></div> MONITOREO DE EVENTO EN VIVO</div>
+</div>
+
+<!-- MONITOR DE ÁREAS ACTIVAS -->
+<div class="panel-card" style="margin-bottom: 20px;">
+    <div class="card-header">
+        <span>🌐 Áreas en Combate Simultáneo</span>
+    </div>
+    <div class="areas-live-grid" id="areasLiveContainer">
+        <div style="color:gray; font-size:12px;">Ingresa para cargar el monitoreo de áreas...</div>
+    </div>
+</div>
+
+<div class="main-grid">
+    <!-- COLUMNA IZQUIERDA: HISTORIAL DE COMBATES ARCHIVADOS -->
+    <div class="panel-card">
+        <div class="card-header">
+            <span>Historial de Combates Archivados (Evento Completo)</span>
+            <button class="btn-refresh" onclick="cargarHistorialOficial()">🔄 ACTUALIZAR</button>
+        </div>
+
+        <div style="max-height: 380px; overflow-y: auto;">
+            <table class="admin-table">
                 <thead>
                     <tr>
                         <th>Área</th>
@@ -120,41 +175,98 @@
                         <th>Resultado</th>
                     </tr>
                 </thead>
-                <tbody id="tabla-admin-historial">
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: gray;">Cargando combates desde Firebase...</td>
-                    </tr>
+                <tbody id="tablaHistorialMaster">
+                    <tr><td colspan="5" style="text-align:center; color:gray; padding:20px;">Cargando registros oficializados...</td></tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- SECCIÓN 2: SEGURIDAD Y CONFIGURACIÓN -->
-        <div>
-            <div class="card">
-                <h3 style="margin-top: 0; color: #00f2fe;">🔐 Seguridad de Mesas</h3>
-                <p style="font-size: 12px; color: #a0aec0;">Cambia la clave global de acceso para todas las mesas de control en vivo.</p>
-                
-                <div style="margin-bottom: 15px;">
-                    <label style="font-size: 12px;">Nueva Contraseña:</label><br>
-                    <input type="text" id="nuevaPassAdmin" placeholder="Ej: BOGOTA2026" style="width: 100%; margin-top: 5px; box-sizing: border-box;">
-                </div>
-
-                <button class="btn-action" style="width: 100%;" onclick="actualizarPasswordCentral()">Actualizar Clave</button>
-                <p id="msgPassStatus" style="font-size: 12px; display: none; margin-top: 10px;"></p>
-            </div>
-        </div>
+        <button class="btn-excel" onclick="exportarHistorialJSON()">📥 Descargar Reporte Consolidado (JSON / Excel)</button>
     </div>
 
-    <script>
-        // Cargar combates desde Firestore
-        async function cargarHistorialFirestore() {
-            const tbody = document.getElementById("tabla-admin-historial");
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: gray;">Cargando...</td></tr>';
+    <!-- COLUMNA DERECHA: SEGURIDAD DE MESAS Y CONFIGURACIÓN -->
+    <div class="panel-card">
+        <div class="card-header">
+            <span>🔒 Seguridad de Mesas</span>
+        </div>
 
-            try {
-                const snapshot = await db.collection("HistorialOficial").get();
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: gray;">No hay combates registrados aún.</td></tr>';
+        <p style="font-size: 12px; color: var(--text-gray); margin-top: 0;">
+            Cambia la clave global de acceso para que los juzgados y mesas de control puedan ingresar en sus áreas.
+        </p>
+
+        <label style="font-size: 12px; color: white; font-weight: bold;">Nueva Contraseña para Mesas:</label>
+        <input type="password" id="nuevaClaveMesas" class="sec-input" placeholder="Ej: BOGOTA2026">
+
+        <button class="btn-cyan" onclick="actualizarClaveMesasGlobal()">ACTUALIZAR CLAVE GLOBAL</button>
+    </div>
+</div>
+
+<script>
+    let EVENTO_ACTIVO = "";
+
+    function mostrarToast(msj) {
+        const toast = document.getElementById("toast-banner");
+        toast.innerText = msj;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2800);
+    }
+
+    async function autenticarAdminMaster() {
+        const eventoInput = document.getElementById("adminNombreEvento").value.trim();
+        const passInput = document.getElementById("adminPassword").value.trim();
+        const lblError = document.getElementById("msgErrorAdmin");
+
+        if (!eventoInput || !passInput) {
+            lblError.innerText = "Por favor completa todos los campos.";
+            lblError.style.display = "block";
+            return;
+        }
+
+        try {
+            // Verifica la clave Admin Master guardada en Firebase
+            const docRef = await db.collection("Configuracion").doc("Acceso").get();
+            if (docRef.exists) {
+                const passCorrecta = docRef.data().password; // Puedes usar la misma clave o crear una master
+                if (passInput === passCorrecta) {
+                    EVENTO_ACTIVO = eventoInput.toLowerCase().replace(/\s+/g, '-');
+                    document.getElementById("modalAdminAcceso").style.display = "none";
+                    mostrarToast("autenticado como Administrador Central");
+                    
+                    cargarHistorialOficial();
+                    iniciarMonitoreoAreasEnVivo();
+                } else {
+                    lblError.innerText = "Contraseña maestra incorrecta.";
+                    lblError.style.display = "block";
+                }
+            }
+        } catch (error) {
+            console.error("Error al autenticar admin:", error);
+            lblError.innerText = "Error de conexión con Firebase.";
+            lblError.style.display = "block";
+        }
+    }
+
+    // 1. CAMBIAR LA CLAVE DE LAS MESAS DESDE TU PANEL MASTER
+    async function actualizarClaveMesasGlobal() {
+        const nuevaPass = document.getElementById("nuevaClaveMesas").value.trim();
+        if(!nuevaPass) { mostrarToast("Escribe una contraseña válida"); return; }
+
+        try {
+            await db.collection("Configuracion").doc("Acceso").set({ password: nuevaPass }, { merge: true });
+            document.getElementById("nuevaClaveMesas").value = "";
+            mostrarToast("🔒 Clave de Mesas actualizada con éxito en Firebase");
+        } catch(e) {
+            console.error("Error cambiando clave:", e);
+        }
+    }
+
+    // 2. MONITOREO DE ÁREAS EN TIEMPO REAL
+    function iniciarMonitoreoAreasEnVivo() {
+        db.collection("Eventos").doc(EVENTO_ACTIVO).collection("AreasActivas")
+            .onSnapshot(snapshot => {
+                const container = document.getElementById("areasLiveContainer");
+                if(snapshot.empty) {
+                    container.innerHTML = '<div style="color:gray; font-size:12px;">No hay áreas transmitiendo en vivo actualmente.</div>';
                     return;
                 }
 
@@ -162,52 +274,71 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     html += `
-                        <tr>
-                            <td><strong>Área ${data.area || "1"}</strong></td>
-                            <td style="color: #ffaa00; font-weight: bold;">#${data.num}</td>
-                            <td>${data.categoria}</td>
-                            <td><span style="color:#0033cc;">Azul:</span> ${data.az}<br><span style="color:#a00000;">Rojo:</span> ${data.rj}</td>
-                            <td style="color: #28a745; font-weight: bold;">${data.res}</td>
-                        </tr>
-                    `;
+                    <div class="area-box active">
+                        <div style="font-size:12px; font-weight:bold; color:#ffaa00;">ÁREA ${data.area} (R${data.round})</div>
+                        <div style="font-size:18px; font-weight:900; margin: 4px 0;">
+                            <span style="color:#0033cc;">${data.azul}</span> vs <span style="color:#a00000;">${data.rojo}</span>
+                        </div>
+                        <div style="font-family:monospace; color:#20c997; font-weight:bold; font-size:13px;">⏱️ ${data.tiempo}</div>
+                    </div>`;
                 });
-                tbody.innerHTML = html;
-            } catch (error) {
-                console.error("Error al cargar historial:", error);
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Error al consultar Firebase.</td></tr>';
-            }
-        }
+                container.innerHTML = html;
+            });
+    }
 
-        // Cambiar la contraseña centralizada en Firebase
-        async function actualizarPasswordCentral() {
-            const nuevaClave = document.getElementById("nuevaPassAdmin").value.trim();
-            const msg = document.getElementById("msgPassStatus");
-
-            if (!nuevaClave) {
-                msg.style.color = "#ff4d4d";
-                msg.innerText = "Escribe una contraseña válida.";
-                msg.style.display = "block";
+    // 3. CARGAR TABLA CON HISTORIAL DE COMBATES CONCLUIDOS
+    async function cargarHistorialOficial() {
+        const tbody = document.getElementById("tablaHistorialMaster");
+        try {
+            const snapshot = await db.collection("HistorialOficial").get();
+            if(snapshot.empty) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">No hay combates archivados en el sistema.</td></tr>';
                 return;
             }
 
-            try {
-                await db.collection("Configuracion").doc("Acceso").set({
-                    password: nuevaClave
-                });
-                msg.style.color = "#28a745";
-                msg.innerText = "¡Contraseña actualizada con éxito para todas las mesas!";
-                msg.style.display = "block";
-                document.getElementById("nuevaPassAdmin").value = "";
-            } catch (error) {
-                console.error("Error al actualizar clave:", error);
-                msg.style.color = "#ff4d4d";
-                msg.innerText = "Error al actualizar clave en Firebase.";
-                msg.style.display = "block";
-            }
+            let html = "";
+            snapshot.forEach(doc => {
+                const c = doc.data();
+                html += `
+                <tr>
+                    <td style="font-weight:bold; color:var(--accent-cyan);">Área ${c.area || 1}</td>
+                    <td style="font-weight:bold; color:#ffaa00;">#${c.num}</td>
+                    <td>${c.categoria}</td>
+                    <td>
+                        <span style="color:#4d7cff; font-weight:bold;">Azul: ${c.az}</span><br>
+                        <span style="color:#ff4d4d; font-weight:bold;">Rojo: ${c.rj}</span>
+                    </td>
+                    <td style="font-weight:bold; color:#28a745;">${c.res}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        } catch(e) {
+            console.error("Error cargando historial:", e);
         }
+    }
 
-        // Carga inicial al abrir
-        cargarHistorialFirestore();
-    </script>
+    // 4. DESCARGAR REPORTE CONSOLIDADO GLOBAL
+    async function exportarHistorialJSON() {
+        try {
+            const snapshot = await db.collection("HistorialOficial").get();
+            if(snapshot.empty) { mostrarToast("No hay registros para exportar."); return; }
+
+            let listaData = [];
+            snapshot.forEach(doc => listaData.push(doc.data()));
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(listaData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `Reporte_Oficial_TKD.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+
+            mostrarToast("📥 Reporte oficial descargado con éxito");
+        } catch(e) {
+            console.error("Error al exportar:", e);
+        }
+    }
+</script>
 </body>
 </html>
