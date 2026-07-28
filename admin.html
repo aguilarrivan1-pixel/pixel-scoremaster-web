@@ -36,7 +36,6 @@
             user-select: none;
         }
 
-        /* Banner Notificaciones */
         #toast-banner {
             position: fixed; top: -70px; left: 50%; transform: translateX(-50%);
             background: #28a745; color: white; padding: 12px 24px; border-radius: 8px;
@@ -46,7 +45,6 @@
         }
         #toast-banner.show { top: 20px; }
 
-        /* Modal Acceso Administrador */
         #modalAdminAcceso {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(7, 9, 14, 0.98); display: flex;
@@ -66,26 +64,18 @@
         .live-tag { color: #28a745; font-weight: bold; font-size: 13px; display: flex; align-items: center; gap: 6px; }
         .dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
 
-        .main-grid {
-            display: grid; grid-template-columns: 2fr 1fr; gap: 20px;
-        }
-
-        .panel-card {
-            background: var(--panel-bg); border: 1px solid var(--panel-border);
-            border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        }
+        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .panel-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
 
         .card-header {
             font-size: 16px; font-weight: bold; color: #ffaa00; margin-bottom: 15px;
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* Tabla Estilo Cyberpunk */
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
         .admin-table th { background: #0b0c10; color: #ffaa00; padding: 10px; text-align: left; border-bottom: 1px solid var(--panel-border); }
-        .admin-table td { padding: 10px; border-bottom: 1px solid #1a1d26; }
+        .admin-table td { padding: 10px; border-bottom: 1px solid #1a1d26; vertical-align: top; }
 
-        /* Formulario de Seguridad */
         .sec-input {
             width: 100%; padding: 12px; margin-top: 8px; margin-bottom: 15px;
             background: #1a202c; border: 1px solid #4a5568; color: white;
@@ -97,29 +87,29 @@
             color: #000; font-weight: 900; border-radius: 6px; cursor: pointer;
             text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;
         }
-        .btn-cyan:hover { background: #00c8d4; }
 
-        .btn-refresh {
-            background: var(--accent-cyan); color: #000; border: none; padding: 6px 14px;
-            border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px;
-        }
+        .btn-refresh { background: var(--accent-cyan); color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; }
+        .btn-pdf { background: #0056b3; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
 
-        .btn-excel {
-            background: #28a745; color: white; border: none; padding: 12px; width: 100%;
-            border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase;
-        }
-
-        /* Grid de Áreas en Vivo */
         .areas-live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px; }
         .area-box { background: #0d111a; border: 1px solid #2a2f42; padding: 12px; border-radius: 8px; text-align: center; }
         .area-box.active { border-color: #28a745; box-shadow: 0 0 10px rgba(40,167,69,0.2); }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printable-admin-zone, #printable-admin-zone * { visibility: visible; }
+            #printable-admin-zone { position: absolute; left: 0; top: 0; width: 100%; color: black; font-family: sans-serif; }
+            .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            .print-table th, .print-table td { border: 1px solid #333; padding: 8px; font-size: 11px; text-align: left; }
+            .print-table th { background: #eee; }
+            .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; border-radius: 4px; font-size: 9px; margin-right: 4px; }
+        }
     </style>
 </head>
 <body>
 
 <div id="toast-banner">MENSAJE DE CONFIRMACIÓN</div>
 
-<!-- MODAL DE ACCESO MESA CENTRAL MASTER -->
 <div id="modalAdminAcceso">
   <div class="modal-box">
     <h2 style="margin-top: 0; color: var(--accent-cyan); text-transform: uppercase;">Panel Master Central</h2>
@@ -140,27 +130,27 @@
   </div>
 </div>
 
-<!-- PANEL ADMINISTRATIVO EN VIVO -->
+<div id="printable-admin-zone" style="display:none;"></div>
+
 <div class="header-title">
-    <h1>🎛️ Panel de Administración Central</h1>
-    <div class="live-tag"><div class="dot"></div> MONITOREO DE EVENTO EN VIVO</div>
+    <h1>🎛️ PANEL DE ADMINISTRACIÓN CENTRAL</h1>
+    <div class="live-tag"><div class="dot"></div> MONITOREO DEL EVENTO: <span id="nombreEventoHeader" style="color:#00f2fe; margin-left:4px;">-</span></div>
 </div>
 
 <!-- MONITOR DE ÁREAS ACTIVAS -->
 <div class="panel-card" style="margin-bottom: 20px;">
     <div class="card-header">
-        <span>🌐 Áreas en Combate Simultáneo</span>
+        <span>🌐 Áreas transmitiendo en vivo</span>
     </div>
     <div class="areas-live-grid" id="areasLiveContainer">
-        <div style="color:gray; font-size:12px;">Ingresa para cargar el monitoreo de áreas...</div>
+        <div style="color:gray; font-size:12px;">Ingresa para cargar las áreas del evento...</div>
     </div>
 </div>
 
 <div class="main-grid">
-    <!-- COLUMNA IZQUIERDA: HISTORIAL DE COMBATES ARCHIVADOS -->
     <div class="panel-card">
         <div class="card-header">
-            <span>Historial de Combates Archivados (Evento Completo)</span>
+            <span>Historial Oficial de Combates (Evento Completo)</span>
             <button class="btn-refresh" onclick="cargarHistorialOficial()">🔄 ACTUALIZAR</button>
         </div>
 
@@ -168,23 +158,22 @@
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>Área</th>
+                        <th>Área / Hora</th>
                         <th>Combate #</th>
-                        <th>Categoría</th>
-                        <th>Competidores</th>
-                        <th>Resultado</th>
+                        <th>Categoría / Competidores</th>
+                        <th>Desglose por Round</th>
+                        <th>Ganador</th>
                     </tr>
                 </thead>
                 <tbody id="tablaHistorialMaster">
-                    <tr><td colspan="5" style="text-align:center; color:gray; padding:20px;">Cargando registros oficializados...</td></tr>
+                    <tr><td colspan="5" style="text-align:center; color:gray; padding:20px;">Cargando registros...</td></tr>
                 </tbody>
             </table>
         </div>
 
-        <button class="btn-excel" onclick="exportarHistorialJSON()">📥 Descargar Reporte Consolidado (JSON / Excel)</button>
+        <button class="btn-pdf" onclick="imprimirPDFConsolidadoMaster()">🖨️ GENERAR / DESCARGAR PDF OFICIAL DE RESULTADOS</button>
     </div>
 
-    <!-- COLUMNA DERECHA: SEGURIDAD DE MESAS Y CONFIGURACIÓN -->
     <div class="panel-card">
         <div class="card-header">
             <span>🔒 Seguridad de Mesas</span>
@@ -203,6 +192,7 @@
 
 <script>
     let EVENTO_ACTIVO = "";
+    let listaCombatesConsolidada = [];
 
     function mostrarToast(msj) {
         const toast = document.getElementById("toast-banner");
@@ -223,14 +213,14 @@
         }
 
         try {
-            // Verifica la clave Admin Master guardada en Firebase
             const docRef = await db.collection("Configuracion").doc("Acceso").get();
             if (docRef.exists) {
-                const passCorrecta = docRef.data().password; // Puedes usar la misma clave o crear una master
+                const passCorrecta = docRef.data().password;
                 if (passInput === passCorrecta) {
                     EVENTO_ACTIVO = eventoInput.toLowerCase().replace(/\s+/g, '-');
+                    document.getElementById("nombreEventoHeader").innerText = EVENTO_ACTIVO.toUpperCase();
                     document.getElementById("modalAdminAcceso").style.display = "none";
-                    mostrarToast("autenticado como Administrador Central");
+                    mostrarToast("Autenticado como Administrador Central");
                     
                     cargarHistorialOficial();
                     iniciarMonitoreoAreasEnVivo();
@@ -246,7 +236,6 @@
         }
     }
 
-    // 1. CAMBIAR LA CLAVE DE LAS MESAS DESDE TU PANEL MASTER
     async function actualizarClaveMesasGlobal() {
         const nuevaPass = document.getElementById("nuevaClaveMesas").value.trim();
         if(!nuevaPass) { mostrarToast("Escribe una contraseña válida"); return; }
@@ -254,13 +243,12 @@
         try {
             await db.collection("Configuracion").doc("Acceso").set({ password: nuevaPass }, { merge: true });
             document.getElementById("nuevaClaveMesas").value = "";
-            mostrarToast("🔒 Clave de Mesas actualizada con éxito en Firebase");
+            mostrarToast("🔒 Clave global actualizada en Firebase");
         } catch(e) {
             console.error("Error cambiando clave:", e);
         }
     }
 
-    // 2. MONITOREO DE ÁREAS EN TIEMPO REAL
     function iniciarMonitoreoAreasEnVivo() {
         db.collection("Eventos").doc(EVENTO_ACTIVO).collection("AreasActivas")
             .onSnapshot(snapshot => {
@@ -286,29 +274,30 @@
             });
     }
 
-    // 3. CARGAR TABLA CON HISTORIAL DE COMBATES CONCLUIDOS
     async function cargarHistorialOficial() {
         const tbody = document.getElementById("tablaHistorialMaster");
         try {
-            const snapshot = await db.collection("HistorialOficial").get();
+            const snapshot = await db.collection("HistorialOficial").where("evento", "==", EVENTO_ACTIVO).get();
             if(snapshot.empty) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">No hay combates archivados en el sistema.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">No hay combates archivados en este evento.</td></tr>';
+                listaCombatesConsolidada = [];
                 return;
             }
 
+            listaCombatesConsolidada = [];
             let html = "";
             snapshot.forEach(doc => {
                 const c = doc.data();
+                listaCombatesConsolidada.push(c);
+                let roundsTxt = c.detalles ? c.detalles.map(r => `R${r.round}: Az ${r.ptsAzul}(${r.gamAzul}G) - Rj ${r.ptsRojo}(${r.gamRojo}G)`).join("<br>") : "-";
+
                 html += `
                 <tr>
-                    <td style="font-weight:bold; color:var(--accent-cyan);">Área ${c.area || 1}</td>
+                    <td style="font-weight:bold; color:var(--accent-cyan);">Área ${c.area || 1}<br><small style="color:gray">${c.fecha || ''} ${c.hora || ''}</small></td>
                     <td style="font-weight:bold; color:#ffaa00;">#${c.num}</td>
-                    <td>${c.categoria}</td>
-                    <td>
-                        <span style="color:#4d7cff; font-weight:bold;">Azul: ${c.az}</span><br>
-                        <span style="color:#ff4d4d; font-weight:bold;">Rojo: ${c.rj}</span>
-                    </td>
-                    <td style="font-weight:bold; color:#28a745;">${c.res}</td>
+                    <td><strong>${c.categoria}</strong><br><span style="color:#4d7cff">Azul: ${c.az}</span><br><span style="color:#ff4d4d">Rojo: ${c.rj}</span></td>
+                    <td style="font-size:11px;">${roundsTxt}</td>
+                    <td style="font-weight:bold; color:#28a745;">${c.ganador}<br><small>${c.res}</small></td>
                 </tr>`;
             });
             tbody.innerHTML = html;
@@ -317,27 +306,43 @@
         }
     }
 
-    // 4. DESCARGAR REPORTE CONSOLIDADO GLOBAL
-    async function exportarHistorialJSON() {
-        try {
-            const snapshot = await db.collection("HistorialOficial").get();
-            if(snapshot.empty) { mostrarToast("No hay registros para exportar."); return; }
-
-            let listaData = [];
-            snapshot.forEach(doc => listaData.push(doc.data()));
-
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(listaData, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `Reporte_Oficial_TKD.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-
-            mostrarToast("📥 Reporte oficial descargado con éxito");
-        } catch(e) {
-            console.error("Error al exportar:", e);
-        }
+    function imprimirPDFConsolidadoMaster() {
+        if(listaCombatesConsolidada.length === 0) { mostrarToast("No hay registros para exportar a PDF."); return; }
+        const pz = document.getElementById("printable-admin-zone");
+        
+        let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL CONSOLIDADO DE RESULTADOS</h2>
+                    <h4 style="text-align:center;margin-top:2px;color:#555;">EVENTO: ${EVENTO_ACTIVO.toUpperCase()} - FECHA GENERACIÓN: ${new Date().toLocaleDateString()}</h4>
+                    <table class="print-table">
+                        <thead>
+                            <tr>
+                                <th>ÁREA</th>
+                                <th>Nº / HORA</th>
+                                <th>CATEGORÍA</th>
+                                <th>COMPETIDORES</th>
+                                <th>DESGLOSE POR ROUND</th>
+                                <th>GANADOR Y DICTAMEN</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                        
+        listaCombatesConsolidada.forEach(c => {
+            let rSub = c.detalles ? c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ") : "-";
+            html += `<tr>
+                <td style="text-align:center;font-weight:bold;">Área ${c.area}</td>
+                <td style="text-align:center;font-weight:bold;">#${c.num}<br><small>${c.hora || ''}</small></td>
+                <td><strong>${c.categoria}</strong></td>
+                <td>
+                    <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.clubAzul || 'SIN CLUB'})<br>
+                    <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
+                </td>
+                <td>${rSub}</td>
+                <td style="font-weight:bold;color:green;">${c.ganador}<br><small>${c.res}</small></td>
+            </tr>`;
+        });
+        
+        html += `</tbody></table>`; 
+        pz.innerHTML = html; 
+        window.print();
     }
 </script>
 </body>
