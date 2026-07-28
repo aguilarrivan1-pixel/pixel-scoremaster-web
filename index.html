@@ -473,7 +473,7 @@
 
     let ably, canal;
 
-    /* SINTETIZADOR POTENTE DE AUDIOS COMPUESTOS (POTENCIA DE COLISEO) */
+    /* SINTETIZADOR REDISEÑADO CON FRECUENCIAS ARMÓNICAS PURAS */
     const interfazSonidos = {
         ctx: null,
         inicializar() {
@@ -487,45 +487,42 @@
         playPunto() { 
             this.inicializar();
             try {
-                // Tono dual compuesto brillante para marcar el punto con contundencia
+                // Acorde agudo brillante y limpio (Efecto "Chime/Beep" profesional)
                 let o1 = this.ctx.createOscillator();
                 let o2 = this.ctx.createOscillator();
                 let g = this.ctx.createGain();
 
-                o1.type = 'sawtooth';
+                o1.type = 'triangle';
                 o2.type = 'sine';
                 
-                o1.frequency.setValueAtTime(880, this.ctx.currentTime); // Nota La5
-                o1.frequency.exponentialRampToValueAtTime(1760, this.ctx.currentTime + 0.12);
-                
-                o2.frequency.setValueAtTime(1320, this.ctx.currentTime);
-                o2.frequency.exponentialRampToValueAtTime(2640, this.ctx.currentTime + 0.12);
+                o1.frequency.setValueAtTime(1046.50, this.ctx.currentTime); // C6
+                o2.frequency.setValueAtTime(1318.51, this.ctx.currentTime); // E6
 
-                g.gain.setValueAtTime(0.6, this.ctx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+                g.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.15);
 
                 o1.connect(g); o2.connect(g);
                 g.connect(this.ctx.destination);
 
                 o1.start(); o2.start();
-                o1.stop(this.ctx.currentTime + 0.12);
-                o2.stop(this.ctx.currentTime + 0.12);
+                o1.stop(this.ctx.currentTime + 0.15);
+                o2.stop(this.ctx.currentTime + 0.15);
             } catch(e){}
         },
         playFalta() {
             this.inicializar();
             try {
-                // Alarma doble grave y pesada para penalizaciones (Gam-jeom)
-                [0, 0.12].forEach((delay, idx) => {
+                // Doble golpe grave metálico de alerta (Gam-jeom)
+                [0, 0.10].forEach((delay, idx) => {
                     let osc = this.ctx.createOscillator();
                     let g = this.ctx.createGain();
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(idx === 0 ? 280 : 200, this.ctx.currentTime + delay);
-                    g.gain.setValueAtTime(0.7, this.ctx.currentTime + delay);
-                    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + 0.18);
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(idx === 0 ? 320 : 220, this.ctx.currentTime + delay);
+                    g.gain.setValueAtTime(0.6, this.ctx.currentTime + delay);
+                    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + 0.15);
                     osc.connect(g); g.connect(this.ctx.destination);
                     osc.start(this.ctx.currentTime + delay);
-                    osc.stop(this.ctx.currentTime + delay + 0.18);
+                    osc.stop(this.ctx.currentTime + delay + 0.15);
                 });
             } catch(e){}
         },
@@ -535,17 +532,17 @@
                 let osc = this.ctx.createOscillator();
                 let g = this.ctx.createGain();
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(900, this.ctx.currentTime);
-                g.gain.setValueAtTime(0.3, this.ctx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.04);
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                g.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.03);
                 osc.connect(g); g.connect(this.ctx.destination);
-                osc.start(); osc.stop(this.ctx.currentTime + 0.04);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.03);
             } catch(e){}
         },
         playChicharraFinal() { 
             this.inicializar();
             try {
-                // Bocina masiva de estadio (siren/buzzer) con modulación profunda
+                // Bocina masiva de estadio (siren/buzzer)
                 let osc1 = this.ctx.createOscillator();
                 let osc2 = this.ctx.createOscillator();
                 let g = this.ctx.createGain();
@@ -554,7 +551,7 @@
                 osc2.type = 'square';
 
                 osc1.frequency.setValueAtTime(160, this.ctx.currentTime);
-                osc2.frequency.setValueAtTime(165, this.ctx.currentTime); // Desafinación para efecto distorsionado potente
+                osc2.frequency.setValueAtTime(165, this.ctx.currentTime);
 
                 g.gain.setValueAtTime(0.8, this.ctx.currentTime);
                 g.gain.setValueAtTime(0.8, this.ctx.currentTime + 1.2);
@@ -773,7 +770,6 @@
         registrarEnHistorial('azul', 0, `Sistema cambiado a ${modoJueces} Jueces`);
     }
 
-    /* APLICACIÓN REGLAMENTARIA: GAM-JEOMS SOLO SE APLICAN EN PAUSA */
     function penal(equipo) {
         if(bloqueoCombatePorVictoria || enModoDescanso) return;
 
@@ -1264,7 +1260,6 @@
         if (doc.getElementById("tv-rw-azul")) { doc.getElementById("tv-rw-azul").className = "rw-dot" + (wAzul > 0 ? " b-won" : ""); doc.getElementById("tv-rw-azul").innerText = `AZUL: ${wAzul}`; }
         if (doc.getElementById("tv-rw-rojo")) { doc.getElementById("tv-rw-rojo").className = "rw-dot" + (wRojo > 0 ? " r-won" : ""); doc.getElementById("tv-rw-rojo").innerText = `ROJO: ${wRojo}`; }
         
-        /* SINCRONIZAR PANTALLA FLOTANTE DE DESCANSO EN LA TV */
         const modalDescansoTV = doc.getElementById("tv-pantalla-descanso");
         if (modalDescansoTV) {
             if (enModoDescanso) {
