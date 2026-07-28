@@ -2,28 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Meta-tags para bloquear zoom táctil, escalado y gestos en móviles -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Pixel ScoreMaster TKD</title>
-    <!-- Carga de SDKs de Firebase vía CDN -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyBEdyO9hJzWC34qI9G0kchpNGVCpVb_MdA",
-        authDomain: "AIzaSyBEdyO9hJzWC34qI9G0kchpNGVCpVb_MdA",
-        projectId: "pixel-scoremaster-db",
-        storageBucket: "pixel-scoremaster-db.firebasestorage.app",
-        messagingSenderId: "824804321113",
-        appId: "1:824804321113:web:6d20f06c67eb564cd78e48"
-      };
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TKD Bogotá Score Master - Sistema Oficial</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
     <style>
         :root {
             --bg-dark: #12141c;
@@ -34,654 +16,610 @@
             --text-gray: #a0a5b5;
         }
 
-        /* Bloqueo total de gestos y selecciones accidentales en el móvil */
-        html, body { 
-            margin: 0; 
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden !important; 
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-            font-family: 'Segoe UI', -apple-system, sans-serif; 
-            background: var(--bg-dark); 
-            color: white; 
-        }
-
-        /* MODAL DE CONFIGURACIÓN E INGRESO A LA MESA */
-        #modalAcceso {
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            background: rgba(7, 9, 14, 0.98); 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            z-index: 9999999;
-        }
-        .modal-box {
-            background: #121824; 
-            border: 2px solid #00f2fe; 
-            border-radius: 12px; 
-            padding: 30px; 
-            width: 380px; 
-            text-align: center; 
-            color: white; 
-            box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);
-        }
-
-        .top-bar { background: #0b0c10; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--panel-border); font-size: 13px; }
-        .stream-status { display: flex; align-items: center; gap: 8px; color: #28a745; font-weight: bold; }
-        .stream-dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
-        .top-buttons { display: flex; gap: 8px; }
-        .btn-top { background: #222633; color: white; border: 1px solid var(--panel-border); padding: 4px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;}
-        .btn-top:hover { background: #2d3247; }
-        .btn-stream { background: #ffaa00; color: #000; border: none; }
-
-        .main-container { display: flex; flex: 1; padding: 12px; gap: 12px; height: calc(100vh - 40px); box-sizing: border-box; }
-        .left-arena { flex: 1.3; display: flex; flex-direction: column; gap: 10px; }
-        .scoreboard-frame { flex: 1; background: #07090e; border-radius: 12px; border: 1px solid var(--panel-border); display: flex; position: relative; overflow: hidden; }
-        .side { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
-        .side.b-side { background: var(--accent-blue); }
-        .side.r-side { background: var(--accent-rojo); }
-
-        .fighter-name-display { font-size: 26px; font-weight: 800; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); text-align: center; }
-        .fighter-club-display { font-size: 14px; color: rgba(255,255,255,0.7); font-weight: bold; margin-top: 2px; }
-        .score-display { font-size: clamp(120px, 14vw, 200px); font-family: 'Arial Black', sans-serif; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 10px rgba(0,0,0,0.7); }
-
-        .center-column { width: 240px; background: linear-gradient(to right, rgba(0,51,204,0.4) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 80%, rgba(160,0,0,0.4) 100%); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px 0; position: relative; z-index: 2; }
-        .arena-title { font-size: 13px; color: var(--text-gray); letter-spacing: 2px; font-weight: bold; text-align: center; }
-        .round-display { text-align: center; }
-        .round-lbl { font-size: 11px; color: var(--text-gray); font-weight: bold; }
-        .round-num { font-size: 36px; font-weight: 900; color: #ffaa00; }
-        
-        .rounds-won-container { display: flex; gap: 14px; justify-content: center; margin-bottom: 5px; }
-        .rw-dot { font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #222633; border: 1px solid var(--panel-border); color: #666; }
-        .rw-dot.b-won { background: #0033cc; border-color: #3366ff; color: white; box-shadow: 0 0 8px rgba(0,51,204,0.6); }
-        .rw-dot.r-won { background: #a00000; border-color: #ff3333; color: white; box-shadow: 0 0 8px rgba(160,0,0,0.6); }
-
-        .superiority-box { display: none; flex-direction: column; gap: 6px; background: #151821; border: 2px solid #ffaa00; padding: 8px; border-radius: 8px; width: 90%; text-align: center; }
-        .sup-buttons { display: flex; gap: 6px; }
-        .btn-sup { flex: 1; padding: 6px; font-size: 11px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; color: white; }
-        .btn-sup.b { background: #0033cc; }
-        .btn-sup.r { background: #a00000; }
-
-        .timer-display { background: #151821; border: 2px solid #ffaa00; color: white; font-size: 50px; padding: 4px 15px; border-radius: 8px; font-family: monospace; font-weight: bold; cursor: pointer; }
-        .gamjeom-row { display: flex; justify-content: space-around; width: 100%; font-size: 11px; color: var(--text-gray); font-weight: bold; }
-        .gamjeom-counter { font-size: 24px; color: white; font-weight: 900; }
-
-        .scoreboard-editor-container { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; }
-        .mesa-title { font-size: 12px; color: var(--text-gray); margin-bottom: 8px; font-weight: bold; text-transform: uppercase; }
-        .button-group-mesa { display: flex; gap: 4px; margin-bottom: 8px; }
-        .btn-m { flex: 1; padding: 10px 4px; border-radius: 6px; font-weight: bold; border: none; font-size: 11px; cursor: pointer; color: white; white-space: nowrap;}
-        .btn-m.b { background: #1a44cc; border: 1px solid #3366ff; }
-        .btn-m.r { background: #cc1a1a; border: 1px solid #ff3333; }
-        .gam-mesa-row { display: flex; gap: 8px; }
-        .btn-gam-m { flex: 1; background: #2d3247; color: white; border: 1px solid var(--panel-border); padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-
-        .right-panels { width: 440px; display: flex; flex-direction: column; gap: 12px; }
-        .panel-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px; }
-        .match-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-        .btn-ctrl { padding: 10px; border-radius: 6px; border: none; font-weight: bold; color: white; background: #2a2f42; cursor: pointer; font-size: 11px; text-transform: uppercase;}
-        .btn-ctrl.start { background: #28a745; }
-        .btn-ctrl.doctor { background: #d9534f; grid-column: span 2; }
-        .btn-ctrl.cancel-doc { background: #ffaa00; color: black; grid-column: span 2; display: none; }
-
-        .tabs-header { display: flex; border-bottom: 2px solid var(--panel-border); margin-bottom: 12px; }
-        .tab-btn { background: none; border: none; color: var(--text-gray); padding: 6px 12px; cursor: pointer; font-weight: bold; font-size: 12px; }
-        .tab-btn.active { color: #ffaa00; border-bottom: 2px solid #ffaa00; margin-bottom: -2px; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        .config-scroll { max-height: 200px; overflow-y: auto; padding-right: 4px; }
-        .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; color: var(--text-gray); }
-        .config-row select, .config-row input { background: #12141c; border: 1px solid var(--panel-border); color: white; padding: 6px; border-radius: 4px; width: 160px; font-weight: bold;}
-
-        .history-list { height: 160px; overflow-y: auto; font-size: 11px; font-family: monospace; background: #12141c; padding: 6px; border-radius: 4px; border: 1px solid var(--panel-border); }
-        .history-item { padding: 4px; border-bottom: 1px solid #1a1d26; display: flex; justify-content: space-between; }
-
-        .history-table-wrapper { max-height: 200px; overflow-y: auto; background: #12141c; border-radius: 6px; border: 1px solid var(--panel-border); }
-        .tkd-table { width: 100%; border-collapse: collapse; font-size: 11px; color: white; text-align: left; }
-        .tkd-table th { background: #0b0c10; color: #ffaa00; padding: 8px; font-weight: bold; position: sticky; top: 0; border-bottom: 1px solid var(--panel-border); }
-        .tkd-table td { padding: 8px; border-bottom: 1px solid #1a1d26; vertical-align: top; }
-
-        .log-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; width: 280px; }
-        .qr-area { display: flex; justify-content: center; background: white; padding: 6px; border-radius: 6px; margin-top: 8px; width: fit-content; margin-left: auto; margin-right: auto;}
-
-        #pantalla-ganador { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(0,0,0,0.96); }
-        .ganador-box { padding: 45px; border-radius: 25px; border: 3px solid #ffaa00; box-shadow: 0 0 40px rgba(255,170,0,0.3); max-width: 500px; width: 90%; }
-        .ganador-titulo { font-size: 22px; letter-spacing: 2px; margin-bottom: 5px; color: #ffaa00; font-weight: bold; }
-        .ganador-nombre { font-size: 48px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .ganador-club { font-size: 20px; opacity: 0.9; margin-bottom: 30px; font-weight: 600; }
-
-        /* ==========================================
-           INTERFAZ ERGONÓMICA PARA JUECES
-           ========================================== */
-        #juez-ui { 
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100vw; 
-            height: 100vh; 
-            background: #0b0c10; 
-            z-index: 999999; 
-            flex-direction: column; 
-            box-sizing: border-box;
-            padding: 6px;
-        }
-
-        .header-juez {
-            background: #121824;
-            border: 1px solid #2a2f42;
-            padding: 6px;
-            text-align: center;
-            font-weight: 900;
-            border-radius: 6px;
-            color: #ffaa00;
-            font-size: 13px;
-            letter-spacing: 1px;
-            margin-bottom: 6px;
-            flex-shrink: 0;
-        }
-
-        .grid-juez-flex {
-            display: flex;
-            flex: 1;
-            gap: 6px;
-            width: 100%;
-            height: calc(100% - 35px);
-        }
-
-        .col-juez {
-            flex: 1;
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: white;
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            height: 100%;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
         }
 
-        .btn-juez-new {
-            border: none;
+        /* --- ESTILOS DE LOGIN Y OVERLAY --- */
+        #login-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(7, 9, 14, 0.98);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-box {
+            background: var(--panel-bg);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid var(--panel-border);
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+        }
+        .login-box input {
+            width: 80%;
+            padding: 12px;
+            margin: 15px 0;
             border-radius: 8px;
+            border: 1px solid var(--panel-border);
+            background: #111319;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+        }
+        .login-box button {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 85%;
+        }
+
+        /* --- INTERFAZ DEL OPERADOR (MESA CONTROL) --- */
+        #operator-ui {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .header {
+            background: var(--panel-bg);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--panel-border);
+        }
+        .tabs { display: flex; gap: 10px; }
+        .tab-btn {
+            background: #252a3a;
+            border: none;
+            color: var(--text-gray);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab-btn.active {
+            background: var(--accent-blue);
+            color: white;
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 15px;
+            gap: 15px;
+            overflow: hidden;
+        }
+        .tab-content { display: none; width: 100%; height: 100%; }
+        .tab-content.active { display: flex; gap: 15px; }
+
+        .score-board {
+            flex: 2;
+            display: grid;
+            grid-template-columns: 1fr 180px 1fr;
+            gap: 15px;
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid var(--panel-border);
+        }
+        .team-side {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .team-side.azul { background: rgba(0, 51, 204, 0.2); border: 2px solid var(--accent-blue); }
+        .team-side.rojo { background: rgba(160, 0, 0, 0.2); border: 2px solid var(--accent-rojo); }
+        .score-num { font-size: 110px; font-weight: 900; line-height: 0.9; margin: 10px 0; }
+        .center-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+        }
+        .timer-display {
+            font-size: 48px;
+            font-family: monospace;
+            font-weight: bold;
+            background: #111319;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid #ffaa00;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-control {
+            background: #252a3a;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 2px;
+        }
+        .btn-action { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+        .rw-dot { font-weight: bold; padding: 4px 10px; border-radius: 5px; background: #111319; border: 1px solid var(--panel-border); color: #666; margin: 2px 0; }
+        .rw-dot.b-won { background: var(--accent-blue); color: white; }
+        .rw-dot.r-won { background: var(--accent-rojo); color: white; }
+
+        .side-panel {
+            flex: 1;
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .history-list { flex: 1; overflow-y: auto; background: #111319; border-radius: 8px; padding: 10px; font-size: 12px; }
+        .history-item { padding: 4px 0; border-bottom: 1px solid #1a1d26; display: flex; justify-content: space-between; }
+
+        /* --- ESTILOS OPTIMIZADOS PARA EL MANDO DEL JUEZ (RESPONSIVE SIN SCROLL) --- */
+        #juez-ui {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            max-height: 100vh;
+            padding: 6px;
+            box-sizing: border-box;
+            overflow: hidden;
+            background-color: #07090e;
+        }
+        .juez-header {
+            height: 4vh;
+            min-height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #ffaa00;
+            text-transform: uppercase;
+        }
+        .juez-grid-container {
+            display: grid;
+            grid-template-rows: 1.2fr 2fr 1.5fr 1fr;
+            gap: 6px;
+            height: 94vh;
+        }
+        .juez-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .juez-row-double {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 4px;
+        }
+        .btn-juez {
+            border: none;
+            border-radius: 10px;
             color: white;
             font-weight: 900;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            box-sizing: border-box;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            transition: transform 0.05s ease, filter 0.05s ease;
+            user-select: none;
             touch-action: manipulation;
+            cursor: pointer;
         }
+        .btn-juez:active { transform: scale(0.96); opacity: 0.85; }
+        .btn-juez.azul { background: #0033cc; border: 2px solid #0044ff; }
+        .btn-juez.rojo { background: #a00000; border: 2px solid #ff0000; }
+        .btn-juez .lbl-tech { font-size: 2.2vh; opacity: 0.9; font-weight: bold; }
+        .btn-juez .pts-tech { font-size: 4vh; font-weight: 900; line-height: 1; }
+        .btn-juez.sm .lbl-tech { font-size: 1.5vh; }
+        .btn-juez.sm .pts-tech { font-size: 2.5vh; }
 
-        .btn-juez-new:active {
-            transform: scale(0.96);
-            filter: brightness(1.3);
+        /* MODALES Y NOTIFICACIONES */
+        #pantalla-ganador {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.92); z-index: 10000; flex-direction: column; align-items: center; justify-content: center;
         }
+        .ganador-box { padding: 40px; border-radius: 20px; border: 4px solid #ffaa00; text-align: center; max-width: 80%; }
 
-        .col-juez.b .btn-juez-new { background: #0033cc; border: 1.5px solid #3366ff; }
-        .col-juez.r .btn-juez-new { background: #a00000; border: 1.5px solid #ff3333; }
-
-        .btn-juez-new.puno { flex: 0.8; }
-        .btn-juez-new.peto { flex: 2; }
-        .btn-juez-new.casco { flex: 1.8; }
-        .btn-juez-new.giro { flex: 1; }
-
-        .btn-juez-new .lbl-tag { font-size: 11px; text-transform: uppercase; opacity: 0.85; font-weight: bold; }
-        .btn-juez-new .lbl-val { font-size: 28px; line-height: 1; margin-top: 2px; }
-
-        .row-giros { display: flex; gap: 5px; flex: 1; }
-        .row-giros .btn-juez-new { flex: 1; }
+        /* ESTILOS DE IMPRESIÓN OFICIAL */
+        @media print {
+            body * { visibility: hidden; }
+            #printable-print-zone, #printable-print-zone * { visibility: visible; }
+            #printable-print-zone { position: absolute; left: 0; top: 0; width: 100%; color: black; background: white; padding: 20px; }
+            .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            .print-table th, .print-table td { border: 1px solid #444; padding: 8px; text-align: left; font-size: 12px; }
+            .print-table th { background: #eee; }
+            .rd-badge { display: inline-block; background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin: 2px; }
+        }
     </style>
 </head>
 <body>
 
-<!-- MODAL FLOTANTE DE CONFIGURACIÓN E INGRESO -->
-<div id="modalAcceso">
-  <div class="modal-box">
-    <h2 style="margin-top: 0; color: #00f2fe; text-transform: uppercase; letter-spacing: 1px;">Mesa de Control</h2>
-    <p style="font-size: 13px; color: #a0aec0; margin-bottom: 20px;">Configura la sesión del torneo</p>
-    
-    <div style="text-align: left; margin-bottom: 15px;">
-      <label style="font-size: 12px; color: #cbd5e0;">Nombre del Evento:</label>
-      <input type="text" id="inputNombreEvento" placeholder="Ej: Copa Bogota 2026" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;">
-    </div>
-
-    <div style="text-align: left; margin-bottom: 15px;">
-      <label style="font-size: 12px; color: #cbd5e0;">Número de Área:</label>
-      <input type="number" id="inputNumeroArea" placeholder="Ej: 1" value="1" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;">
-    </div>
-
-    <div style="text-align: left; margin-bottom: 20px;">
-      <label style="font-size: 12px; color: #cbd5e0;">Contraseña de Acceso:</label>
-      <input type="password" id="inputPassword" placeholder="••••••••" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;" onkeydown="if(event.key==='Enter') validarEIngresarMesa()">
-    </div>
-
-    <button onclick="validarEIngresarMesa()" style="width: 100%; padding: 12px; background: #00f2fe; border: none; color: #000; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px; text-transform: uppercase;">
-      Ingresar a la Mesa
-    </button>
-
-    <p id="mensajeErrorAcceso" style="color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; font-weight: bold;"></p>
-  </div>
-</div>
-
-<div class="log-container" id="visual-log-container"></div>
-
-<div id="pantalla-ganador">
-    <div class="ganador-box" id="ganador-fondo">
-        <div class="ganador-titulo">COMBATE CONCLUIDO</div>
-        <div class="ganador-nombre" id="ganador-texto">AZUL</div>
-        <div class="ganador-club" id="ganador-club-texto">DELEGACIÓN</div>
-        <button class="btn-ctrl" style="background:#ffaa00; color:black; padding:14px 35px; font-size:14px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer;" onclick="siguienteCombateListo()">➡️ SIGUIENTE COMBATE</button>
-    </div>
-</div>
-
-<div id="printable-print-zone" style="display: none;"></div>
-
-<div id="operator-ui" style="display: flex; flex-direction: column; height: 100%;">
-    <div class="top-bar">
-        <div class="stream-status"><div class="stream-dot"></div>ÁREA CONTROL — TRANSMISIÓN ACTIVA</div>
-        <div style="font-size: 13px; font-weight: bold; color: #ff4500; letter-spacing: 1px;">LIGA DE TAEKWONDO DE BOGOTÁ</div>
-        <div class="top-buttons">
-            <button class="btn-top btn-stream" onclick="abrirPantallaTV()">📺 SEGUNDA PANTALLA (TV)</button>
-            <button class="btn-top" onclick="resetMatch()">RESET ARENA</button>
+    <!-- OVERLAY DE CONTRASEÑA -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="color:#ffaa00; margin-top:0;">SCORE MASTER TKD</h2>
+            <p style="color:var(--text-gray); font-size:14px;">Ingrese la clave de autorización de la mesa:</p>
+            <input type="password" id="pass-field" placeholder="••••••••" onkeydown="if(event.key==='Enter') verificarPassword()">
+            <button onclick="verificarPassword()">INGRESAR AL PANEL</button>
+            <div id="login-error" style="color:#ff4d4d; font-size:12px; margin-top:10px; display:none;">Contraseña incorrecta.</div>
         </div>
     </div>
 
-    <div class="main-container">
-        <div class="left-arena">
-            <div class="scoreboard-frame">
-                <div class="side b-side">
-                    <div class="fighter-name-display" id="lbl-name-azul">AZUL</div>
-                    <div class="fighter-club-display" id="lbl-club-azul">CLUB/DELEGACIÓN</div>
-                    <div class="score-display" id="azul">0</div>
-                </div>
-                
-                <div class="center-column">
-                    <div class="arena-title" style="color: #ffaa00;">ÁREA <span id="displayArea">1</span></div>
-                    <div class="round-display">
-                        <div class="round-lbl" id="lbl-round-type">ROUND</div>
-                        <div class="round-num" id="round">1</div>
-                    </div>
-                    <div class="rounds-won-container">
-                        <div class="rw-dot" id="rw-azul">AZUL: 0</div>
-                        <div class="rw-dot" id="rw-rojo">ROJO: 0</div>
-                    </div>
+    <!-- PANTALLA GANADOR LOCAL -->
+    <div id="pantalla-ganador">
+        <div class="ganador-box" id="ganador-fondo">
+            <h1 style="color:#ffaa00; font-size: 32px; margin:0;">COMBATE CONCLUIDO</h1>
+            <h2 id="ganador-texto" style="font-size: 50px; text-transform: uppercase; margin: 15px 0;">AZUL</h2>
+            <h3 id="ganador-club-texto" style="opacity: 0.9; margin: 0;">DELEGACIÓN</h3>
+            <button class="btn-control" style="margin-top: 25px; padding: 10px 20px;" onclick="siguienteCombateListo()">PREPARAR SIGUIENTE COMBATE</button>
+        </div>
+    </div>
 
-                    <div class="superiority-box" id="panel-superioridad">
-                        <div style="font-size:10px; font-weight:bold; color:#ffaa00; margin-bottom:4px;">DECISIÓN SUPERIORIDAD</div>
-                        <div class="sup-buttons">
-                            <button class="btn-sup b" onclick="decidirSuperioridad('azul')">Azul</button>
-                            <button class="btn-sup r" onclick="decidirSuperioridad('rojo')">Rojo</button>
+    <!-- CONTENEDOR DE IMPRESIÓN -->
+    <div id="printable-print-zone" style="display: none;"></div>
+    <div class="log-container" id="visual-log-container" style="position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:5px;"></div>
+
+    <!-- MESA DE CONTROL (OPERADOR) -->
+    <div id="operator-ui">
+        <div class="header">
+            <div style="font-weight: 900; color: #ffaa00; font-size: 18px;">ÁREA <span id="displayArea">1</span> — MESA DE CONTROL</div>
+            <div class="tabs">
+                <button class="tab-btn active" id="tab-btn-marcador" onclick="switchTab('marcador')">Marcador</button>
+                <button class="tab-btn" id="tab-btn-config" onclick="switchTab('config')">Configuración</button>
+                <button class="tab-btn" id="tab-btn-reportes" onclick="switchTab('reportes')">Reporte del Día</button>
+            </div>
+            <button class="btn-control" style="background:#0033cc;" onclick="abrirPantallaTV()">📺 Abrir Pantalla TV</button>
+        </div>
+
+        <div class="main-container">
+            <!-- TAB MARCADOR -->
+            <div class="tab-content active" id="tab-marcador">
+                <div class="score-board">
+                    <!-- AZUL -->
+                    <div class="team-side azul">
+                        <div style="text-align:center;">
+                            <strong id="lbl-name-azul" style="font-size:20px; text-transform:uppercase;">AZUL</strong><br>
+                            <small id="lbl-club-azul" style="color:var(--text-gray);">CLUB</small>
+                        </div>
+                        <div class="score-num" id="azul">0</div>
+                        <div>
+                            <div>GAM-JEOMS: <strong id="gAzul" style="font-size:24px; color:#ffaa00;">0</strong></div>
+                            <div style="margin-top:5px; display:flex; gap:4px;">
+                                <button class="btn-control" onclick="penal('azul')">+1 Gam</button>
+                                <button class="btn-control" onclick="restarPenal('azul')">-1 Gam</button>
+                                <button class="btn-control" onclick="restar('azul')">-1 Pt</button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="timer-display" id="tiempo" onclick="editarTiempoManual()">2:00</div>
-                    <div class="gamjeom-row">
-                        <div style="text-align: center;">GAM<div class="gamjeom-counter" id="gAzul">0</div></div>
-                        <div style="text-align: center;">GAM<div class="gamjeom-counter" id="gRojo">0</div></div>
+                    <!-- CENTRO -->
+                    <div class="center-controls">
+                        <div>
+                            <div id="lbl-round-type" style="color:var(--text-gray); font-weight:bold; letter-spacing:2px;">ROUND</div>
+                            <div id="round" style="font-size:36px; font-weight:900; color:#ffaa00;">1</div>
+                        </div>
+
+                        <div class="timer-display" id="tiempo" onclick="editarTiempoManual()">2:00</div>
+
+                        <div style="width:100%;">
+                            <button class="btn-action" id="btn-play" style="background:#28a745; color:white;" onclick="conmutarRelojMesa()">
+                                START ROUND <span style="font-size:10px; opacity:0.8;">[Espacio]</span>
+                            </button>
+                        </div>
+
+                        <div style="width:100%; display:flex; flex-direction:column; gap:3px;">
+                            <div class="rw-dot" id="rw-azul">AZUL: 0</div>
+                            <div class="rw-dot" id="rw-rojo">ROJO: 0</div>
+                        </div>
+
+                        <div style="display:flex; gap:4px; width:100%;">
+                            <button class="btn-control" id="btn-medico" style="flex:1; background:#d9534f;" onclick="activarDoctor()">Médico</button>
+                            <button class="btn-control" id="btn-cancel-medico" style="flex:1; background:#6c757d; display:none;" onclick="cancelarDoctorRápido()">Cancelar Méd.</button>
+                        </div>
+                    </div>
+
+                    <!-- ROJO -->
+                    <div class="team-side rojo">
+                        <div style="text-align:center;">
+                            <strong id="lbl-name-rojo" style="font-size:20px; text-transform:uppercase;">ROJO</strong><br>
+                            <small id="lbl-club-rojo" style="color:var(--text-gray);">CLUB</small>
+                        </div>
+                        <div class="score-num" id="rojo">0</div>
+                        <div>
+                            <div>GAM-JEOMS: <strong id="gRojo" style="font-size:24px; color:#ffaa00;">0</strong></div>
+                            <div style="margin-top:5px; display:flex; gap:4px;">
+                                <button class="btn-control" onclick="penal('rojo')">+1 Gam</button>
+                                <button class="btn-control" onclick="restarPenal('rojo')">-1 Gam</button>
+                                <button class="btn-control" onclick="restar('rojo')">-1 Pt</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="side r-side">
-                    <div class="fighter-name-display" id="lbl-name-rojo">ROJO</div>
-                    <div class="fighter-club-display" id="lbl-club-rojo">CLUB/DELEGACIÓN</div>
-                    <div class="score-display" id="rojo">0</div>
-                </div>
-            </div>
-
-            <div class="scoreboard-editor-container">
-                <div class="mesa-title">Controles Manuales de Mesa Central</div>
-                <div class="button-group-mesa">
-                    <button class="btn-m b" onclick="puntoMesa('azul', 1)">+1 Pño</button>
-                    <button class="btn-m b" onclick="puntoMesa('azul', 2)">+2 Peto</button>
-                    <button class="btn-m b" onclick="puntoMesa('azul', 3)">+3 Cab</button>
-                    <button class="btn-m b" onclick="puntoMesa('azul', 4)">+4 G-Peto</button>
-                    <button class="btn-m b" onclick="puntoMesa('azul', 6)">+6 G-Cab</button>
-                    <button class="btn-m r" onclick="puntoMesa('rojo', 1)">+1 Pño</button>
-                    <button class="btn-m r" onclick="puntoMesa('rojo', 2)">+2 Peto</button>
-                    <button class="btn-m r" onclick="puntoMesa('rojo', 3)">+3 Cab</button>
-                    <button class="btn-m r" onclick="puntoMesa('rojo', 4)">+4 G-Peto</button>
-                    <button class="btn-m r" onclick="puntoMesa('rojo', 6)">+6 G-Cab</button>
-                </div>
-                <div class="gam-mesa-row">
-                    <button class="btn-gam-m" onclick="penal('azul')">+1 Gam Azul <span class="hint-key">[Tecl B]</span></button>
-                    <button class="btn-gam-m" onclick="restarPenal('azul')" style="background-color: #5c0000; border-color: #ff4d4d; color: #ffb3b3;">-1 Gam Azul (Corregir)</button>
-                    <button class="btn-gam-m" onclick="restar('azul')">-1 Pts Azul</button>
-
-                    <button class="btn-gam-m" onclick="penal('rojo')">+1 Gam Rojo <span class="hint-key">[Tecl R]</span></button>
-                    <button class="btn-gam-m" onclick="restarPenal('rojo')" style="background-color: #5c0000; border-color: #ff4d4d; color: #ffb3b3;">-1 Gam Rojo (Corregir)</button>
-                    <button class="btn-gam-m" onclick="restar('rojo')">-1 Pts Rojo</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="right-panels">
-            <div class="panel-box">
-                <div class="mesa-title">Control del Estado de Tiempo</div>
-                <div class="match-grid">
-                    <button class="btn-ctrl start" id="btn-play" onclick="conmutarRelojMesa()">START ROUND <span class="hint-key">[Espacio]</span></button>
-                    <button class="btn-ctrl" onclick="pause()">PAUSE</button>
-                    <button class="btn-ctrl" onclick="finalizarRound()">FINISH ROUND</button>
-                    <button class="btn-ctrl" style="background: #444;" onclick="forzarSiguienteRoundManual()">FORZAR SIG. ROUND</button>
-                    <button class="btn-ctrl doctor" id="btn-medico" onclick="activarDoctor()">🏥 TIEMPO MÉDICO (1:00 MIN)</button>
-                    <button class="btn-ctrl cancel-doc" id="btn-cancel-medico" onclick="cancelarDoctorRápido()">⚠️ RETIRAR DOCTOR (REANUDAR)</button>
-                </div>
-            </div>
-
-            <div class="panel-box" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
-                <div class="tabs-header">
-                    <button class="tab-btn" id="tab-btn-rules" onclick="switchTab('rules')">CONFIG COMBATE</button>
-                    <button class="tab-btn active" id="tab-btn-history" onclick="switchTab('history')">LOGS EN VIVO</button>
-                    <button class="tab-btn" id="tab-btn-global" onclick="switchTab('global')">HISTORIAL JORNADA</button>
-                </div>
-
-                <div id="tab-rules" class="tab-content config-scroll">
-                    <div class="config-row"><label>Combate Nº:</label><input id="cfg-combate-num" value="1"></div>
-                    <div class="config-row"><label>Campeonato:</label><input id="cfg-campeonato" value="TORNEO OFICIAL LIGA BOGOTÁ"></div>
-                    <div class="config-row"><label>Categoría:</label><input id="cfg-cat" value="MAYORES AVANZADO"></div>
-                    <div class="config-row">
-                        <label>Competidor Azul:</label>
-                        <input id="aname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;"><input id="aclub" placeholder="Delegación" oninput="setNombres()" style="width:78px;">
-                    </div>
-                    <div class="config-row">
-                        <label>Competidor Rojo:</label>
-                        <input id="rname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;"><input id="rclub" placeholder="Delegación" oninput="setNombres()" style="width:78px;">
-                    </div>
-                    <div class="config-row">
-                        <label>Límite Gam-jeoms:</label>
-                        <input type="number" id="cfg-max-gamjeoms" value="5" min="1" max="99" style="text-align: center; font-weight: bold;">
-                    </div>
-                    <div class="config-row">
-                        <label>Descanso (Segundos):</label>
-                        <input type="number" id="cfg-rest-time" value="60" min="5" max="300" style="text-align: center; font-weight: bold;">
-                    </div>
-                    <div class="config-row">
-                        <label>Sistema Jueces:</label>
-                        <select id="judge-select" onchange="cambiarModoJueces()">
-                            <option value="1">1 Juez Directo</option>
-                            <option value="2" selected>2 Jueces (Coincidencia)</option>
-                            <option value="3">3 Jueces (Mayoría)</option>
-                        </select>
-                    </div>
-                    <div class="config-row"><label>Tiempo Asalto:</label><input type="text" id="time-input" value="2:00" oninput="cambiarConfigTiempo()"></div>
-                </div>
-
-                <div id="tab-history" class="tab-content active">
+                <!-- PANEL LATERAL DE MESA -->
+                <div class="side-panel">
+                    <div style="font-weight:bold; color:#ffaa00; border-bottom:1px solid var(--panel-border); padding-bottom:5px;">HISTORIAL EN VIVO</div>
                     <div class="history-list" id="match-history-list">
-                        <div class="history-item" style="color: gray;">Esperando acciones de combate...</div>
+                        <div class="history-item" style="color: gray;">Esperando acciones...</div>
+                    </div>
+
+                    <!-- SUPERIORIDAD -->
+                    <div id="panel-superioridad" style="display:none; flex-direction:column; gap:5px; background:#221800; padding:8px; border-radius:6px; border:1px solid #ffaa00;">
+                        <small style="color:#ffaa00; text-align:center; font-weight:bold;">DECISIÓN POR SUPERIORIDAD</small>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-control" style="flex:1; background:var(--accent-blue);" onclick="decidirSuperioridad('azul')">Gana Azul</button>
+                            <button class="btn-control" style="flex:1; background:var(--accent-rojo);" onclick="decidirSuperioridad('rojo')">Gana Rojo</button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:5px; margin-top:auto;">
+                        <button class="btn-control" style="background:#d9534f;" onclick="resetMatch()">Reset Combate</button>
+                        <button class="btn-control" style="background:#6c757d;" onclick="forzarSiguienteRoundManual()">Forzar Sig. Round</button>
                     </div>
                 </div>
-
-                <div id="tab-global" class="tab-content">
-                    <div class="history-table-wrapper">
-                        <table class="tkd-table">
-                            <thead>
-                                <tr>
-                                    <th>Nº</th>
-                                    <th>Categoría / Competidores</th>
-                                    <th>Área</th>
-                                    <th>Resultado</th>
-                                </tr>
-                            </thead>
-                            <tbody id="day-global-table-body">
-                                <tr>
-                                    <td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay registros archivados el día de hoy.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <button class="btn-ctrl" style="background:#0056b3; width:100%; margin-top:10px; font-size:12px;" onclick="imprimirHistorialDelDia()">🖨️ DESCARGAR HISTORIAL COMPLETO (PDF)</button>
-                </div>
-
-                <div class="qr-area" id="qrcode"></div>
             </div>
-        </div>
-    </div>
-</div>
 
-<div id="juez-ui">
-    <div class="header-juez">ÁREA <span id="displayAreaJuez">1</span> — MANDO REMOTO JUEZ</div>
-    
-    <div class="grid-juez-flex">
-        <!-- COLUMNA AZUL -->
-        <div class="col-juez b">
-            <button class="btn-juez-new puno" onclick="enviarPunto('azul', 1)">
-                <span class="lbl-tag">Puño</span>
-                <span class="lbl-val">+1</span>
-            </button>
-
-            <button class="btn-juez-new peto" onclick="enviarPunto('azul', 2)">
-                <span class="lbl-tag">Peto</span>
-                <span class="lbl-val">+2</span>
-            </button>
-
-            <button class="btn-juez-new casco" onclick="enviarPunto('azul', 3)">
-                <span class="lbl-tag">Casco</span>
-                <span class="lbl-val">+3</span>
-            </button>
-
-            <div class="row-giros">
-                <button class="btn-juez-new giro" onclick="enviarPunto('azul', 4)">
-                    <span class="lbl-tag">G. Peto</span>
-                    <span class="lbl-val">+4</span>
-                </button>
-                <button class="btn-juez-new giro" onclick="enviarPunto('azul', 6)">
-                    <span class="lbl-tag">G. Casco</span>
-                    <span class="lbl-val">+6</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- COLUMNA ROJA -->
-        <div class="col-juez r">
-            <button class="btn-juez-new puno" onclick="enviarPunto('rojo', 1)">
-                <span class="lbl-tag">Puño</span>
-                <span class="lbl-val">+1</span>
-            </button>
-
-            <button class="btn-juez-new peto" onclick="enviarPunto('rojo', 2)">
-                <span class="lbl-tag">Peto</span>
-                <span class="lbl-val">+2</span>
-            </button>
-
-            <button class="btn-juez-new casco" onclick="enviarPunto('rojo', 3)">
-                <span class="lbl-tag">Casco</span>
-                <span class="lbl-val">+3</span>
-            </button>
-
-            <div class="row-giros">
-                <button class="btn-juez-new giro" onclick="enviarPunto('rojo', 4)">
-                    <span class="lbl-tag">G. Peto</span>
-                    <span class="lbl-val">+4</span>
-                </button>
-                <button class="btn-juez-new giro" onclick="enviarPunto('rojo', 6)">
-                    <span class="lbl-tag">G. Casco</span>
-                    <span class="lbl-val">+6</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Variables de control global
-    let accesoConcedido = false;
-    let EVENTO_ACTUAL = "";
-    let AREA_ACTUAL = "1";
-    let ABLY_CHANNEL_NAME = "";
-
-    const API_KEY = 'lghMsA.rFblDA:Uo_Ya0lwt-osgx2EhIM1egWJb1pTR4seB8MQKN_Rqp8';
-    const params = new URLSearchParams(window.location.search);
-    const esJuez = window.innerWidth < 768 || params.get('mode') === 'juez';
-
-    let ably, canal;
-
-    // Generador de QR dinámico para los jueces con URL de GitHub Pages
-    function generarQRJuez() {
-        const contenedorQR = document.getElementById("qrcode");
-        if(!contenedorQR) return;
-        contenedorQR.innerHTML = "";
-        
-        const urlGitHubPages = "https://aguilarrivan1-pixel.github.io/pixel-scoremaster-web/"; 
-        const urlJuez = `${urlGitHubPages}?mode=juez&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}`;
-        
-        new QRCode(contenedorQR, { 
-            text: urlJuez, 
-            width: 85, 
-            height: 85 
-        });
-    }
-
-    // Función para validar la contraseña guardada en Firebase
-    async function validarEIngresarMesa() {
-        const evento = document.getElementById("inputNombreEvento").value.trim();
-        const area = document.getElementById("inputNumeroArea").value.trim();
-        const passIngresada = document.getElementById("inputPassword").value.trim();
-        const lblError = document.getElementById("mensajeErrorAcceso");
-
-        if (!evento || !area || !passIngresada) {
-            lblError.innerText = "Por favor completa todos los campos.";
-            lblError.style.display = "block";
-            return;
-        }
-
-        lblError.style.display = "none";
-
-        try {
-            const docRef = await db.collection("Configuracion").doc("Acceso").get();
-            
-            if (docRef.exists) {
-                const passCorrecta = docRef.data().password;
-
-                if (passIngresada === passCorrecta) {
-                    accesoConcedido = true;
-                    EVENTO_ACTUAL = evento.toLowerCase().replace(/\s+/g, '-');
-                    AREA_ACTUAL = area;
+            <!-- TAB CONFIGURACIÓN -->
+            <div class="tab-content" id="tab-config">
+                <div class="side-panel" style="flex:1;">
+                    <h3>CONFIGURACIÓN DEL COMBATE</h3>
+                    <label>Campeonato / Evento:</label>
+                    <input type="text" id="cfg-campeonato" value="CAMPEONATO OFICIAL TKD 2026" style="padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
                     
-                    ABLY_CHANNEL_NAME = `tkd-${EVENTO_ACTUAL}-area-${AREA_ACTUAL}`;
+                    <label style="margin-top:10px;">Número de Combate:</label>
+                    <input type="number" id="cfg-combate-num" value="1" style="padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
 
-                    document.getElementById("displayArea").innerText = AREA_ACTUAL;
-                    document.getElementById("displayAreaJuez").innerText = AREA_ACTUAL;
+                    <label style="margin-top:10px;">Categoría:</label>
+                    <input type="text" id="cfg-cat" value="MAYORES - RECONOCIMIENTO" style="padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
 
-                    ably = new Ably.Realtime({ key: API_KEY });
-                    canal = ably.channels.get(ABLY_CHANNEL_NAME);
-                    subscribirEventosAbly();
+                    <div style="display:flex; gap:10px; margin-top:15px;">
+                        <div style="flex:1;">
+                            <label>Competidor Azul:</label>
+                            <input type="text" id="aname" placeholder="Nombre Azul" style="width:90%; padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
+                            <input type="text" id="aclub" placeholder="Delegación Azul" style="width:90%; padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px; margin-top:5px;">
+                        </div>
+                        <div style="flex:1;">
+                            <label>Competidor Rojo:</label>
+                            <input type="text" id="rname" placeholder="Nombre Rojo" style="width:90%; padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
+                            <input type="text" id="rclub" placeholder="Delegación Rojo" style="width:90%; padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px; margin-top:5px;">
+                        </div>
+                    </div>
+                    <button class="btn-control" style="background:#28a745; margin-top:15px; padding:10px;" onclick="setNombres()">Guardar Nombres y Actualizar TV</button>
+                </div>
 
-                    generarQRJuez();
+                <div class="side-panel" style="flex:1;">
+                    <h3>SISTEMA Y JUECES</h3>
+                    <label>Modo Coincidencia de Jueces:</label>
+                    <select id="judge-select" onchange="cambiarModoJueces()" style="padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
+                        <option value="2">2 Jueces Sincronizados (Mínimo 2 clics coincidentes)</option>
+                        <option value="1">1 Juez Directo (Modo Pruebas / Sin coincidencia)</option>
+                        <option value="3">3 Jueces Sincronizados</option>
+                    </select>
 
-                    try { interfazSonidos.inicializar(); } catch(e) {}
+                    <label style="margin-top:10px;">Tiempo por Round (MM:SS):</label>
+                    <input type="text" id="time-input" value="02:00" onchange="cambiarConfigTiempo()" style="padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
 
-                    document.getElementById("modalAcceso").style.display = "none";
-                } else {
-                    lblError.innerText = "Contraseña incorrecta.";
-                    lblError.style.display = "block";
+                    <label style="margin-top:10px;">Tiempo de Descanso (Segundos):</label>
+                    <input type="number" id="cfg-rest-time" value="60" style="padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
+
+                    <label style="margin-top:10px;">Máximo de Gam-jeoms para perder Round:</label>
+                    <input type="number" id="cfg-max-gamjeoms" value="5" style="padding:8px; background:#111; color:white; border:1px solid #333; border-radius:5px;">
+
+                    <div style="margin-top:20px; text-align:center;">
+                        <label>Código QR Conexión Jueces:</label>
+                        <div id="qrcode" style="display:flex; justify-content:center; margin-top:10px; padding:10px; background:white; width:fit-content; margin-left:auto; margin-right:auto; border-radius:8px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB REPORTES -->
+            <div class="tab-content" id="tab-reportes">
+                <div class="side-panel" style="flex:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3>HISTORIAL COMPLETO DE COMBATES FINALIZADOS</h3>
+                        <button class="btn-control" style="background:#28a745; padding:8px 15px;" onclick="imprimirHistorialDelDia()">🖨️ Descargar / Imprimir Reporte Oficial</button>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:13px;">
+                        <thead>
+                            <tr style="border-bottom:2px solid var(--panel-border); text-align:left; color:#ffaa00;">
+                                <th style="padding:8px;">COMBATE</th>
+                                <th style="padding:8px;">CATEGORÍA Y ATLETAS</th>
+                                <th style="padding:8px;">ÁREA</th>
+                                <th style="padding:8px;">DICTAMEN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="day-global-table-body">
+                            <tr><td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay registros archivados en esta sesión.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MANDO REMOTO JUEZ (OPTINIZADO 100% PARA PANTALLAS MÓVILES) -->
+    <div id="juez-ui">
+        <div class="juez-header">
+            ÁREA <span id="displayAreaJuez">1</span> — MANDO REMOTO JUEZ
+        </div>
+
+        <div class="juez-grid-container">
+            <!-- Fila 1: PUÑO (+1) -->
+            <div class="juez-row">
+                <button class="btn-juez azul" onclick="enviarPunto('azul', 1)">
+                    <span class="lbl-tech">PUÑO</span>
+                    <span class="pts-tech">+1</span>
+                </button>
+                <button class="btn-juez rojo" onclick="enviarPunto('rojo', 1)">
+                    <span class="lbl-tech">PUÑO</span>
+                    <span class="pts-tech">+1</span>
+                </button>
+            </div>
+
+            <!-- Fila 2: PETO (+2) -->
+            <div class="juez-row">
+                <button class="btn-juez azul" onclick="enviarPunto('azul', 2)">
+                    <span class="lbl-tech">PETO</span>
+                    <span class="pts-tech">+2</span>
+                </button>
+                <button class="btn-juez rojo" onclick="enviarPunto('rojo', 2)">
+                    <span class="lbl-tech">PETO</span>
+                    <span class="pts-tech">+2</span>
+                </button>
+            </div>
+
+            <!-- Fila 3: CASCO (+3) -->
+            <div class="juez-row">
+                <button class="btn-juez azul" onclick="enviarPunto('azul', 3)">
+                    <span class="lbl-tech">CASCO</span>
+                    <span class="pts-tech">+3</span>
+                </button>
+                <button class="btn-juez rojo" onclick="enviarPunto('rojo', 3)">
+                    <span class="lbl-tech">CASCO</span>
+                    <span class="pts-tech">+3</span>
+                </button>
+            </div>
+
+            <!-- Fila 4: GIRO PETO (+4) Y GIRO CASCO (+5) -->
+            <div class="juez-row-double">
+                <button class="btn-juez azul sm" onclick="enviarPunto('azul', 4)">
+                    <span class="lbl-tech">G. PETO</span>
+                    <span class="pts-tech">+4</span>
+                </button>
+                <button class="btn-juez azul sm" onclick="enviarPunto('azul', 5)">
+                    <span class="lbl-tech">G. CASCO</span>
+                    <span class="pts-tech">+5</span>
+                </button>
+                <button class="btn-juez rojo sm" onclick="enviarPunto('rojo', 4)">
+                    <span class="lbl-tech">G. PETO</span>
+                    <span class="pts-tech">+4</span>
+                </button>
+                <button class="btn-juez rojo sm" onclick="enviarPunto('rojo', 5)">
+                    <span class="lbl-tech">G. CASCO</span>
+                    <span class="pts-tech">+5</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE LÓGICA COMPLETA DE LA APLICACIÓN -->
+    <script>
+        let accesoConcedido = false;
+
+        function verificarPassword() {
+            const campo = document.getElementById("pass-field");
+            const error = document.getElementById("login-error");
+            
+            if (campo.value === "LIGATKD2026") {
+                accesoConcedido = true;
+                try {
+                    interfazSonidos.inicializar();
+                } catch(e) {
+                    console.log("Audio retenido:", e);
                 }
+                document.getElementById("login-overlay").style.display = "none";
             } else {
-                lblError.innerText = "Error: Documento 'Acceso' no existe en Firebase.";
-                lblError.style.display = "block";
+                error.style.display = "block";
+                campo.value = "";
+                campo.focus();
             }
-        } catch (error) {
-            console.error("Error al validar clave:", error);
-            lblError.innerText = "Error de conexión con Firebase.";
-            lblError.style.display = "block";
         }
-    }
 
-    if(esJuez) {
-        document.getElementById("operator-ui").style.display = "none";
-        document.getElementById("juez-ui").style.display = "flex";
-        accesoConcedido = true; 
-        document.getElementById("modalAcceso").style.display = "none";
+        const interfazSonidos = {
+            ctx: null,
+            inicializar() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            emitirTono(frecuencia, tipo, duracion, volumen, retrasoInicio = 0) {
+                this.inicializar();
+                try {
+                    let osc = this.ctx.createOscillator();
+                    let gain = this.ctx.createGain();
+                    
+                    osc.type = tipo;
+                    osc.frequency.setValueAtTime(frecuencia, this.ctx.currentTime + retrasoInicio);
+                    
+                    gain.gain.setValueAtTime(volumen, this.ctx.currentTime + retrasoInicio);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + retrasoInicio + duracion);
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.start(this.ctx.currentTime + retrasoInicio);
+                    osc.stop(this.ctx.currentTime + retrasoInicio + duracion);
+                } catch(e) { console.log("Error de Audio:", e); }
+            },
+            playPunto() { this.emitirTono(950, 'sine', 0.10, 0.3); },
+            playFalta() {
+                this.emitirTono(440, 'sine', 0.12, 0.3);
+                this.emitirTono(330, 'sine', 0.15, 0.3, 0.08); 
+            },
+            playClickReloj() { this.emitirTono(500, 'triangle', 0.04, 0.3); },
+            playChicharraFinal() { this.emitirTono(200, 'square', 1.3, 0.4); }
+        };
 
-        const areaParam = params.get('area') || '1';
-        const eventoParam = params.get('evento') || 'general';
-        
-        ABLY_CHANNEL_NAME = `tkd-${eventoParam.toLowerCase().replace(/\s+/g, '-')}-area-${areaParam}`;
+        const API_KEY = 'lghMsA.rFblDA:Uo_Ya0lwt-osgx2EhIM1egWJb1pTR4seB8MQKN_Rqp8';
+        const params = new URLSearchParams(window.location.search);
+        const areaID = params.get('area') || '1';
+        const esJuez = window.innerWidth < 768 || params.get('mode') === 'juez';
 
-        document.getElementById("displayAreaJuez").innerText = areaParam;
+        document.getElementById("displayArea").innerText = areaID;
+        document.getElementById("displayAreaJuez").innerText = areaID;
 
-        ably = new Ably.Realtime({ key: API_KEY });
-        canal = ably.channels.get(ABLY_CHANNEL_NAME);
-    }
-
-    // INTERFAZ DE SONIDOS REFORZADA Y MÁS FUERTE
-    const interfazSonidos = {
-        ctx: null,
-        inicializar() {
-            if (!this.ctx) {
-                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (this.ctx.state === 'suspended') {
-                this.ctx.resume();
-            }
-        },
-        emitirTono(frecuencia, tipo, duracion, volumen, retrasoInicio = 0) {
-            this.inicializar();
-            try {
-                let osc = this.ctx.createOscillator();
-                let gain = this.ctx.createGain();
-                
-                osc.type = tipo;
-                osc.frequency.setValueAtTime(frecuencia, this.ctx.currentTime + retrasoInicio);
-                
-                // Volumen aumentado a nivel máximo sin distorsión
-                gain.gain.setValueAtTime(volumen, this.ctx.currentTime + retrasoInicio);
-                gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + retrasoInicio + duracion);
-                
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                
-                osc.start(this.ctx.currentTime + retrasoInicio);
-                osc.stop(this.ctx.currentTime + retrasoInicio + duracion);
-            } catch(e) { console.log("Error de Audio:", e); }
-        },
-        playPunto() { 
-            // Doble tono ascendente tipo "ding-dong" de alta frecuencia y volumen fuerte (0.9)
-            this.emitirTono(880, 'triangle', 0.12, 0.9, 0); 
-            this.emitirTono(1320, 'triangle', 0.18, 0.9, 0.08); 
-        },
-        playFalta() {
-            // Sonido grave disonante y potente para Gam-jeom
-            this.emitirTono(300, 'sawtooth', 0.15, 0.8, 0);
-            this.emitirTono(220, 'sawtooth', 0.25, 0.8, 0.1); 
-        },
-        playClickReloj() { this.emitirTono(600, 'sine', 0.05, 0.5); },
-        playChicharraFinal() { 
-            // Chicharra de cierre tipo arena oficial
-            this.emitirTono(180, 'sawtooth', 1.4, 1.0); 
-            this.emitirTono(240, 'square', 1.4, 0.8); 
+        if(esJuez) {
+            document.getElementById("operator-ui").style.display = "none";
+            document.getElementById("juez-ui").style.display = "flex";
+            accesoConcedido = true; 
+            document.getElementById("login-overlay").style.display = "none";
         }
-    };
 
-    let rojo=0, azul=0, gRojo=0, gAzul=0, tiempo=120, tiempoGuardadoAntesDoc=120, intervalo=null, round=1, wRojo=0, wAzul=0, clics=[];
-    let modoJueces = 2;
-    let ventanaTV = null;
-    let enModoDoctor = false;
-    let enModoDescanso = false;
-    let combatesFinalizadosLogs = [];
-    let bloqueoCombatePorVictoria = false;
-    let estadisticasRounds = [];
+        const ably = new Ably.Realtime({ key: API_KEY });
+        const canal = ably.channels.get('tkd-area-' + areaID);
 
-    window.addEventListener('keydown', function(e) {
-        if (!accesoConcedido || esJuez || bloqueoCombatePorVictoria) return;
-        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
+        let rojo=0, azul=0, gRojo=0, gAzul=0, tiempo=120, tiempoGuardadoAntesDoc=120, intervalo=null, round=1, wRojo=0, wAzul=0, clics=[];
+        let modoJueces = 2;
+        let ventanaTV = null;
+        let enModoDoctor = false;
+        let enModoDescanso = false;
+        let combatesFinalizadosLogs = [];
+        let bloqueoCombatePorVictoria = false;
+        let estadisticasRounds = [];
 
-        const tecla = e.key.toLowerCase();
-        if (e.code === "Space" || tecla === " ") {
-            e.preventDefault();
-            conmutarRelojMesa();
-        } 
-        else if (tecla === "b") { penal('azul'); } 
-        else if (tecla === "r") { penal('rojo'); }
-    });
+        window.addEventListener('keydown', function(e) {
+            if (!accesoConcedido || esJuez || bloqueoCombatePorVictoria) return;
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
 
-    function subscribirEventosAbly() {
-        if(!canal) return;
+            const tecla = e.key.toLowerCase();
+            if (e.code === "Space" || tecla === " ") {
+                e.preventDefault();
+                conmutarRelojMesa();
+            } 
+            else if (tecla === "b") { penal('azul'); } 
+            else if (tecla === "r") { penal('rojo'); }
+        });
+
         canal.subscribe('p', (msg) => {
             const d = msg.data;
             if(msg.connectionId === ably.connection.id) {
@@ -705,570 +643,544 @@
                 }
             }
         });
-    }
 
-    function efectuarPunto(equipo, puntos, juecesTxt) {
-        if(bloqueoCombatePorVictoria || enModoDescanso) return;
-        if(equipo === 'rojo') rojo += puntos; else azul += puntos;
-        interfazSonidos.playPunto();
-        dispararLogVisual(equipo, puntos, juecesTxt);
-        registrarEnHistorial(equipo, puntos, juecesTxt);
-        actualizar();
-    }
+        function efectuarPunto(equipo, puntos, juecesTxt) {
+            if(bloqueoCombatePorVictoria || enModoDescanso) return;
+            if(equipo === 'azul') azul += puntos; else rojo += puntos;
+            interfazSonidos.playPunto();
+            dispararLogVisual(equipo, puntos, juecesTxt);
+            registrarEnHistorial(equipo, puntos, juecesTxt);
+            actualizar();
+        }
 
-    function dispararLogVisual(equipo, puntos, juecesTxt) {
-        let nombreTecnica = puntos === 1 ? "Puño" : puntos === 2 ? "Peto" : puntos === 3 ? "Cabeza" : puntos === 4 ? "Giro Peto" : "Giro Cabeza";
-        const HTMLCard = `<div><strong>${nombreTecnica}</strong><br><small>${juecesTxt}</small></div><div style="font-size:15px; font-weight:bold; margin-left:auto;">+${puntos}</div>`;
-        inyectarCardLog(document.getElementById("visual-log-container"), equipo, HTMLCard);
-        if (ventanaTV && !ventanaTV.closed) { inyectarCardLog(ventanaTV.document.getElementById("tv-visual-log-container"), equipo, HTMLCard); }
-    }
+        function dispararLogVisual(equipo, puntos, juecesTxt) {
+            let nombreTecnica = puntos === 1 ? "Puño" : puntos === 2 ? "Peto" : puntos === 3 ? "Cabeza" : puntos === 4 ? "Giro Peto" : "Giro Cabeza";
+            const HTMLCard = `<div><strong>${nombreTecnica}</strong><br><small>${juecesTxt}</small></div><div style="font-size:15px; font-weight:bold; margin-left:auto;">+${puntos}</div>`;
+            inyectarCardLog(document.getElementById("visual-log-container"), equipo, HTMLCard);
+            if (ventanaTV && !ventanaTV.closed) { inyectarCardLog(ventanaTV.document.getElementById("tv-visual-log-container"), equipo, HTMLCard); }
+        }
 
-    function inyectarCardLog(contenedor, equipo, contenido) {
-        if(!contenedor) return;
-        const card = document.createElement("div");
-        card.style.cssText = `background:rgba(20,24,36,0.95); border-radius:8px; padding:6px 12px; display:flex; align-items:center; border-left:5px solid ${equipo==='azul'?'#0033cc':'#a00000'}; color:white; margin-bottom:4px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); font-size:11px; width:220px;`;
-        card.innerHTML = contenido;
-        contenedor.appendChild(card);
-        setTimeout(() => { card.remove(); }, 2500);
-    }
+        function inyectarCardLog(contenedor, equipo, contenido) {
+            if(!contenedor) return;
+            const card = document.createElement("div");
+            card.style.cssText = `background:rgba(20,24,36,0.95); border-radius:8px; padding:6px 12px; display:flex; align-items:center; border-left:5px solid ${equipo==='azul'?'#0033cc':'#a00000'}; color:white; margin-bottom:4px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); font-size:11px; width:220px;`;
+            card.innerHTML = contenido;
+            contenedor.appendChild(card);
+            setTimeout(() => { card.remove(); }, 2500);
+        }
 
-    function registrarEnHistorial(equipo, puntos, procedencia) {
-        const lista = document.getElementById("match-history-list");
-        if(lista.innerHTML.includes("Esperando acciones")) lista.innerHTML = "";
-        const item = document.createElement("div");
-        item.className = "history-item";
-        let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
-        let preTag = enModoDescanso ? "[DESC]" : `[R${round}]`;
-        item.innerHTML = `<span style="color:${equipo==='azul'?'#4d7cff':'#ff4d4d'}">${preTag} ${min}:${seg<10?'0':''}${seg} -> ${puntos >= 0 ? '+' : ''}${puntos} ${equipo.toUpperCase()}</span><span style="color:gray;">${procedencia}</span>`;
-        lista.insertBefore(item, lista.firstChild);
-    }
+        function registrarEnHistorial(equipo, puntos, procedencia) {
+            const lista = document.getElementById("match-history-list");
+            if(lista.innerHTML.includes("Esperando acciones")) lista.innerHTML = "";
+            const item = document.createElement("div");
+            item.className = "history-item";
+            let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+            let preTag = enModoDescanso ? "[DESC]" : `[R${round}]`;
+            item.innerHTML = `<span style="color:${equipo==='azul'?'#4d7cff':'#ff4d4d'}">${preTag} ${min}:${seg<10?'0':''}${seg} -> ${puntos >= 0 ? '+' : ''}${puntos} ${equipo.toUpperCase()}</span><span style="color:gray;">${procedencia}</span>`;
+            lista.insertBefore(item, lista.firstChild);
+        }
 
-    function puntoMesa(equipo, puntos) { efectuarPunto(equipo, puntos, 'Mesa Control'); }
-    
-    function switchTab(t) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.getElementById('tab-btn-' + t).classList.add('active');
-        document.getElementById('tab-' + t).classList.add('active');
-    }
+        function switchTab(t) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-btn-' + t).classList.add('active');
+            document.getElementById('tab-' + t).classList.add('active');
+        }
 
-    function setNombres() {
-        let az = document.getElementById("aname").value || "AZUL";
-        let rj = document.getElementById("rname").value || "ROJO";
-        let clB = document.getElementById("aclub").value || "CLUB/DELEGACIÓN";
-        let clR = document.getElementById("rclub").value || "CLUB/DELEGACIÓN";
-        document.getElementById("lbl-name-azul").innerText = az;
-        document.getElementById("lbl-name-rojo").innerText = rj;
-        document.getElementById("lbl-club-azul").innerText = clB;
-        document.getElementById("lbl-club-rojo").innerText = clR;
-        actualizarTV();
-    }
+        function setNombres() {
+            let az = document.getElementById("aname").value || "AZUL";
+            let rj = document.getElementById("rname").value || "ROJO";
+            let clB = document.getElementById("aclub").value || "CLUB/DELEGACIÓN";
+            let clR = document.getElementById("rclub").value || "CLUB/DELEGACIÓN";
+            document.getElementById("lbl-name-azul").innerText = az;
+            document.getElementById("lbl-name-rojo").innerText = rj;
+            document.getElementById("lbl-club-azul").innerText = clB;
+            document.getElementById("lbl-club-rojo").innerText = clR;
+            actualizarTV();
+        }
 
-    function cambiarConfigTiempo() {
-        if(!intervalo) {
-            const arr = document.getElementById("time-input").value.split(":");
-            if(arr.length === 2) {
-                tiempo = (parseInt(arr[0]) * 60) + parseInt(arr[1]);
-                let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
-                document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
-                actualizarTV();
+        function cambiarConfigTiempo() {
+            if(!intervalo) {
+                const arr = document.getElementById("time-input").value.split(":");
+                if(arr.length === 2) {
+                    tiempo = (parseInt(arr[0]) * 60) + parseInt(arr[1]);
+                    let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+                    document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
+                    actualizarTV();
+                }
             }
         }
-    }
 
-    function cambiarModoJueces() {
-        modoJueces = parseInt(document.getElementById("judge-select").value);
-        registrarEnHistorial('azul', 0, `Sistema cambiado a ${modoJueces} Jueces`);
-    }
-
-    function penal(equipo) {
-        if(bloqueoCombatePorVictoria || enModoDescanso) return;
-        interfazSonidos.playFalta(); 
-        if(equipo === 'azul') { gAzul++; rojo += 1; registrarEnHistorial('azul', 0, 'Gam-jeom otorgado (Punto a Rojo)'); } 
-        else { gRojo++; azul += 1; registrarEnHistorial('rojo', 0, 'Gam-jeom otorgado (Punto a Azul)'); }
-        actualizar();
-
-        let maxGam = parseInt(document.getElementById("cfg-max-gamjeoms").value) || 5;
-        if(gAzul >= maxGam) {
-            pause(); interfazSonidos.playChicharraFinal();
-            window.alert(`Límite de Gam-jeoms alcanzado (${maxGam}). ROJO gana este round.`);
-            estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Victoria por Gam-jeoms" });
-            wRojo++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
-        } else if(gRojo >= maxGam) {
-            pause(); interfazSonidos.playChicharraFinal();
-            window.alert(`Límite de Gam-jeoms alcanzado (${maxGam}). AZUL gana este round.`);
-            estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Victoria por Gam-jeoms" });
-            wAzul++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+        function cambiarModoJueces() {
+            modoJueces = parseInt(document.getElementById("judge-select").value);
+            registrarEnHistorial('azul', 0, `Sistema cambiado a ${modoJueces} Jueces`);
         }
-    }
 
-    function restarPenal(equipo) {
-        if(bloqueoCombatePorVictoria || enModoDescanso) return;
-        if(equipo === 'azul' && gAzul > 0) {
-            gAzul--; 
-            if(rojo > 0) rojo--; 
-            registrarEnHistorial('azul', 0, 'Mesa corrige error: Remueve Gam-jeom a Azul');
-        } else if(equipo === 'rojo' && gRojo > 0) {
-            gRojo--;
-            if(azul > 0) azul--; 
-            registrarEnHistorial('rojo', 0, 'Mesa corrige error: Remueve Gam-jeom a Rojo');
+        function penal(equipo) {
+            if(bloqueoCombatePorVictoria || enModoDescanso) return;
+            interfazSonidos.playFalta(); 
+            if(equipo === 'azul') { gAzul++; rojo += 1; registrarEnHistorial('azul', 0, 'Gam-jeom otorgado (Punto a Rojo)'); } 
+            else { gRojo++; azul += 1; registrarEnHistorial('rojo', 0, 'Gam-jeom otorgado (Punto a Azul)'); }
+            actualizar();
+
+            let maxGam = parseInt(document.getElementById("cfg-max-gamjeoms").value) || 5;
+            if(gAzul >= maxGam) {
+                pause(); interfazSonidos.playChicharraFinal();
+                window.alert(`Límite de Gam-jeoms alcanzado (${maxGam}). ROJO gana este round.`);
+                estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Victoria por Gam-jeoms" });
+                wRojo++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+            } else if(gRojo >= maxGam) {
+                pause(); interfazSonidos.playChicharraFinal();
+                window.alert(`Límite de Gam-jeoms alcanzado (${maxGam}). AZUL gana este round.`);
+                estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Victoria por Gam-jeoms" });
+                wAzul++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+            }
         }
-        actualizar();
-    }
 
-    function restar(equipo) {
-        if(bloqueoCombatePorVictoria || enModoDescanso) return;
-        if(equipo === 'azul' && azul > 0) { azul--; registrarEnHistorial('azul', -1, 'Mesa resta un punto'); }
-        if(equipo === 'rojo' && rojo > 0) { rojo--; registrarEnHistorial('rojo', -1, 'Mesa resta un punto'); }
-        actualizar();
-    }
+        function restarPenal(equipo) {
+            if(bloqueoCombatePorVictoria || enModoDescanso) return;
+            if(equipo === 'azul' && gAzul > 0) {
+                gAzul--; 
+                if(rojo > 0) rojo--; 
+                registrarEnHistorial('azul', 0, 'Mesa corrige error: Remueve Gam-jeom a Azul');
+            } else if(equipo === 'rojo' && gRojo > 0) {
+                gRojo--;
+                if(azul > 0) azul--; 
+                registrarEnHistorial('rojo', 0, 'Mesa corrige error: Remueve Gam-jeom a Rojo');
+            }
+            actualizar();
+        }
 
-    function actualizar() {
-        document.getElementById("azul").innerText = azul;
-        document.getElementById("rojo").innerText = rojo;
-        document.getElementById("gAzul").innerText = gAzul;
-        document.getElementById("gRojo").innerText = gRojo;
-        document.getElementById("round").innerText = round;
-        document.getElementById("rw-azul").className = "rw-dot" + (wAzul>0 ? " b-won" : "");
-        document.getElementById("rw-azul").innerText = `AZUL: ${wAzul}`;
-        document.getElementById("rw-rojo").className = "rw-dot" + (wRojo>0 ? " r-won" : "");
-        document.getElementById("rw-rojo").innerText = `ROJO: ${wRojo}`;
-        actualizarTV();
-    }
+        function restar(equipo) {
+            if(bloqueoCombatePorVictoria || enModoDescanso) return;
+            if(equipo === 'azul' && azul > 0) { azul--; registrarEnHistorial('azul', -1, 'Mesa resta un punto'); }
+            if(equipo === 'rojo' && rojo > 0) { rojo--; registrarEnHistorial('rojo', -1, 'Mesa resta un punto'); }
+            actualizar();
+        }
 
-    function conmutarRelojMesa() { 
-        if (intervalo === "ESPERANDO_VALIDACION") {
-            intervalo = null; 
-            finalizarRound(); 
-        } else if(intervalo) { 
-            pause(); 
-        } else { 
-            start(); 
-        } 
-    }
-    
-    function start() {
-        if(bloqueoCombatePorVictoria) return;
-        if(intervalo) return;
-        interfazSonidos.playClickReloj();
+        function actualizar() {
+            document.getElementById("azul").innerText = azul;
+            document.getElementById("rojo").innerText = rojo;
+            document.getElementById("gAzul").innerText = gAzul;
+            document.getElementById("gRojo").innerText = gRojo;
+            document.getElementById("round").innerText = round;
+            document.getElementById("rw-azul").className = "rw-dot" + (wAzul>0 ? " b-won" : "");
+            document.getElementById("rw-azul").innerText = `AZUL: ${wAzul}`;
+            document.getElementById("rw-rojo").className = "rw-dot" + (wRojo>0 ? " r-won" : "");
+            document.getElementById("rw-rojo").innerText = `ROJO: ${wRojo}`;
+            actualizarTV();
+        }
+
+        function conmutarRelojMesa() { 
+            if (intervalo === "ESPERANDO_VALIDACION") {
+                intervalo = null; 
+                finalizarRound(); 
+            } else if(intervalo) { 
+                pause(); 
+            } else { 
+                start(); 
+            } 
+        }
         
-        if (enModoDoctor) {
-            document.getElementById("btn-play").innerHTML = `TIEMPO MÉDICO CORRIENDO <span class="hint-key">[Espacio]</span>`;
-            document.getElementById("btn-play").style.background = "#d9534f";
-        } else if (enModoDescanso) {
-            document.getElementById("btn-play").innerHTML = `DESCANSO CORRIENDO <span class="hint-key">[Espacio]</span>`;
-            document.getElementById("btn-play").style.background = "#ffaa00";
-        } else {
-            document.getElementById("btn-play").innerHTML = `ROUND CORRIENDO <span class="hint-key">[Espacio]</span>`;
-            document.getElementById("btn-play").style.background = "#ffaa00";
-        }
+        function start() {
+            if(bloqueoCombatePorVictoria) return;
+            if(intervalo) return;
+            interfazSonidos.playClickReloj();
+            
+            if (enModoDoctor) {
+                document.getElementById("btn-play").innerHTML = `TIEMPO MÉDICO CORRIENDO <span class="hint-key">[Espacio]</span>`;
+                document.getElementById("btn-play").style.background = "#d9534f";
+            } else if (enModoDescanso) {
+                document.getElementById("btn-play").innerHTML = `DESCANSO CORRIENDO <span class="hint-key">[Espacio]</span>`;
+                document.getElementById("btn-play").style.background = "#ffaa00";
+            } else {
+                document.getElementById("btn-play").innerHTML = `ROUND CORRIENDO <span class="hint-key">[Espacio]</span>`;
+                document.getElementById("btn-play").style.background = "#ffaa00";
+            }
 
-        intervalo = setInterval(() => {
-            if(tiempo > 0) {
-                tiempo--;
-                let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
-                document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
-                
-                if(ventanaTV && !ventanaTV.closed) { 
-                    ventanaTV.document.getElementById("tv-tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`; 
-                    if(enModoDescanso) {
-                        ventanaTV.document.getElementById("tv-descanso-tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
+            intervalo = setInterval(() => {
+                if(tiempo > 0) {
+                    tiempo--;
+                    let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+                    document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
+                    
+                    if(ventanaTV && !ventanaTV.closed) { 
+                        ventanaTV.document.getElementById("tv-tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`; 
+                        if(enModoDescanso) {
+                            ventanaTV.document.getElementById("tv-descanso-tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
+                        }
+                    }
+                } else {
+                    clearInterval(intervalo); intervalo = null;
+                    interfazSonidos.playChicharraFinal();
+                    
+                    if (enModoDoctor) {
+                        pause();
+                        window.alert("¡TIEMPO MÉDICO AGOTADO! El competidor debe reincorporarse.");
+                    } else if (enModoDescanso) { 
+                        finalizarDescansoYEntrarAlSiguienteRound(); 
+                    } else { 
+                        document.getElementById("btn-play").innerHTML = `⚠️ VALIDAR MARCADOR Y CERRAR ROUND <span class="hint-key">[Espacio]</span>`;
+                        document.getElementById("btn-play").style.background = "#d4a373"; 
+                        intervalo = "ESPERANDO_VALIDACION";
                     }
                 }
+            }, 1000);
+        }
+
+        function pause() {
+            if(!intervalo) return;
+            clearInterval(intervalo); intervalo = null;
+            interfazSonidos.playClickReloj();
+            document.getElementById("btn-play").innerHTML = enModoDescanso ? `REANUDAR DESC. <span class="hint-key">[Espacio]</span>` : `START ROUND <span class="hint-key">[Espacio]</span>`;
+            document.getElementById("btn-play").style.background = "#28a745";
+        }
+
+        function finalizarRound() {
+            pause();
+            if(bloqueoCombatePorVictoria || enModoDescanso) return;
+            if(azul > rojo) { 
+                wAzul++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por puntos" });
+                azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+            } else if(rojo > azul) { 
+                wRojo++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por puntos" });
+                azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
             } else {
-                clearInterval(intervalo); intervalo = null;
-                interfazSonidos.playChicharraFinal();
-                
-                if (enModoDoctor) {
-                    pause();
-                    window.alert("¡TIEMPO MÉDICO AGOTADO! El competidor debe reincorporarse o se declarará K.O. Técnico / Retiro.");
-                } else if (enModoDescanso) { 
-                    finalizarDescansoYEntrarAlSiguienteRound(); 
-                } else { 
-                    document.getElementById("btn-play").innerHTML = `⚠️ VALIDAR MARCADOR Y CERRAR ROUND <span class="hint-key">[Espacio]</span>`;
-                    document.getElementById("btn-play").style.background = "#d4a373"; 
-                    intervalo = "ESPERANDO_VALIDACION";
+                if(gAzul < gRojo) { 
+                    wAzul++; window.alert(`Empate (${azul}-${rojo}). Azul gana por menos Gam-jeoms.`); 
+                    estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por menos Gam-jeoms" });
+                    azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+                } else if(gRojo < gAzul) { 
+                    wRojo++; window.alert(`Empate (${azul}-${rojo}). Rojo gana por menos Gam-jeoms.`); 
+                    estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por menos Gam-jeoms" });
+                    azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+                } else {
+                    document.getElementById("panel-superioridad").style.display = "flex";
+                    window.alert("Empate absoluto. Mesa Técnica decide Superioridad.");
                 }
             }
-        }, 1000);
-    }
+        }
 
-    function pause() {
-        if(!intervalo) return;
-        clearInterval(intervalo); intervalo = null;
-        interfazSonidos.playClickReloj();
-        document.getElementById("btn-play").innerHTML = enModoDescanso ? `REANUDAR DESC. <span class="hint-key">[Espacio]</span>` : `START ROUND <span class="hint-key">[Espacio]</span>`;
-        document.getElementById("btn-play").style.background = "#28a745";
-    }
+        function decidirSuperioridad(color) {
+            document.getElementById("panel-superioridad").style.display = "none";
+            if(color === 'azul') { wAzul++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por Superioridad" }); } 
+            else { wRojo++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por Superioridad" }); }
+            azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+        }
 
-    function finalizarRound() {
-        pause();
-        if(bloqueoCombatePorVictoria || enModoDescanso) return;
-        if(azul > rojo) { 
-            wAzul++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por puntos" });
-            azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
-        } else if(rojo > azul) { 
-            wRojo++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por puntos" });
-            azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
-        } else {
-            if(gAzul < gRojo) { 
-                wAzul++; window.alert(`Empate (${azul}-${rojo}). Azul gana por menos Gam-jeoms.`); 
-                estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por menos Gam-jeoms" });
-                azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
-            } else if(gRojo < gAzul) { 
-                wRojo++; window.alert(`Empate (${azul}-${rojo}). Rojo gana por menos Gam-jeoms.`); 
-                estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por menos Gam-jeoms" });
-                azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
-            } else {
-                document.getElementById("panel-superioridad").style.display = "flex";
-                window.alert("Empate absoluto. Mesa Técnica decide Superioridad.");
+        function evaluarSiguientePasoDeRounds() {
+            actualizar();
+            if(wAzul >= 2) { finalizarCombatePorReglamento(`AZUL GANADOR (${wAzul} vs ${wRojo})`, document.getElementById("lbl-name-azul").innerText, document.getElementById("lbl-club-azul").innerText); } 
+            else if(wRojo >= 2) { finalizarCombatePorReglamento(`ROJO GANADOR (${wRojo} vs ${wAzul})`, document.getElementById("lbl-name-rojo").innerText, document.getElementById("lbl-club-rojo").innerText); } 
+            else { iniciarDescansoReglamentario(); }
+        }
+
+        function iniciarDescansoReglamentario() {
+            enModoDescanso = true;
+            tiempo = parseInt(document.getElementById("cfg-rest-time").value) || 60;
+            document.getElementById("lbl-round-type").innerText = "DESCANSO";
+            document.getElementById("lbl-round-type").style.color = "#ff4500";
+            let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+            document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
+            
+            if(ventanaTV && !ventanaTV.closed) {
+                ventanaTV.document.getElementById("tv-lbl-round").innerText = "DESCANSO";
+                ventanaTV.document.getElementById("tv-lbl-round").style.color = "#ff4500";
+                ventanaTV.document.getElementById("tv-descanso-tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
+                ventanaTV.document.getElementById("tv-pantalla-descanso").style.display = "flex";
+            }
+            start();
+        }
+
+        function finalizarDescansoYEntrarAlSiguienteRound() {
+            enModoDescanso = false; round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0;
+            document.getElementById("lbl-round-type").innerText = "ROUND";
+            document.getElementById("lbl-round-type").style.color = "#a0a5b5";
+            if(ventanaTV && !ventanaTV.closed) {
+                ventanaTV.document.getElementById("tv-pantalla-descanso").style.display = "none";
+            }
+            cambiarConfigTiempo(); actualizar();
+        }
+
+        function forzarSiguienteRoundManual() {
+            if(window.confirm("¿Saltar al siguiente round borrando puntajes parciales?")) {
+                pause(); if(enModoDescanso) { finalizarDescansoYEntrarAlSiguienteRound(); } else { round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; cambiarConfigTiempo(); actualizar(); }
             }
         }
-    }
 
-    function decidirSuperioridad(color) {
-        document.getElementById("panel-superioridad").style.display = "none";
-        if(color === 'azul') { wAzul++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por Superioridad" }); } 
-        else { wRojo++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por Superioridad" }); }
-        azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
-    }
-
-    function evaluarSiguientePasoDeRounds() {
-        actualizar();
-        if(wAzul >= 2) { finalizarCombatePorReglamento(`AZUL GANADOR (${wAzul} vs ${wRojo})`, document.getElementById("lbl-name-azul").innerText, document.getElementById("lbl-club-azul").innerText); } 
-        else if(wRojo >= 2) { finalizarCombatePorReglamento(`ROJO GANADOR (${wRojo} vs ${wAzul})`, document.getElementById("lbl-name-rojo").innerText, document.getElementById("lbl-club-rojo").innerText); } 
-        else { iniciarDescansoReglamentario(); }
-    }
-
-    function iniciarDescansoReglamentario() {
-        enModoDescanso = true;
-        tiempo = parseInt(document.getElementById("cfg-rest-time").value) || 60;
-        document.getElementById("lbl-round-type").innerText = "DESCANSO";
-        document.getElementById("lbl-round-type").style.color = "#ff4500";
-        let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
-        document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
-        
-        if(ventanaTV && !ventanaTV.closed) {
-            ventanaTV.document.getElementById("tv-lbl-round").innerText = "DESCANSO";
-            ventanaTV.document.getElementById("tv-lbl-round").style.color = "#ff4500";
-            ventanaTV.document.getElementById("tv-descanso-tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`;
-            ventanaTV.document.getElementById("tv-pantalla-descanso").style.display = "flex";
-        }
-        start();
-    }
-
-    function finalizarDescansoYEntrarAlSiguienteRound() {
-        enModoDescanso = false; round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0;
-        document.getElementById("lbl-round-type").innerText = "ROUND";
-        document.getElementById("lbl-round-type").style.color = "#a0a5b5";
-        if(ventanaTV && !ventanaTV.closed) {
-            ventanaTV.document.getElementById("tv-pantalla-descanso").style.display = "none";
-        }
-        cambiarConfigTiempo(); actualizar();
-    }
-
-    function forzarSiguienteRoundManual() {
-        if(window.confirm("¿Saltar al siguiente round borrando puntajes parciales?")) {
-            pause(); if(enModoDescanso) { finalizarDescansoYEntrarAlSiguienteRound(); } else { round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; cambiarConfigTiempo(); actualizar(); }
-        }
-    }
-
-    async function finalizarCombatePorReglamento(dictamenText, ganadorNombre, ganadorClub) {
-        pause(); bloqueoCombatePorVictoria = true;
-        if(canal) {
+        function finalizarCombatePorReglamento(dictamenText, ganadorNombre, ganadorClub) {
+            pause(); bloqueoCombatePorVictoria = true;
             canal.publish('p', { type: 'LOCK_WINNER', color: dictamenText.includes("AZUL") ? 'azul' : 'rojo', name: ganadorNombre, club: ganadorClub });
+            renderizarPantallaGanadorLocalYTV(dictamenText.includes("AZUL") ? 'azul' : 'rojo', ganadorNombre, ganadorClub);
+
+            combatesFinalizadosLogs.push({
+                num: document.getElementById("cfg-combate-num").value,
+                categoria: document.getElementById("cfg-cat").value,
+                az: document.getElementById("lbl-name-azul").innerText,
+                clubAzul: document.getElementById("lbl-club-azul").innerText,
+                rj: document.getElementById("lbl-name-rojo").innerText,
+                clubRojo: document.getElementById("lbl-club-rojo").innerText,
+                res: dictamenText, detalles: [...estadisticasRounds],
+                torneo: document.getElementById("cfg-campeonato").value
+            });
+            reconstruirTablaGlobal();
         }
-        renderizarPantallaGanadorLocalYTV(dictamenText.includes("AZUL") ? 'azul' : 'rojo', ganadorNombre, ganadorClub);
 
-        const registroCombate = {
-            evento: EVENTO_ACTUAL || "general",
-            area: AREA_ACTUAL,
-            num: document.getElementById("cfg-combate-num").value,
-            categoria: document.getElementById("cfg-cat").value,
-            az: document.getElementById("lbl-name-azul").innerText,
-            clubAzul: document.getElementById("lbl-club-azul").innerText,
-            rj: document.getElementById("lbl-name-rojo").innerText,
-            clubRojo: document.getElementById("lbl-club-rojo").innerText,
-            res: dictamenText, 
-            detalles: [...estadisticasRounds],
-            torneo: document.getElementById("cfg-campeonato").value,
-            fechaHora: firebase.firestore.FieldValue.serverTimestamp()
-        };
+        function renderizarPantallaGanadorLocalYTV(color, nombre, club) {
+            bloqueoCombatePorVictoria = true;
+            const pLocal = document.getElementById("pantalla-ganador");
+            const fondo = document.getElementById("ganador-fondo");
+            document.getElementById("ganador-texto").innerText = nombre;
+            document.getElementById("ganador-club-texto").innerText = club;
+            fondo.style.background = (color === 'azul') ? "#0022aa" : "#800000";
+            fondo.style.borderColor = "#fff";
+            pLocal.style.display = "flex";
 
-        combatesFinalizadosLogs.push(registroCombate);
-        reconstruirTablaGlobal();
-
-        try {
-            await db.collection("HistorialOficial").add(registroCombate);
-            console.log("Combate registrado con éxito en Firebase!");
-        } catch(e) {
-            console.error("Error al guardar en Firebase:", e);
-        }
-    }
-
-    function renderizarPantallaGanadorLocalYTV(color, nombre, club) {
-        bloqueoCombatePorVictoria = true;
-        const pLocal = document.getElementById("pantalla-ganador");
-        const fondo = document.getElementById("ganador-fondo");
-        document.getElementById("ganador-texto").innerText = nombre;
-        document.getElementById("ganador-club-texto").innerText = club;
-        fondo.style.background = (color === 'azul') ? "#0022aa" : "#800000";
-        fondo.style.borderColor = "#fff";
-        pLocal.style.display = "flex";
-
-        if(ventanaTV && !ventanaTV.closed) {
-            const doc = ventanaTV.document;
-            const modalGanador = doc.getElementById("tv-pantalla-ganador");
-            if(modalGanador) {
-                doc.getElementById("tv-ganador-texto").innerText = nombre;
-                doc.getElementById("tv-ganador-club").innerText = club;
-                doc.getElementById("tv-ganador-fondo").style.background = (color === 'azul') ? "#0022aa" : "#800000";
-                doc.getElementById("tv-ganador-fondo").style.borderColor = "#fff";
-                modalGanador.style.display = "flex";
+            if(ventanaTV && !ventanaTV.closed) {
+                const doc = ventanaTV.document;
+                const modalGanador = doc.getElementById("tv-pantalla-ganador");
+                if(modalGanador) {
+                    doc.getElementById("tv-ganador-texto").innerText = nombre;
+                    doc.getElementById("tv-ganador-club").innerText = club;
+                    doc.getElementById("tv-ganador-fondo").style.background = (color === 'azul') ? "#0022aa" : "#800000";
+                    doc.getElementById("tv-ganador-fondo").style.borderColor = "#fff";
+                    modalGanador.style.display = "flex";
+                }
             }
         }
-    }
 
-    function removerPantallaGanadorLocalYTV() {
-        bloqueoCombatePorVictoria = false;
-        document.getElementById("pantalla-ganador").style.display = "none";
-        if(ventanaTV && !ventanaTV.closed) {
-            const modalGanador = ventanaTV.document.getElementById("tv-pantalla-ganador");
-            if(modalGanador) modalGanador.style.display = "none";
+        function removerPantallaGanadorLocalYTV() {
+            bloqueoCombatePorVictoria = false;
+            document.getElementById("pantalla-ganador").style.display = "none";
+            if(ventanaTV && !ventanaTV.closed) {
+                const modalGanador = ventanaTV.document.getElementById("tv-pantalla-ganador");
+                if(modalGanador) modalGanador.style.display = "none";
+            }
         }
-    }
 
-    function siguienteCombateListo() {
-        if(canal) canal.publish('p', { type: 'UNLOCK_WINNER' }); 
-        removerPantallaGanadorLocalYTV();
-        document.getElementById("cfg-combate-num").value = (parseInt(document.getElementById("cfg-combate-num").value) || 1) + 1;
-        document.getElementById("aname").value = ""; document.getElementById("aclub").value = "";
-        document.getElementById("rname").value = ""; document.getElementById("rclub").value = "";
-        rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
-        enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
-        document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
-        setNombres(); cambiarConfigTiempo();
-        document.getElementById("match-history-list").innerHTML = '<div class="history-item" style="color: gray;">Siguiente combate preparado.</div>';
-        actualizar();
-    }
-
-    function resetMatch() {
-        if(window.confirm("¿Restablecer el combate actual?")){
-            pause(); rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
+        function siguienteCombateListo() {
+            canal.publish('p', { type: 'UNLOCK_WINNER' }); removerPantallaGanadorLocalYTV();
+            document.getElementById("cfg-combate-num").value = (parseInt(document.getElementById("cfg-combate-num").value) || 1) + 1;
+            document.getElementById("aname").value = ""; document.getElementById("aclub").value = "";
+            document.getElementById("rname").value = ""; document.getElementById("rclub").value = "";
+            rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
             enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
             document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
-            document.getElementById("btn-medico").style.display = "block"; document.getElementById("btn-cancel-medico").style.display = "none";
             setNombres(); cambiarConfigTiempo();
-            document.getElementById("match-history-list").innerHTML = '<div class="history-item" style="color: gray;">Arena reseteada.</div>';
-            actualizar(); removerPantallaGanadorLocalYTV();
+            document.getElementById("match-history-list").innerHTML = '<div class="history-item" style="color: gray;">Siguiente combate preparado.</div>';
+            actualizar();
         }
-    }
 
-    function reconstruirTablaGlobal() {
-        const tbody = document.getElementById("day-global-table-body");
-        if(combatesFinalizadosLogs.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay registros archivados.</td></tr>'; return; }
-        let html = '';
-        combatesFinalizadosLogs.forEach(c => {
-            html += `<tr><td style="font-weight:bold; color:#ffaa00;">#${c.num}</td><td><strong>${c.categoria}</strong><br>Azul: ${c.az} vs Rojo: ${c.rj}</td><td>Área ${AREA_ACTUAL}</td><td style="font-weight:bold; color:#28a745;">${c.res}</td></tr>`;
-        });
-        tbody.innerHTML = html;
-    }
-
-    function activarDoctor() {
-        if(enModoDoctor || bloqueoCombatePorVictoria) return;
-        pause(); enModoDoctor = true; tiempoGuardadoAntesDoc = tiempo; tiempo = 60; 
-        document.getElementById("btn-medico").style.display = "none"; 
-        document.getElementById("btn-cancel-medico").style.display = "block";
-        document.getElementById("lbl-round-type").innerText = "MÉDICO"; 
-        document.getElementById("lbl-round-type").style.color = "#d9534f";
-        document.getElementById("tiempo").innerText = "1:00";
-        if(ventanaTV && !ventanaTV.closed) { 
-            ventanaTV.document.getElementById("tv-lbl-round").innerText = "MÉDICO"; 
-            ventanaTV.document.getElementById("tv-lbl-round").style.color = "#d9534f"; 
-            ventanaTV.document.getElementById("tv-tiempo").innerText = "1:00";
+        function resetMatch() {
+            if(window.confirm("¿Restablecer el combate actual?")){
+                pause(); rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
+                enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
+                document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
+                document.getElementById("btn-medico").style.display = "block"; document.getElementById("btn-cancel-medico").style.display = "none";
+                setNombres(); cambiarConfigTiempo();
+                document.getElementById("match-history-list").innerHTML = '<div class="history-item" style="color: gray;">Arena reseteada.</div>';
+                actualizar(); removerPantallaGanadorLocalYTV();
+            }
         }
-        start();
-    }
 
-    function cancelarDoctorRápido() {
-        if(!enModoDoctor) return;
-        pause(); enModoDoctor = false; tiempo = tiempoGuardadoAntesDoc; 
-        document.getElementById("btn-medico").style.background = "#d9534f";
-        document.getElementById("btn-medico").style.display = "block"; 
-        document.getElementById("btn-cancel-medico").style.display = "none";
-        document.getElementById("lbl-round-type").innerText = enModoDescanso ? "DESCANSO" : "ROUND";
-        document.getElementById("lbl-round-type").style.color = enModoDescanso ? "#ff4500" : "#a0a5b5";
-        let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
-        document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`; 
-        actualizar(); 
-    }
-
-    function editarTiempoManual() {
-        if(intervalo) return;
-        let nuevo = window.prompt("Modificar tiempo (MM:SS):", document.getElementById("tiempo").innerText);
-        if(nuevo) {
-            let arr = nuevo.split(":");
-            if(arr.length === 2) { tiempo = (parseInt(arr[0]) * 60) + parseInt(arr[1]); let min = Math.floor(tiempo / 60); let seg = tiempo % 60; document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`; actualizarTV(); }
+        function reconstruirTablaGlobal() {
+            const tbody = document.getElementById("day-global-table-body");
+            if(combatesFinalizadosLogs.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay registros archivados.</td></tr>'; return; }
+            let html = '';
+            combatesFinalizadosLogs.forEach(c => {
+                html += `<tr><td style="font-weight:bold; color:#ffaa00;">#${c.num}</td><td><strong>${c.categoria}</strong><br>Azul: ${c.az} (${c.clubAzul || 'SIN CLUB'}) vs Rojo: ${c.rj} (${c.clubRojo || 'SIN CLUB'})</td><td>Área ${areaID}</td><td style="font-weight:bold; color:#28a745;">${c.res}</td></tr>`;
+            });
+            tbody.innerHTML = html;
         }
-    }
 
-    // ENVÍO DE PUNTOS CON VIBRACIÓN EN MÓVIL
-    function enviarPunto(equipo, puntos) { 
-        if ("vibrate" in navigator) {
-            navigator.vibrate(40);
+        function activarDoctor() {
+            if(enModoDoctor || bloqueoCombatePorVictoria) return;
+            pause(); enModoDoctor = true; tiempoGuardadoAntesDoc = tiempo; tiempo = 60; 
+            document.getElementById("btn-medico").style.display = "none"; 
+            document.getElementById("btn-cancel-medico").style.display = "block";
+            document.getElementById("lbl-round-type").innerText = "MÉDICO"; 
+            document.getElementById("lbl-round-type").style.color = "#d9534f";
+            document.getElementById("tiempo").innerText = "1:00";
+            if(ventanaTV && !ventanaTV.closed) { 
+                ventanaTV.document.getElementById("tv-lbl-round").innerText = "MÉDICO"; 
+                ventanaTV.document.getElementById("tv-lbl-round").style.color = "#d9534f"; 
+                ventanaTV.document.getElementById("tv-tiempo").innerText = "1:00";
+            }
+            start();
         }
-        if(canal) {
-            canal.publish('p', { e: equipo, p: puntos }); 
-        }
-    }
 
-    function imprimirHistorialDelDia() {
-        if(combatesFinalizadosLogs.length === 0) { window.alert("No hay combates para descargar."); return; }
-        const pz = document.getElementById("printable-print-zone");
-        
-        let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL DE RESULTADOS</h2>
-                    <h4 style="text-align:center;margin-top:2px;color:#555;">${document.getElementById("cfg-campeonato").value}</h4>
-                    <table class="print-table">
-                        <thead>
-                            <tr>
-                                <th>COMBATE</th>
-                                <th>CATEGORÍA</th>
-                                <th>DESGLOSE POR ROUND</th>
-                                <th>DICTAMEN</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                        
-        combatesFinalizadosLogs.forEach(c => {
-            let rSub = c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(G:${r.gamAzul}) | Rj:${r.ptsRojo}(G:${r.gamRojo})</span>`).join("");
+        function cancelarDoctorRápido() {
+            if(!enModoDoctor) return;
+            pause(); enModoDoctor = false; tiempo = tiempoGuardadoAntesDoc; 
+            document.getElementById("btn-medico").style.background = "#d9534f";
+            document.getElementById("btn-medico").style.display = "block"; 
+            document.getElementById("btn-cancel-medico").style.display = "none";
+            document.getElementById("lbl-round-type").innerText = enModoDescanso ? "DESCANSO" : "ROUND";
+            document.getElementById("lbl-round-type").style.color = enModoDescanso ? "#ff4500" : "#a0a5b5";
+            let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+            document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`; 
+            actualizar(); 
+        }
+
+        function editarTiempoManual() {
+            if(intervalo) return;
+            let nuevo = window.prompt("Modificar tiempo (MM:SS):", document.getElementById("tiempo").innerText);
+            if(nuevo) {
+                let arr = nuevo.split(":");
+                if(arr.length === 2) { tiempo = (parseInt(arr[0]) * 60) + parseInt(arr[1]); let min = Math.floor(tiempo / 60); let seg = tiempo % 60; document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`; actualizarTV(); }
+            }
+        }
+
+        function enviarPunto(equipo, puntos) { canal.publish('p', { e: equipo, p: puntos }); }
+
+        function imprimirHistorialDelDia() {
+            if(combatesFinalizadosLogs.length === 0) { window.alert("No hay combates para descargar."); return; }
+            const pz = document.getElementById("printable-print-zone");
+            let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL DE RESULTADOS</h2>
+                        <h4 style="text-align:center;margin-top:2px;color:#555;">${document.getElementById("cfg-campeonato").value}</h4>
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th>COMBATE</th>
+                                    <th>CATEGORÍA</th>
+                                    <th>DESGLOSE POR ROUND</th>
+                                    <th>DICTAMEN</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                            
+            combatesFinalizadosLogs.forEach(c => {
+                let rSub = c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(G:${r.gamAzul}) | Rj:${r.ptsRojo}(G:${r.gamRojo})</span>`).join("");
+                html += `<tr>
+                    <td style="text-align:center;font-weight:bold;">#${c.num}</td>
+                    <td>
+                        <strong>${c.categoria}</strong><br>
+                        <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} <span style="color:#555; font-style:italic;">(${c.clubAzul || document.getElementById("aclub").value || 'SIN CLUB'})</span><br>
+                        <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} <span style="color:#555; font-style:italic;">(${c.clubRojo || document.getElementById("rclub").value || 'SIN CLUB'})</span>
+                    </td>
+                    <td>${rSub}</td>
+                    <td style="font-weight:bold;color:green;">${c.res}</td>
+                </tr>`;
+            });
             
-            html += `<tr>
-                <td style="text-align:center;font-weight:bold;">#${c.num}</td>
-                <td>
-                    <strong>${c.categoria}</strong><br>
-                    <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} <span style="color:#555; font-style:italic;">(${c.clubAzul || document.getElementById("aclub").value || 'SIN CLUB'})</span><br>
-                    <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} <span style="color:#555; font-style:italic;">(${c.clubRojo || document.getElementById("rclub").value || 'SIN CLUB'})</span>
-                </td>
-                <td>${rSub}</td>
-                <td style="font-weight:bold;color:green;">${c.res}</td>
-            </tr>`;
-        });
-        
-        html += `</tbody></table>`; 
-        pz.innerHTML = html; 
-        window.print();
-    }
+            html += `</tbody></table>`; 
+            pz.innerHTML = html; 
+            window.print();
+        }
 
-    function abrirPantallaTV() {
-        if(ventanaTV && !ventanaTV.closed) { ventanaTV.focus(); return; }
-        ventanaTV = window.open("", "ScoreMasterTV", "width=1200,height=800");
-        let numCombateActual = document.getElementById("cfg-combate-num").value || "1";
+        function abrirPantallaTV() {
+            if(ventanaTV && !ventanaTV.closed) { ventanaTV.focus(); return; }
+            ventanaTV = window.open("", "ScoreMasterTV", "width=1200,height=800");
+            let numCombateActual = document.getElementById("cfg-combate-num").value || "1";
 
-        let htmlTV = `<!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>TKD Bogotá Score Master - Pantalla Pública</title>
-            <style>
-                body { margin:0; background:#07090e; color:white; font-family:'Segoe UI', sans-serif; overflow:hidden; user-select:none; }
-                .tv-frame { display:flex; height:100vh; position:relative; }
-                .side { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2vh; }
-                .side.b { background:#0033cc; }
-                .side.r { background:#a00000; }
-                .name { font-size:6vh; font-weight:900; text-transform:uppercase; text-shadow:0 4px 8px rgba(0,0,0,0.6); text-align:center; max-width:95%; }
-                .club-sub { font-size:3vh; opacity:0.8; font-weight:bold; margin-top:1vh; text-transform:uppercase; }
-                .score { font-size:38vh; font-family:'Arial Black', sans-serif; font-weight:900; line-height:0.85; text-shadow:0 10px 20px rgba(0,0,0,0.8); margin-top:2vh; }
-                .center { width:26vw; background:linear-gradient(to right, rgba(160,0,0,0.3) 0%, #000 15%, #000 85%, rgba(0,51,204,0.3) 100%); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:4vh 0; box-sizing:border-box; z-index:5; }
-                .lbl { font-size:2.5vh; color:#a0a5b5; font-weight:bold; letter-spacing:3px; text-transform:uppercase; }
-                .r-num { font-size:10vh; font-weight:900; color:#ffaa00; line-height:1; }
-                .time { background:#151821; border:3px solid #ffaa00; color:white; font-size:10vh; padding:1vh 3vh; border-radius:15px; font-family:monospace; font-weight:bold; }
-                .gam-num { font-size:7vh; font-weight:900; color:white; }
-                .rw-dot { font-size: 2.8vh; font-weight: bold; padding: 0.5vh 2vh; border-radius: 8px; background: #222633; border: 2px solid #2a2f42; color: #666; width: 80%; text-align: center; }
-                #tv-pantalla-ganador, #tv-pantalla-descanso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); }
-                .tv-ganador-box, .tv-descanso-box { padding: 6vh; border-radius: 35px; border: 5px solid #ffaa00; max-width: 70%; width: 60%; text-align:center; }
-                .tv-descanso-box { background: #110a00; border-color: #ff5500; box-shadow: 0 0 50px rgba(255, 85, 0, 0.4); }
-                .tv-ganador-titulo, .tv-descanso-titulo { font-size: 4vh; color: #ffaa00; font-weight: bold; }
-                .tv-descanso-titulo { color: #ff5500; letter-spacing: 2px; }
-                .tv-ganador-nombre { font-size: 8vh; font-weight: 900; text-transform: uppercase; }
-                .tv-descanso-tiempo-gigante { font-size: 18vh; font-family: monospace; font-weight: bold; color: white; margin-top: 2vh; text-shadow: 0 0 20px rgba(255,255,255,0.4); }
-                .tv-ganador-club { font-size: 4vh; opacity: 0.9; }
-                .tv-log-container { position: absolute; top: 3vh; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 1vh; width: 22vw; }
-                .tv-combate-tag { background: #ffaa00; color: black; font-weight: 900; padding: 0.4vh 1.5vw; border-radius: 6px; font-size: 2.3vh; display: inline-block; margin-top: 0.8vh; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-            </style>
-        </head>
-        <body>
-            <div class="tv-log-container" id="tv-visual-log-container"></div>
-            <div id="tv-pantalla-ganador">
-                <div class="tv-ganador-box" id="tv-ganador-fondo">
-                    <div class="tv-ganador-titulo">COMBATE CONCLUIDO</div>
-                    <div class="tv-ganador-nombre" id="tv-ganador-texto">AZUL</div>
-                    <div class="tv-ganador-club" id="tv-ganador-club">DELEGACIÓN</div>
-                </div>
-            </div>
-            <div id="tv-pantalla-descanso">
-                <div class="tv-descanso-box">
-                    <div class="tv-descanso-titulo">TIEMPO DE DESCANSO</div>
-                    <div class="tv-descanso-tiempo-gigante" id="tv-descanso-tiempo">1:00</div>
-                </div>
-            </div>
-            <div class="tv-frame">
-                <div class="side r">
-                    <div class="name" id="tv-name-rojo">ROJO</div>
-                    <div class="club-sub" id="tv-club-rojo">CLUB</div>
-                    <div class="score" id="tv-rojo">0</div>
-                </div>
-                <div class="center">
-                    <div style="text-align:center;">
-                        <div class="lbl">ÁREA ${AREA_ACTUAL}</div>
-                        <div class="tv-combate-tag" id="tv-combate-label">COMBATE #${numCombateActual}</div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div class="lbl" id="tv-lbl-round">ROUND</div>
-                        <div class="r-num" id="tv-round">1</div>
-                    </div>
-                    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1vh;">
-                        <div class="rw-dot" id="tv-rw-rojo">ROJO: 0</div>
-                        <div class="rw-dot" id="tv-rw-azul">AZUL: 0</div>
-                    </div>
-                    <div class="time" id="tv-tiempo">2:00</div>
-                    <div style="display:flex; justify-content:space-around; width:100%; font-size:2.5vh; font-weight:bold; color:#a0a5b5;">
-                        <div style="text-align:center;">GAM<div class="gam-num" id="tv-gRojo">0</div></div>
-                        <div style="text-align:center;">GAM<div class="gam-num" id="tv-gAzul">0</div></div>
+            let htmlTV = `<!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <title>TKD Bogotá Score Master - Pantalla Pública</title>
+                <style>
+                    body { margin:0; background:#07090e; color:white; font-family:'Segoe UI', sans-serif; overflow:hidden; user-select:none; }
+                    .tv-frame { display:flex; height:100vh; position:relative; }
+                    .side { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2vh; }
+                    .side.b { background:#0033cc; }
+                    .side.r { background:#a00000; }
+                    .name { font-size:6vh; font-weight:900; text-transform:uppercase; text-shadow:0 4px 8px rgba(0,0,0,0.6); text-align:center; max-width:95%; }
+                    .club-sub { font-size:3vh; opacity:0.8; font-weight:bold; margin-top:1vh; text-transform:uppercase; }
+                    .score { font-size:38vh; font-family:'Arial Black', sans-serif; font-weight:900; line-height:0.85; text-shadow:0 10px 20px rgba(0,0,0,0.8); margin-top:2vh; }
+                    .center { width:26vw; background:linear-gradient(to right, rgba(160,0,0,0.3) 0%, #000 15%, #000 85%, rgba(0,51,204,0.3) 100%); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:4vh 0; box-sizing:border-box; z-index:5; }
+                    .lbl { font-size:2.5vh; color:#a0a5b5; font-weight:bold; letter-spacing:3px; text-transform:uppercase; }
+                    .r-num { font-size:10vh; font-weight:900; color:#ffaa00; line-height:1; }
+                    .time { background:#151821; border:3px solid #ffaa00; color:white; font-size:10vh; padding:1vh 3vh; border-radius:15px; font-family:monospace; font-weight:bold; }
+                    .gam-num { font-size:7vh; font-weight:900; color:white; }
+                    .rw-dot { font-size: 2.8vh; font-weight: bold; padding: 0.5vh 2vh; border-radius: 8px; background: #222633; border: 2px solid #2a2f42; color: #666; width: 80%; text-align: center; }
+                    #tv-pantalla-ganador, #tv-pantalla-descanso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); }
+                    .tv-ganador-box, .tv-descanso-box { padding: 6vh; border-radius: 35px; border: 5px solid #ffaa00; max-width: 70%; width: 60%; text-align:center; }
+                    .tv-descanso-box { background: #110a00; border-color: #ff5500; box-shadow: 0 0 50px rgba(255, 85, 0, 0.4); }
+                    .tv-ganador-titulo, .tv-descanso-titulo { font-size: 4vh; color: #ffaa00; font-weight: bold; }
+                    .tv-descanso-titulo { color: #ff5500; letter-spacing: 2px; }
+                    .tv-ganador-nombre { font-size: 8vh; font-weight: 900; text-transform: uppercase; }
+                    .tv-descanso-tiempo-gigante { font-size: 18vh; font-family: monospace; font-weight: bold; color: white; margin-top: 2vh; text-shadow: 0 0 20px rgba(255,255,255,0.4); }
+                    .tv-ganador-club { font-size: 4vh; opacity: 0.9; }
+                    .tv-log-container { position: absolute; top: 3vh; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 1vh; width: 22vw; }
+                    .tv-combate-tag { background: #ffaa00; color: black; font-weight: 900; padding: 0.4vh 1.5vw; border-radius: 6px; font-size: 2.3vh; display: inline-block; margin-top: 0.8vh; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+                </style>
+            </head>
+            <body>
+                <div class="tv-log-container" id="tv-visual-log-container"></div>
+                <div id="tv-pantalla-ganador">
+                    <div class="tv-ganador-box" id="tv-ganador-fondo">
+                        <div class="tv-ganador-titulo">COMBATE CONCLUIDO</div>
+                        <div class="tv-ganador-nombre" id="tv-ganador-texto">AZUL</div>
+                        <div class="tv-ganador-club" id="tv-ganador-club">DELEGACIÓN</div>
                     </div>
                 </div>
-                <div class="side b">
-                    <div class="name" id="tv-name-azul">AZUL</div>
-                    <div class="club-sub" id="tv-club-azul">CLUB</div>
-                    <div class="score" id="tv-azul">0</div>
+                <div id="tv-pantalla-descanso">
+                    <div class="tv-descanso-box">
+                        <div class="tv-descanso-titulo">TIEMPO DE DESCANSO</div>
+                        <div class="tv-descanso-tiempo-gigante" id="tv-descanso-tiempo">1:00</div>
+                    </div>
                 </div>
-            </div>
-        </body>
-        </html>`;
+                <div class="tv-frame">
+                    <div class="side r">
+                        <div class="name" id="tv-name-rojo">ROJO</div>
+                        <div class="club-sub" id="tv-club-rojo">CLUB</div>
+                        <div class="score" id="tv-rojo">0</div>
+                    </div>
+                    <div class="center">
+                        <div style="text-align:center;">
+                            <div class="lbl">ÁREA ${areaID}</div>
+                            <div class="tv-combate-tag" id="tv-combate-label">COMBATE #${numCombateActual}</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div class="lbl" id="tv-lbl-round">ROUND</div>
+                            <div class="r-num" id="tv-round">1</div>
+                        </div>
+                        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1vh;">
+                            <div class="rw-dot" id="tv-rw-rojo">ROJO: 0</div>
+                            <div class="rw-dot" id="tv-rw-azul">AZUL: 0</div>
+                        </div>
+                        <div class="time" id="tv-tiempo">2:00</div>
+                        <div style="display:flex; justify-content:space-around; width:100%; font-size:2.5vh; font-weight:bold; color:#a0a5b5;">
+                            <div style="text-align:center;">GAM<div class="gam-num" id="tv-gRojo">0</div></div>
+                            <div style="text-align:center;">GAM<div class="gam-num" id="tv-gAzul">0</div></div>
+                        </div>
+                    </div>
+                    <div class="side b">
+                        <div class="name" id="tv-name-azul">AZUL</div>
+                        <div class="club-sub" id="tv-club-azul">CLUB</div>
+                        <div class="score" id="tv-azul">0</div>
+                    </div>
+                </div>
+            </body>
+            </html>`;
 
-        ventanaTV.document.open(); 
-        ventanaTV.document.write(htmlTV); 
-        ventanaTV.document.close();
-        setTimeout(() => { actualizarTV(); }, 300);
-    }
+            ventanaTV.document.open(); 
+            ventanaTV.document.write(htmlTV); 
+            ventanaTV.document.close();
+            setTimeout(() => { actualizarTV(); }, 300);
+        }
 
-    function actualizarTV() {
-        if (!ventanaTV || ventanaTV.closed) return;
-        const doc = ventanaTV.document;
-        if (doc.getElementById("tv-name-azul")) doc.getElementById("tv-name-azul").innerText = document.getElementById("lbl-name-azul").innerText;
-        if (doc.getElementById("tv-name-rojo")) doc.getElementById("tv-name-rojo").innerText = document.getElementById("lbl-name-rojo").innerText;
-        if (doc.getElementById("tv-club-azul")) doc.getElementById("tv-club-azul").innerText = document.getElementById("lbl-club-azul").innerText;
-        if (doc.getElementById("tv-club-rojo")) doc.getElementById("tv-club-rojo").innerText = document.getElementById("lbl-club-rojo").innerText;
-        if (doc.getElementById("tv-azul")) doc.getElementById("tv-azul").innerText = azul;
-        if (doc.getElementById("tv-rojo")) doc.getElementById("tv-rojo").innerText = rojo;
-        if (doc.getElementById("tv-tiempo")) doc.getElementById("tv-tiempo").innerText = document.getElementById("tiempo").innerText;
-        if (doc.getElementById("tv-round")) doc.getElementById("tv-round").innerText = round;
-        if (doc.getElementById("tv-gAzul")) doc.getElementById("tv-gAzul").innerText = gAzul;
-        if (doc.getElementById("tv-gRojo")) doc.getElementById("tv-gRojo").innerText = gRojo;
-        if (doc.getElementById("tv-combate-label")) doc.getElementById("tv-combate-label").innerText = "COMBATE #" + (document.getElementById("cfg-combate-num").value || "1");
-        if (doc.getElementById("tv-lbl-round")) { doc.getElementById("tv-lbl-round").innerText = document.getElementById("lbl-round-type").innerText; doc.getElementById("tv-lbl-round").style.color = document.getElementById("lbl-round-type").style.color; }
-        if (doc.getElementById("tv-rw-azul")) { doc.getElementById("tv-rw-azul").className = "rw-dot" + (wAzul > 0 ? " b-won" : ""); doc.getElementById("tv-rw-azul").innerText = `AZUL: ${wAzul}`; }
-        if (doc.getElementById("tv-rw-rojo")) { doc.getElementById("tv-rw-rojo").className = "rw-dot" + (wRojo > 0 ? " r-won" : ""); doc.getElementById("tv-rw-rojo").innerText = `ROJO: ${wRojo}`; }
-    }
-</script>
+        function actualizarTV() {
+            if (!ventanaTV || ventanaTV.closed) return;
+            const doc = ventanaTV.document;
+            if (doc.getElementById("tv-name-azul")) doc.getElementById("tv-name-azul").innerText = document.getElementById("lbl-name-azul").innerText;
+            if (doc.getElementById("tv-name-rojo")) doc.getElementById("tv-name-rojo").innerText = document.getElementById("lbl-name-rojo").innerText;
+            if (doc.getElementById("tv-club-azul")) doc.getElementById("tv-club-azul").innerText = document.getElementById("lbl-club-azul").innerText;
+            if (doc.getElementById("tv-club-rojo")) doc.getElementById("tv-club-rojo").innerText = document.getElementById("lbl-club-rojo").innerText;
+            if (doc.getElementById("tv-azul")) doc.getElementById("tv-azul").innerText = azul;
+            if (doc.getElementById("tv-rojo")) doc.getElementById("tv-rojo").innerText = rojo;
+            if (doc.getElementById("tv-tiempo")) doc.getElementById("tv-tiempo").innerText = document.getElementById("tiempo").innerText;
+            if (doc.getElementById("tv-round")) doc.getElementById("tv-round").innerText = round;
+            if (doc.getElementById("tv-gAzul")) doc.getElementById("tv-gAzul").innerText = gAzul;
+            if (doc.getElementById("tv-gRojo")) doc.getElementById("tv-gRojo").innerText = gRojo;
+            if (doc.getElementById("tv-combate-label")) doc.getElementById("tv-combate-label").innerText = "COMBATE #" + (document.getElementById("cfg-combate-num").value || "1");
+            if (doc.getElementById("tv-lbl-round")) { doc.getElementById("tv-lbl-round").innerText = document.getElementById("lbl-round-type").innerText; doc.getElementById("tv-lbl-round").style.color = document.getElementById("lbl-round-type").style.color; }
+            if (doc.getElementById("tv-rw-azul")) { doc.getElementById("tv-rw-azul").className = "rw-dot" + (wAzul > 0 ? " b-won" : ""); doc.getElementById("tv-rw-azul").innerText = `AZUL: ${wAzul}`; }
+            if (doc.getElementById("tv-rw-rojo")) { doc.getElementById("tv-rw-rojo").className = "rw-dot" + (wRojo > 0 ? " r-won" : ""); doc.getElementById("tv-rw-rojo").innerText = `ROJO: ${wRojo}`; }
+        }
+
+        const urlBase = window.location.href.split('?')[0];
+        new QRCode(document.getElementById("qrcode"), { text: urlBase + "?mode=juez&area=" + areaID, width: 85, height: 85 });
+    </script>
 </body>
 </html>
