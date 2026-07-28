@@ -139,11 +139,16 @@
         .log-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; width: 280px; }
         .qr-area { display: flex; justify-content: center; background: white; padding: 6px; border-radius: 6px; margin-top: 8px; width: fit-content; margin-left: auto; margin-right: auto;}
 
+        /* ANUNCIO / MODAL DE GANADOR Y NUEVO COMBATE */
         #pantalla-ganador { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999998; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(0,0,0,0.96); }
-        .ganador-box { padding: 45px; border-radius: 25px; border: 3px solid #ffaa00; box-shadow: 0 0 40px rgba(255,170,0,0.3); max-width: 500px; width: 90%; }
-        .ganador-titulo { font-size: 22px; letter-spacing: 2px; margin-bottom: 5px; color: #ffaa00; font-weight: bold; }
-        .ganador-nombre { font-size: 48px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .ganador-club { font-size: 20px; opacity: 0.9; margin-bottom: 30px; font-weight: 600; }
+        .ganador-box { padding: 35px; border-radius: 20px; border: 3px solid #ffaa00; box-shadow: 0 0 40px rgba(255,170,0,0.3); max-width: 520px; width: 90%; background: #121824; color: white; }
+        .ganador-titulo { font-size: 20px; letter-spacing: 2px; margin-bottom: 5px; color: #ffaa00; font-weight: bold; }
+        .ganador-nombre { font-size: 42px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .ganador-club { font-size: 18px; opacity: 0.9; margin-bottom: 20px; font-weight: 600; }
+
+        .modal-nuevo-combate-inputs { background: #1a202c; border: 1px solid #2a2f42; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; }
+        .modal-nuevo-combate-inputs label { font-size: 11px; color: #a0aec0; font-weight: bold; display: block; margin-top: 6px; }
+        .modal-nuevo-combate-inputs input { width: 100%; padding: 8px; margin-top: 3px; background: #07090e; border: 1px solid #4a5568; color: white; border-radius: 4px; box-sizing: border-box; font-weight: bold; }
 
         #mesa-overlay-descanso {
             display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -169,15 +174,16 @@
         .btn-juez-new .lbl-tag { font-size: 11px; text-transform: uppercase; font-weight: bold; }
         .btn-juez-new .lbl-val { font-size: 26px; font-weight: 900; }
 
-        /* IMPRESIÓN Y PDF FORMATO OFICIAL */
+        /* CORRECCIÓN DE ESTILOS DE IMPRESIÓN Y GENERACIÓN DE PDF */
+        #printable-print-zone { display: none; }
         @media print {
-            body * { visibility: hidden; }
-            #printable-print-zone, #printable-print-zone * { visibility: visible; }
-            #printable-print-zone { position: absolute; left: 0; top: 0; width: 100%; color: black; font-family: sans-serif; }
+            body * { visibility: hidden !important; }
+            #printable-print-zone, #printable-print-zone * { visibility: visible !important; }
+            #printable-print-zone { display: block !important; position: absolute; left: 0; top: 0; width: 100%; color: black !important; font-family: sans-serif; background: white !important; }
             .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-            .print-table th, .print-table td { border: 1px solid #333; padding: 8px; font-size: 12px; text-align: left; }
-            .print-table th { background: #eee; }
-            .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 4px; }
+            .print-table th, .print-table td { border: 1px solid #333; padding: 6px; font-size: 11px; text-align: left; color: black !important; }
+            .print-table th { background: #eee !important; font-weight: bold; }
+            .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 4px; border-radius: 4px; font-size: 9px; margin-right: 4px; color: black; }
         }
     </style>
 </head>
@@ -214,16 +220,41 @@
 
 <div class="log-container" id="visual-log-container"></div>
 
+<!-- ALERTA / FORMULARIO PARA INGRESO DEL SIGUIENTE COMBATE -->
 <div id="pantalla-ganador">
     <div class="ganador-box" id="ganador-fondo">
-        <div class="ganador-titulo">COMBATE CONCLUIDO</div>
+        <div class="ganador-titulo">🏆 COMBATE CONCLUIDO</div>
         <div class="ganador-nombre" id="ganador-texto">AZUL</div>
         <div class="ganador-club" id="ganador-club-texto">DELEGACIÓN</div>
-        <button class="btn-ctrl" style="background:#ffaa00; color:black; padding:14px 35px; font-size:14px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer;" onclick="siguienteCombateListo()">➡️ SIGUIENTE COMBATE</button>
+
+        <div class="modal-nuevo-combate-inputs">
+            <div style="font-size:12px; font-weight:bold; color:#00f2fe; margin-bottom:8px; text-transform:uppercase; text-align:center;">
+                📝 Datos del Próximo Combate
+            </div>
+            <label>Categoría / Peso:</label>
+            <input type="text" id="modal-next-cat" placeholder="Ej: MAYORES AVANZADO">
+
+            <div style="display:flex; gap:8px;">
+                <div style="flex:1;">
+                    <label style="color:#4d7cff;">Nombre Azul:</label>
+                    <input type="text" id="modal-next-az-name" placeholder="Nombre">
+                    <label style="color:#4d7cff;">Delegación Azul:</label>
+                    <input type="text" id="modal-next-az-club" placeholder="Club/Liga">
+                </div>
+                <div style="flex:1;">
+                    <label style="color:#ff4d4d;">Nombre Rojo:</label>
+                    <input type="text" id="modal-next-rj-name" placeholder="Nombre">
+                    <label style="color:#ff4d4d;">Delegación Rojo:</label>
+                    <input type="text" id="modal-next-rj-club" placeholder="Club/Liga">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-ctrl" style="background:#ffaa00; color:black; padding:14px 25px; font-size:13px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; font-weight:bold; width:100%;" onclick="siguienteCombateListo()">➡️ CONFIRMAR E INICIAR SIGUIENTE COMBATE</button>
     </div>
 </div>
 
-<div id="printable-print-zone" style="display: none;"></div>
+<div id="printable-print-zone"></div>
 
 <div id="operator-ui" style="display: flex; flex-direction: column; height: 100%;">
     <div class="top-bar">
@@ -569,6 +600,7 @@
             if(!EVENTO_ACTUAL || !accesoConcedido) return;
             let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
             db.collection("Eventos").doc(EVENTO_ACTUAL).collection("AreasActivas").doc(`Area_${AREA_ACTUAL}`).set({
+                evento: EVENTO_ACTUAL,
                 area: AREA_ACTUAL,
                 azul: azul,
                 rojo: rojo,
@@ -936,7 +968,7 @@
         }
     }
 
-    // GUARDA CON FECHA Y HORA EXACTAS
+    // REGISTRA COMBATE CON FECHA/HORA Y DESPLIEGA ANUNCIO OBLIGATORIO
     async function finalizarCombatePorReglamento(dictamenText, ganadorNombre, ganadorClub) {
         pause(); bloqueoCombatePorVictoria = true;
         document.getElementById("mesa-overlay-descanso").style.display = "none";
@@ -944,7 +976,6 @@
         if(canal) {
             canal.publish('p', { type: 'LOCK_WINNER', color: dictamenText.includes("AZUL") ? 'azul' : 'rojo', name: ganadorNombre, club: ganadorClub });
         }
-        renderizarPantallaGanadorLocalYTV(dictamenText.includes("AZUL") ? 'azul' : 'rojo', ganadorNombre, ganadorClub);
 
         const ahora = new Date();
         const fechaTxt = ahora.toISOString().split('T')[0];
@@ -973,10 +1004,11 @@
 
         try {
             await db.collection("HistorialOficial").add(registroCombate);
-            console.log("Combate registrado en Firebase!");
         } catch(e) {
             console.error("Error al guardar en Firebase:", e);
         }
+
+        renderizarPantallaGanadorLocalYTV(dictamenText.includes("AZUL") ? 'azul' : 'rojo', ganadorNombre, ganadorClub);
     }
 
     function renderizarPantallaGanadorLocalYTV(color, nombre, club) {
@@ -985,8 +1017,15 @@
         const fondo = document.getElementById("ganador-fondo");
         document.getElementById("ganador-texto").innerText = nombre;
         document.getElementById("ganador-club-texto").innerText = club;
-        fondo.style.background = (color === 'azul') ? "#0022aa" : "#800000";
-        fondo.style.borderColor = "#fff";
+        fondo.style.borderColor = (color === 'azul') ? "#00f2fe" : "#ff4d4d";
+        
+        // Pre-carga valores por defecto para el siguiente combate en los inputs
+        document.getElementById("modal-next-cat").value = document.getElementById("cfg-cat").value;
+        document.getElementById("modal-next-az-name").value = "";
+        document.getElementById("modal-next-az-club").value = "";
+        document.getElementById("modal-next-rj-name").value = "";
+        document.getElementById("modal-next-rj-club").value = "";
+
         pLocal.style.display = "flex";
 
         if(ventanaTV && !ventanaTV.closed) {
@@ -1012,19 +1051,34 @@
     }
 
     function siguienteCombateListo() {
+        // Asigna las nuevas configuraciones ingresadas en la alerta
+        const nCat = document.getElementById("modal-next-cat").value.trim();
+        const nAzName = document.getElementById("modal-next-az-name").value.trim();
+        const nAzClub = document.getElementById("modal-next-az-club").value.trim();
+        const nRjName = document.getElementById("modal-next-rj-name").value.trim();
+        const nRjClub = document.getElementById("modal-next-rj-club").value.trim();
+
+        if(nCat) document.getElementById("cfg-cat").value = nCat;
+        document.getElementById("aname").value = nAzName;
+        document.getElementById("aclub").value = nAzClub;
+        document.getElementById("rname").value = nRjName;
+        document.getElementById("rclub").value = nRjClub;
+
         if(canal) canal.publish('p', { type: 'UNLOCK_WINNER' }); 
         removerPantallaGanadorLocalYTV();
+
         document.getElementById("mesa-overlay-descanso").style.display = "none";
         document.getElementById("cfg-combate-num").value = (parseInt(document.getElementById("cfg-combate-num").value) || 1) + 1;
-        document.getElementById("aname").value = ""; document.getElementById("aclub").value = "";
-        document.getElementById("rname").value = ""; document.getElementById("rclub").value = "";
+        
         rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
         historialAcciones = [];
         enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
         document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
+        
         setNombres(); cambiarConfigTiempo();
         renderizarHistorialConCorrecion();
         actualizar();
+        mostrarNotificacion("✅ Nuevo combate listo para iniciar", 2500);
     }
 
     function resetMatch() {
@@ -1045,7 +1099,7 @@
         if(combatesFinalizadosLogs.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay registros archivados.</td></tr>'; return; }
         let html = '';
         combatesFinalizadosLogs.forEach(c => {
-            let roundsDesglose = c.detalles.map(r => `R${r.round}: A:${r.ptsAzul}(${r.gamAzul}G) | R:${r.ptsRojo}(${r.gamRojo}G)`).join(" <br> ");
+            let roundsDesglose = c.detalles ? c.detalles.map(r => `R${r.round}: A:${r.ptsAzul}(${r.gamAzul}G) | R:${r.ptsRojo}(${r.gamRojo}G)`).join(" <br> ") : "-";
             html += `<tr>
                 <td style="font-weight:bold; color:#ffaa00;">#${c.num}<br><small style="color:gray">${c.hora || ''}</small></td>
                 <td><strong>${c.categoria}</strong><br><span style="color:#4d7cff">Az: ${c.az}</span> vs <span style="color:#ff4d4d">Rj: ${c.rj}</span></td>
@@ -1092,67 +1146,67 @@
 
     function enviarPunto(equipo, puntos) { if(canal) canal.publish('p', { e: equipo, p: puntos }); }
 
+    // GENERACIÓN CORREGIDA DE IMPRESIÓN Y DESCARGA PDF EN MESA
     async function imprimirHistorialDelDia() {
-    mostrarNotificacion("Cargando reporte de combates...");
-    try {
-        // Consulta Firestore para asegurar que traiga todos los combates concluidos
-        const snapshot = await db.collection("HistorialOficial")
-            .where("evento", "==", EVENTO_ACTUAL)
-            .where("area", "==", AREA_ACTUAL)
-            .get();
+        mostrarNotificacion("Cargando reporte de combates...");
+        try {
+            const snapshot = await db.collection("HistorialOficial")
+                .where("evento", "==", EVENTO_ACTUAL)
+                .where("area", "==", AREA_ACTUAL)
+                .get();
 
-        if (snapshot.empty && combatesFinalizadosLogs.length === 0) {
-            mostrarNotificacion("No hay combates registrados para imprimir.");
-            return;
+            let datosParaImprimir = [];
+            if (!snapshot.empty) {
+                snapshot.forEach(doc => datosParaImprimir.push(doc.data()));
+            } else {
+                datosParaImprimir = [...combatesFinalizadosLogs];
+            }
+
+            if (datosParaImprimir.length === 0) {
+                mostrarNotificacion("No hay combates registrados para imprimir.");
+                return;
+            }
+
+            const pz = document.getElementById("printable-print-zone");
+            let html = `<h2 style="text-align:center;margin-bottom:2px;color:black;">REPORTE OFICIAL DE RESULTADOS - ÁREA ${AREA_ACTUAL}</h2>
+                        <h4 style="text-align:center;margin-top:2px;color:#555;">EVENTO: ${EVENTO_ACTUAL.toUpperCase()} - FECHA: ${new Date().toLocaleDateString()}</h4>
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th>COMBATE / HORA</th>
+                                    <th>CATEGORÍA</th>
+                                    <th>COMPETIDORES</th>
+                                    <th>DESGLOSE POR ROUND</th>
+                                    <th>GANADOR Y DICTAMEN</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                            
+            datosParaImprimir.forEach(c => {
+                let rSub = c.detalles ? c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ") : "-";
+                html += `<tr>
+                    <td style="text-align:center;font-weight:bold;">#${c.num}<br><small>${c.hora || ''}</small></td>
+                    <td><strong>${c.categoria}</strong></td>
+                    <td>
+                        <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.clubAzul || 'SIN CLUB'})<br>
+                        <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
+                    </td>
+                    <td>${rSub}</td>
+                    <td style="font-weight:bold;color:green;">${c.ganador || ''}<br><small>${c.res}</small></td>
+                </tr>`;
+            });
+            
+            html += `</tbody></table>`; 
+            pz.innerHTML = html; 
+            
+            setTimeout(() => { window.print(); }, 250);
+
+        } catch (e) {
+            console.error("Error al generar PDF:", e);
+            mostrarNotificacion("Error al consultar combates para PDF.");
         }
-
-        let datosParaImprimir = [];
-        if (!snapshot.empty) {
-            snapshot.forEach(doc => datosParaImprimir.push(doc.data()));
-        } else {
-            datosParaImprimir = [...combatesFinalizadosLogs];
-        }
-
-        const pz = document.getElementById("printable-print-zone");
-        let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL DE RESULTADOS - ÁREA ${AREA_ACTUAL}</h2>
-                    <h4 style="text-align:center;margin-top:2px;color:#555;">EVENTO: ${EVENTO_ACTUAL.toUpperCase()} - FECHA: ${new Date().toLocaleDateString()}</h4>
-                    <table class="print-table">
-                        <thead>
-                            <tr>
-                                <th>COMBATE / HORA</th>
-                                <th>CATEGORÍA</th>
-                                <th>COMPETIDORES</th>
-                                <th>DESGLOSE POR ROUND</th>
-                                <th>GANADOR Y DICTAMEN</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                        
-        datosParaImprimir.forEach(c => {
-            let rSub = c.detalles ? c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ") : "-";
-            html += `<tr>
-                <td style="text-align:center;font-weight:bold;">#${c.num}<br><small>${c.hora || ''}</small></td>
-                <td><strong>${c.categoria}</strong></td>
-                <td>
-                    <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.clubAzul || 'SIN CLUB'})<br>
-                    <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
-                </td>
-                <td>${rSub}</td>
-                <td style="font-weight:bold;color:green;">${c.ganador || ''}<br><small>${c.res}</small></td>
-            </tr>`;
-        });
-        
-        html += `</tbody></table>`; 
-        pz.innerHTML = html; 
-        
-        // Ejecuta la ventana de impresión/Guardar como PDF
-        setTimeout(() => { window.print(); }, 300);
-
-    } catch (e) {
-        console.error("Error al generar PDF:", e);
-        mostrarNotificacion("Error al consultar combates para PDF.");
     }
-}
+
     function abrirPantallaTV() {
         if(ventanaTV && !ventanaTV.closed) { ventanaTV.focus(); return; }
         ventanaTV = window.open("", "ScoreMasterTV", "width=1200,height=800");
