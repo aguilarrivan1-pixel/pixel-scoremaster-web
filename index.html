@@ -40,29 +40,14 @@
             background: var(--bg-dark); color: white; 
         }
 
-        /* Banner de Notificación Personalizada (Toast) */
         #toast-banner {
-            position: fixed;
-            top: -70px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ff2a2a;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 14px;
-            z-index: 9999999;
-            box-shadow: 0 4px 20px rgba(255, 0, 0, 0.5);
-            border: 2px solid #ffffff;
-            transition: top 0.3s ease-in-out;
-            text-align: center;
-            letter-spacing: 0.5px;
-            pointer-events: none;
+            position: fixed; top: -70px; left: 50%; transform: translateX(-50%);
+            background: #ff2a2a; color: white; padding: 12px 24px; border-radius: 8px;
+            font-weight: 800; font-size: 14px; z-index: 9999999;
+            box-shadow: 0 4px 20px rgba(255, 0, 0, 0.5); border: 2px solid #ffffff;
+            transition: top 0.3s ease-in-out; text-align: center; pointer-events: none;
         }
-        #toast-banner.show {
-            top: 20px;
-        }
+        #toast-banner.show { top: 20px; }
 
         #modalAcceso {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -124,7 +109,7 @@
         .gam-mesa-row { display: flex; gap: 8px; }
         .btn-gam-m { flex: 1; background: #2d3247; color: white; border: 1px solid var(--panel-border); padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        .right-panels { width: 440px; display: flex; flex-direction: column; gap: 12px; }
+        .right-panels { width: 450px; display: flex; flex-direction: column; gap: 12px; }
         .panel-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px; }
         .match-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
         .btn-ctrl { padding: 10px; border-radius: 6px; border: none; font-weight: bold; color: white; background: #2a2f42; cursor: pointer; font-size: 11px; text-transform: uppercase;}
@@ -133,7 +118,7 @@
         .btn-ctrl.cancel-doc { background: #ffaa00; color: black; grid-column: span 2; display: none; }
 
         .tabs-header { display: flex; border-bottom: 2px solid var(--panel-border); margin-bottom: 12px; }
-        .tab-btn { background: none; border: none; color: var(--text-gray); padding: 6px 12px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .tab-btn { background: none; border: none; color: var(--text-gray); padding: 6px 10px; cursor: pointer; font-weight: bold; font-size: 11px; }
         .tab-btn.active { color: #ffaa00; border-bottom: 2px solid #ffaa00; margin-bottom: -2px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -142,8 +127,9 @@
         .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; color: var(--text-gray); }
         .config-row select, .config-row input { background: #12141c; border: 1px solid var(--panel-border); color: white; padding: 6px; border-radius: 4px; width: 160px; font-weight: bold;}
 
-        .history-list { height: 160px; overflow-y: auto; font-size: 11px; font-family: monospace; background: #12141c; padding: 6px; border-radius: 4px; border: 1px solid var(--panel-border); }
-        .history-item { padding: 4px; border-bottom: 1px solid #1a1d26; display: flex; justify-content: space-between; }
+        .history-list { height: 180px; overflow-y: auto; font-size: 11px; font-family: monospace; background: #12141c; padding: 6px; border-radius: 4px; border: 1px solid var(--panel-border); }
+        .history-item { padding: 6px; border-bottom: 1px solid #1a1d26; display: flex; justify-content: space-between; align-items: center; }
+        .btn-undo-action { background: #d9534f; color: white; border: none; border-radius: 4px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-weight: bold; margin-left: 6px; }
 
         .history-table-wrapper { max-height: 200px; overflow-y: auto; background: #12141c; border-radius: 6px; border: 1px solid var(--panel-border); }
         .tkd-table { width: 100%; border-collapse: collapse; font-size: 11px; color: white; text-align: left; }
@@ -160,16 +146,9 @@
         .ganador-club { font-size: 20px; opacity: 0.9; margin-bottom: 30px; font-weight: 600; }
 
         #mesa-overlay-descanso {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(17, 10, 0, 0.96);
-            border: 3px solid #ff5500;
-            border-radius: 12px;
-            z-index: 99;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(17, 10, 0, 0.96); border: 3px solid #ff5500; border-radius: 12px;
+            z-index: 99; flex-direction: column; align-items: center; justify-content: center;
         }
 
         #juez-ui { 
@@ -179,42 +158,27 @@
             padding: 4px; overflow: hidden;
         }
 
-        .header-juez {
-            height: 30px; background: #121824; border: 1px solid #2a2f42; 
-            text-align: center; font-weight: 900; border-radius: 6px; 
-            color: #ffaa00; font-size: 12px; letter-spacing: 1px; 
-            display: flex; align-items: center; justify-content: center; 
-            flex-shrink: 0; margin-bottom: 4px;
-        }
-
-        .juez-container-grid {
-            display: grid;
-            grid-template-rows: 1fr 1.8fr 1.4fr 1fr;
-            gap: 4px;
-            height: calc(100dvh - 42px);
-            width: 100%;
-        }
-
+        .header-juez { height: 30px; background: #121824; border: 1px solid #2a2f42; text-align: center; font-weight: 900; border-radius: 6px; color: #ffaa00; font-size: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+        .juez-container-grid { display: grid; grid-template-rows: 1fr 1.8fr 1.4fr 1fr; gap: 4px; height: calc(100dvh - 42px); width: 100%; }
         .juez-split-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; height: 100%; }
         .juez-split-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; height: 100%; }
 
-        .btn-juez-new {
-            border: none; border-radius: 8px; color: white; font-weight: 900;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; box-sizing: border-box; text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-            touch-action: manipulation; width: 100%; height: 100%;
-        }
-
-        .btn-juez-new:active { transform: scale(0.95); filter: brightness(1.2); }
-
+        .btn-juez-new { border: none; border-radius: 8px; color: white; font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; touch-action: manipulation; width: 100%; height: 100%; }
         .btn-juez-new.azul { background: #0033cc; border: 1.5px solid #3366ff; }
         .btn-juez-new.rojo { background: #a00000; border: 1.5px solid #ff3333; }
+        .btn-juez-new .lbl-tag { font-size: 11px; text-transform: uppercase; font-weight: bold; }
+        .btn-juez-new .lbl-val { font-size: 26px; font-weight: 900; }
 
-        .btn-juez-new .lbl-tag { font-size: 11px; text-transform: uppercase; opacity: 0.9; font-weight: bold; }
-        .btn-juez-new .lbl-val { font-size: 26px; line-height: 1; font-weight: 900; margin-top: 1px; }
-
-        .btn-juez-new.sm .lbl-tag { font-size: 9px; }
-        .btn-juez-new.sm .lbl-val { font-size: 18px; }
+        /* IMPRESIÓN Y PDF FORMATO OFICIAL */
+        @media print {
+            body * { visibility: hidden; }
+            #printable-print-zone, #printable-print-zone * { visibility: visible; }
+            #printable-print-zone { position: absolute; left: 0; top: 0; width: 100%; color: black; font-family: sans-serif; }
+            .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            .print-table th, .print-table td { border: 1px solid #333; padding: 8px; font-size: 12px; text-align: left; }
+            .print-table th { background: #eee; }
+            .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 4px; }
+        }
     </style>
 </head>
 <body>
@@ -223,7 +187,7 @@
 
 <div id="modalAcceso">
   <div class="modal-box">
-    <h2 style="margin-top: 0; color: #00f2fe; text-transform: uppercase; letter-spacing: 1px;">Mesa de Control</h2>
+    <h2 style="margin-top: 0; color: #00f2fe; text-transform: uppercase;">Mesa de Control</h2>
     <p style="font-size: 13px; color: #a0aec0; margin-bottom: 20px;">Configura la sesión del torneo</p>
     
     <div style="text-align: left; margin-bottom: 15px;">
@@ -244,7 +208,6 @@
     <button onclick="validarEIngresarMesa()" style="width: 100%; padding: 12px; background: #00f2fe; border: none; color: #000; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px; text-transform: uppercase;">
       Ingresar a la Mesa
     </button>
-
     <p id="mensajeErrorAcceso" style="color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; font-weight: bold;"></p>
   </div>
 </div>
@@ -360,9 +323,16 @@
 
             <div class="panel-box" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                 <div class="tabs-header">
-                    <button class="tab-btn" id="tab-btn-rules" onclick="switchTab('rules')">CONFIG COMBATE</button>
                     <button class="tab-btn active" id="tab-btn-history" onclick="switchTab('history')">LOGS EN VIVO</button>
-                    <button class="tab-btn" id="tab-btn-global" onclick="switchTab('global')">HISTORIAL JORNADA</button>
+                    <button class="tab-btn" id="tab-btn-rules" onclick="switchTab('rules')">CONFIG COMBATE</button>
+                    <button class="tab-btn" id="tab-btn-global" onclick="switchTab('global')">HISTORIAL DÍA ÁREA</button>
+                </div>
+
+                <div id="tab-history" class="tab-content active">
+                    <div style="font-size:10px; color:#a0a5b5; margin-bottom:4px;">Haz clic en <strong>[Corregir]</strong> para deshacer:</div>
+                    <div class="history-list" id="match-history-list">
+                        <div class="history-item" style="color: gray;">Esperando acciones de combate...</div>
+                    </div>
                 </div>
 
                 <div id="tab-rules" class="tab-content config-scroll">
@@ -396,31 +366,25 @@
                     <div class="config-row"><label>Tiempo Asalto:</label><input type="text" id="time-input" value="2:00" oninput="cambiarConfigTiempo()"></div>
                 </div>
 
-                <div id="tab-history" class="tab-content active">
-                    <div class="history-list" id="match-history-list">
-                        <div class="history-item" style="color: gray;">Esperando acciones de combate...</div>
-                    </div>
-                </div>
-
                 <div id="tab-global" class="tab-content">
                     <div class="history-table-wrapper">
                         <table class="tkd-table">
                             <thead>
                                 <tr>
-                                    <th>Nº</th>
+                                    <th>Nº / Hora</th>
                                     <th>Categoría / Competidores</th>
-                                    <th>Área</th>
-                                    <th>Resultado</th>
+                                    <th>Rounds</th>
+                                    <th>Ganador</th>
                                 </tr>
                             </thead>
                             <tbody id="day-global-table-body">
                                 <tr>
-                                    <td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay registros archivados el día de hoy.</td>
+                                    <td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay combates concluidos en esta mesa hoy.</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <button class="btn-ctrl" style="background:#0056b3; width:100%; margin-top:10px; font-size:12px;" onclick="imprimirHistorialDelDia()">🖨️ DESCARGAR HISTORIAL COMPLETO (PDF)</button>
+                    <button class="btn-ctrl" style="background:#0056b3; width:100%; margin-top:10px; font-size:12px;" onclick="imprimirHistorialDelDia()">🖨️ IMPRIMIR / DESCARGAR PDF (ÁREA)</button>
                 </div>
 
                 <div class="qr-area" id="qrcode"></div>
@@ -431,58 +395,24 @@
 
 <div id="juez-ui">
     <div class="header-juez">ÁREA <span id="displayAreaJuez">1</span> — MANDO REMOTO JUEZ</div>
-    
     <div class="juez-container-grid">
         <div class="juez-split-2">
-            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 1)">
-                <span class="lbl-tag">Puño</span>
-                <span class="lbl-val">+1</span>
-            </button>
-            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 1)">
-                <span class="lbl-tag">Puño</span>
-                <span class="lbl-val">+1</span>
-            </button>
+            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 1)"><span class="lbl-tag">Puño</span><span class="lbl-val">+1</span></button>
+            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 1)"><span class="lbl-tag">Puño</span><span class="lbl-val">+1</span></button>
         </div>
-
         <div class="juez-split-2">
-            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 2)">
-                <span class="lbl-tag">Peto</span>
-                <span class="lbl-val">+2</span>
-            </button>
-            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 2)">
-                <span class="lbl-tag">Peto</span>
-                <span class="lbl-val">+2</span>
-            </button>
+            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 2)"><span class="lbl-tag">Peto</span><span class="lbl-val">+2</span></button>
+            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 2)"><span class="lbl-tag">Peto</span><span class="lbl-val">+2</span></button>
         </div>
-
         <div class="juez-split-2">
-            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 3)">
-                <span class="lbl-tag">Casco</span>
-                <span class="lbl-val">+3</span>
-            </button>
-            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 3)">
-                <span class="lbl-tag">Casco</span>
-                <span class="lbl-val">+3</span>
-            </button>
+            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 3)"><span class="lbl-tag">Casco</span><span class="lbl-val">+3</span></button>
+            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 3)"><span class="lbl-tag">Casco</span><span class="lbl-val">+3</span></button>
         </div>
-
         <div class="juez-split-4">
-            <button class="btn-juez-new azul sm" onclick="enviarPunto('azul', 4)">
-                <span class="lbl-tag">G. Peto</span>
-                <span class="lbl-val">+4</span>
-            </button>
-            <button class="btn-juez-new azul sm" onclick="enviarPunto('azul', 6)">
-                <span class="lbl-tag">G. Casco</span>
-                <span class="lbl-val">+6</span>
-            </button>
-            <button class="btn-juez-new rojo sm" onclick="enviarPunto('rojo', 4)">
-                <span class="lbl-tag">G. Peto</span>
-                <span class="lbl-val">+4</span>
-            </button>
-            <button class="btn-juez-new rojo sm" onclick="enviarPunto('rojo', 6)">
-                <span class="lbl-tag">G. Casco</span>
-                <span class="lbl-val">+6</span>
-            </button>
+            <button class="btn-juez-new azul sm" onclick="enviarPunto('azul', 4)"><span class="lbl-tag">G. Peto</span><span class="lbl-val">+4</span></button>
+            <button class="btn-juez-new azul sm" onclick="enviarPunto('azul', 6)"><span class="lbl-tag">G. Casco</span><span class="lbl-val">+6</span></button>
+            <button class="btn-juez-new rojo sm" onclick="enviarPunto('rojo', 4)"><span class="lbl-tag">G. Peto</span><span class="lbl-val">+4</span></button>
+            <button class="btn-juez-new rojo sm" onclick="enviarPunto('rojo', 6)"><span class="lbl-tag">G. Casco</span><span class="lbl-val">+6</span></button>
         </div>
     </div>
 </div>
@@ -498,125 +428,81 @@
     const esJuez = window.innerWidth < 768 || params.get('mode') === 'juez';
 
     let ably, canal;
+    let rojo=0, azul=0, gRojo=0, gAzul=0, tiempo=120, tiempoGuardadoAntesDoc=120, intervalo=null, round=1, wRojo=0, wAzul=0, clics=[];
+    let modoJueces = 2;
+    let ventanaTV = null;
+    let enModoDoctor = false;
+    let enModoDescanso = false;
+    let combatesFinalizadosLogs = [];
+    let bloqueoCombatePorVictoria = false;
+    let estadisticasRounds = [];
+    let historialAcciones = [];
 
-    // SISTEMA DE NOTIFICACIONES PERSONALIZADAS (Reemplaza los alert)
-    function mostrarNotificacion(msj, tiempo = 2800) {
+    function mostrarNotificacion(msj, tiempoMs = 2800) {
         const toast = document.getElementById("toast-banner");
         toast.innerText = msj;
         toast.classList.add("show");
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, tiempo);
+        setTimeout(() => { toast.classList.remove("show"); }, tiempoMs);
     }
 
-    /* SINTETIZADOR DE IMPACTOS REALES */
     const interfazSonidos = {
         ctx: null,
         inicializar() {
-            if (!this.ctx) {
-                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (this.ctx.state === 'suspended') {
-                this.ctx.resume();
-            }
+            if (!this.ctx) { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+            if (this.ctx.state === 'suspended') { this.ctx.resume(); }
         },
         playPunto() { 
             this.inicializar();
             try {
-                let osc = this.ctx.createOscillator();
-                let gain = this.ctx.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+                let osc = this.ctx.createOscillator(); let gain = this.ctx.createGain();
+                osc.type = 'sine'; osc.frequency.setValueAtTime(180, this.ctx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.08);
 
                 let noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.05, this.ctx.sampleRate);
                 let output = noiseBuffer.getChannelData(0);
-                for (let i = 0; i < noiseBuffer.length; i++) {
-                    output[i] = Math.random() * 2 - 1;
-                }
-                let whiteNoise = this.ctx.createBufferSource();
-                whiteNoise.buffer = noiseBuffer;
-
-                let noiseFilter = this.ctx.createBiquadFilter();
-                noiseFilter.type = 'lowpass';
+                for (let i = 0; i < noiseBuffer.length; i++) { output[i] = Math.random() * 2 - 1; }
+                let whiteNoise = this.ctx.createBufferSource(); whiteNoise.buffer = noiseBuffer;
+                let noiseFilter = this.ctx.createBiquadFilter(); noiseFilter.type = 'lowpass';
                 noiseFilter.frequency.setValueAtTime(1000, this.ctx.currentTime);
-
-                let noiseGain = this.ctx.createGain();
-                noiseGain.gain.setValueAtTime(0.8, this.ctx.currentTime);
+                let noiseGain = this.ctx.createGain(); noiseGain.gain.setValueAtTime(0.8, this.ctx.currentTime);
                 noiseGain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
 
-                whiteNoise.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(this.ctx.destination);
-
-                gain.gain.setValueAtTime(1.0, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                whiteNoise.start();
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.1);
+                whiteNoise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(this.ctx.destination);
+                gain.gain.setValueAtTime(1.0, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                whiteNoise.start(); osc.start(); osc.stop(this.ctx.currentTime + 0.1);
             } catch(e){}
         },
         playFalta() {
             this.inicializar();
             try {
-                let osc = this.ctx.createOscillator();
-                let gain = this.ctx.createGain();
-                
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                let osc = this.ctx.createOscillator(); let gain = this.ctx.createGain();
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(120, this.ctx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 0.25);
-
-                gain.gain.setValueAtTime(1.2, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(1.2, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.25);
             } catch(e){}
         },
         playClickReloj() { 
             this.inicializar();
             try {
-                let osc = this.ctx.createOscillator();
-                let g = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-                g.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.03);
-                osc.connect(g); g.connect(this.ctx.destination);
-                osc.start(); osc.stop(this.ctx.currentTime + 0.03);
+                let osc = this.ctx.createOscillator(); let g = this.ctx.createGain();
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                g.gain.setValueAtTime(0.2, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.03);
+                osc.connect(g); g.connect(this.ctx.destination); osc.start(); osc.stop(this.ctx.currentTime + 0.03);
             } catch(e){}
         },
         playChicharraFinal() { 
             this.inicializar();
             try {
-                let osc1 = this.ctx.createOscillator();
-                let osc2 = this.ctx.createOscillator();
-                let g = this.ctx.createGain();
-
-                osc1.type = 'sawtooth';
-                osc2.type = 'square';
-
-                osc1.frequency.setValueAtTime(160, this.ctx.currentTime);
-                osc2.frequency.setValueAtTime(165, this.ctx.currentTime);
-
-                g.gain.setValueAtTime(0.8, this.ctx.currentTime);
-                g.gain.setValueAtTime(0.8, this.ctx.currentTime + 1.2);
+                let osc1 = this.ctx.createOscillator(); let osc2 = this.ctx.createOscillator(); let g = this.ctx.createGain();
+                osc1.type = 'sawtooth'; osc2.type = 'square';
+                osc1.frequency.setValueAtTime(160, this.ctx.currentTime); osc2.frequency.setValueAtTime(165, this.ctx.currentTime);
+                g.gain.setValueAtTime(0.8, this.ctx.currentTime); g.gain.setValueAtTime(0.8, this.ctx.currentTime + 1.2);
                 g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.5);
-
-                osc1.connect(g); osc2.connect(g);
-                g.connect(this.ctx.destination);
-
-                osc1.start(); osc2.start();
-                osc1.stop(this.ctx.currentTime + 1.5);
-                osc2.stop(this.ctx.currentTime + 1.5);
+                osc1.connect(g); osc2.connect(g); g.connect(this.ctx.destination);
+                osc1.start(); osc2.start(); osc1.stop(this.ctx.currentTime + 1.5); osc2.stop(this.ctx.currentTime + 1.5);
             } catch(e){}
         }
     };
@@ -625,10 +511,8 @@
         const contenedorQR = document.getElementById("qrcode");
         if(!contenedorQR) return;
         contenedorQR.innerHTML = "";
-        
         const urlGitHubPages = "https://aguilarrivan1-pixel.github.io/pixel-scoremaster-web/"; 
         const urlJuez = `${urlGitHubPages}?mode=juez&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}`;
-        
         new QRCode(contenedorQR, { text: urlJuez, width: 85, height: 85 });
     }
 
@@ -648,15 +532,12 @@
 
         try {
             const docRef = await db.collection("Configuracion").doc("Acceso").get();
-            
             if (docRef.exists) {
                 const passCorrecta = docRef.data().password;
-
                 if (passIngresada === passCorrecta) {
                     accesoConcedido = true;
                     EVENTO_ACTUAL = evento.toLowerCase().replace(/\s+/g, '-');
                     AREA_ACTUAL = area;
-                    
                     ABLY_CHANNEL_NAME = `tkd-${EVENTO_ACTUAL}-area-${AREA_ACTUAL}`;
 
                     document.getElementById("displayArea").innerText = AREA_ACTUAL;
@@ -669,19 +550,33 @@
                     generarQRJuez();
                     try { interfazSonidos.inicializar(); } catch(e) {}
                     document.getElementById("modalAcceso").style.display = "none";
+                    
+                    iniciarSincronizacionEstadoAreaEnVivo();
                 } else {
                     lblError.innerText = "Contraseña incorrecta.";
                     lblError.style.display = "block";
                 }
-            } else {
-                lblError.innerText = "Error: Documento 'Acceso' no existe en Firebase.";
-                lblError.style.display = "block";
             }
         } catch (error) {
             console.error("Error al validar clave:", error);
             lblError.innerText = "Error de conexión con Firebase.";
             lblError.style.display = "block";
         }
+    }
+
+    function iniciarSincronizacionEstadoAreaEnVivo() {
+        setInterval(() => {
+            if(!EVENTO_ACTUAL || !accesoConcedido) return;
+            let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
+            db.collection("Eventos").doc(EVENTO_ACTUAL).collection("AreasActivas").doc(`Area_${AREA_ACTUAL}`).set({
+                area: AREA_ACTUAL,
+                azul: azul,
+                rojo: rojo,
+                round: round,
+                tiempo: `${min}:${seg<10?'0':''}${seg}`,
+                ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        }, 1500);
     }
 
     if(esJuez) {
@@ -694,31 +589,18 @@
         const eventoParam = params.get('evento') || 'general';
         
         ABLY_CHANNEL_NAME = `tkd-${eventoParam.toLowerCase().replace(/\s+/g, '-')}-area-${areaParam}`;
-
         document.getElementById("displayAreaJuez").innerText = areaParam;
 
         ably = new Ably.Realtime({ key: API_KEY });
         canal = ably.channels.get(ABLY_CHANNEL_NAME);
     }
 
-    let rojo=0, azul=0, gRojo=0, gAzul=0, tiempo=120, tiempoGuardadoAntesDoc=120, intervalo=null, round=1, wRojo=0, wAzul=0, clics=[];
-    let modoJueces = 2;
-    let ventanaTV = null;
-    let enModoDoctor = false;
-    let enModoDescanso = false;
-    let combatesFinalizadosLogs = [];
-    let bloqueoCombatePorVictoria = false;
-    let estadisticasRounds = [];
-
     window.addEventListener('keydown', function(e) {
         if (!accesoConcedido || esJuez || bloqueoCombatePorVictoria) return;
         if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
 
         const tecla = e.key.toLowerCase();
-        if (e.code === "Space" || tecla === " ") {
-            e.preventDefault();
-            conmutarRelojMesa();
-        } 
+        if (e.code === "Space" || tecla === " ") { e.preventDefault(); conmutarRelojMesa(); } 
         else if (tecla === "b") { penal('azul'); } 
         else if (tecla === "r") { penal('rojo'); }
     });
@@ -753,10 +635,51 @@
     function efectuarPunto(equipo, puntos, juecesTxt) {
         if(bloqueoCombatePorVictoria || enModoDescanso) return;
         if(equipo === 'rojo') rojo += puntos; else azul += puntos;
+        
         interfazSonidos.playPunto();
         dispararLogVisual(equipo, puntos, juecesTxt);
-        registrarEnHistorial(equipo, puntos, juecesTxt);
+        
+        const idAccion = Date.now();
+        historialAcciones.unshift({ id: idAccion, tipo: 'punto', equipo, puntos, procedencia: juecesTxt });
+        
         actualizar();
+        renderizarHistorialConCorrecion();
+    }
+
+    function deshacerAccion(idAccion) {
+        const idx = historialAcciones.findIndex(a => a.id === idAccion);
+        if(idx === -1) return;
+
+        const accion = historialAcciones[idx];
+        if(accion.tipo === 'punto') {
+            if(accion.equipo === 'rojo') rojo = Math.max(0, rojo - accion.puntos);
+            else azul = Math.max(0, azul - accion.puntos);
+        } else if(accion.tipo === 'falta') {
+            if(accion.equipo === 'rojo') { gRojo = Math.max(0, gRojo - 1); azul = Math.max(0, azul - 1); }
+            else { gAzul = Math.max(0, gAzul - 1); rojo = Math.max(0, rojo - 1); }
+        }
+
+        historialAcciones.splice(idx, 1);
+        actualizar();
+        renderizarHistorialConCorrecion();
+        mostrarNotificacion("⚠️ Acción corregida y revertida con éxito");
+    }
+
+    function renderizarHistorialConCorrecion() {
+        const lista = document.getElementById("match-history-list");
+        if(historialAcciones.length === 0) {
+            lista.innerHTML = '<div class="history-item" style="color: gray;">Esperando acciones de combate...</div>';
+            return;
+        }
+
+        let html = "";
+        historialAcciones.forEach(a => {
+            html += `<div class="history-item">
+                <span style="color:${a.equipo==='azul'?'#4d7cff':'#ff4d4d'}">[R${round}] ${a.equipo.toUpperCase()} +${a.puntos || 1} (${a.procedencia})</span>
+                <button class="btn-undo-action" onclick="deshacerAccion(${a.id})">🗑️ Corregir</button>
+            </div>`;
+        });
+        lista.innerHTML = html;
     }
 
     function dispararLogVisual(equipo, puntos, juecesTxt) {
@@ -773,17 +696,6 @@
         card.innerHTML = contenido;
         contenedor.appendChild(card);
         setTimeout(() => { card.remove(); }, 2500);
-    }
-
-    function registrarEnHistorial(equipo, puntos, procedencia) {
-        const lista = document.getElementById("match-history-list");
-        if(lista.innerHTML.includes("Esperando acciones")) lista.innerHTML = "";
-        const item = document.createElement("div");
-        item.className = "history-item";
-        let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
-        let preTag = enModoDescanso ? "[DESC]" : `[R${round}]`;
-        item.innerHTML = `<span style="color:${equipo==='azul'?'#4d7cff':'#ff4d4d'}">${preTag} ${min}:${seg<10?'0':''}${seg} -> ${puntos >= 0 ? '+' : ''}${puntos} ${equipo.toUpperCase()}</span><span style="color:gray;">${procedencia}</span>`;
-        lista.insertBefore(item, lista.firstChild);
     }
 
     function puntoMesa(equipo, puntos) { efectuarPunto(equipo, puntos, 'Mesa Control'); }
@@ -821,7 +733,7 @@
 
     function cambiarModoJueces() {
         modoJueces = parseInt(document.getElementById("judge-select").value);
-        registrarEnHistorial('azul', 0, `Sistema cambiado a ${modoJueces} Jueces`);
+        mostrarNotificacion(`Sistema cambiado a ${modoJueces} Jueces`);
     }
 
     function penal(equipo) {
@@ -833,9 +745,13 @@
         }
 
         interfazSonidos.playFalta(); 
-        if(equipo === 'azul') { gAzul++; rojo += 1; registrarEnHistorial('azul', 0, 'Gam-jeom otorgado (Punto a Rojo)'); } 
-        else { gRojo++; azul += 1; registrarEnHistorial('rojo', 0, 'Gam-jeom otorgado (Punto a Azul)'); }
+        if(equipo === 'azul') { gAzul++; rojo += 1; } 
+        else { gRojo++; azul += 1; }
+        
+        const idAccion = Date.now();
+        historialAcciones.unshift({ id: idAccion, tipo: 'falta', equipo, puntos: 1, procedencia: 'Gam-jeom' });
         actualizar();
+        renderizarHistorialConCorrecion();
 
         let maxGam = parseInt(document.getElementById("cfg-max-gamjeoms").value) || 5;
         if(gAzul >= maxGam) {
@@ -854,21 +770,17 @@
     function restarPenal(equipo) {
         if(bloqueoCombatePorVictoria || enModoDescanso) return;
         if(equipo === 'azul' && gAzul > 0) {
-            gAzul--; 
-            if(rojo > 0) rojo--; 
-            registrarEnHistorial('azul', 0, 'Mesa corrige error: Remueve Gam-jeom a Azul');
+            gAzul--; if(rojo > 0) rojo--; 
         } else if(equipo === 'rojo' && gRojo > 0) {
-            gRojo--;
-            if(azul > 0) azul--; 
-            registrarEnHistorial('rojo', 0, 'Mesa corrige error: Remueve Gam-jeom a Rojo');
+            gRojo--; if(azul > 0) azul--; 
         }
         actualizar();
     }
 
     function restar(equipo) {
         if(bloqueoCombatePorVictoria || enModoDescanso) return;
-        if(equipo === 'azul' && azul > 0) { azul--; registrarEnHistorial('azul', -1, 'Mesa resta un punto'); }
-        if(equipo === 'rojo' && rojo > 0) { rojo--; registrarEnHistorial('rojo', -1, 'Mesa resta un punto'); }
+        if(equipo === 'azul' && azul > 0) { azul--; }
+        if(equipo === 'rojo' && rojo > 0) { rojo--; }
         actualizar();
     }
 
@@ -887,8 +799,7 @@
 
     function conmutarRelojMesa() { 
         if (intervalo === "ESPERANDO_VALIDACION") {
-            intervalo = null; 
-            finalizarRound(); 
+            intervalo = null; finalizarRound(); 
         } else if(intervalo) { 
             pause(); 
         } else { 
@@ -919,19 +830,14 @@
                 let txtTiempo = `${min}:${seg<10?'0':''}${seg}`;
                 
                 document.getElementById("tiempo").innerText = txtTiempo;
-                
-                if (enModoDescanso) {
-                    document.getElementById("mesa-descanso-tiempo").innerText = txtTiempo;
-                }
-                
+                if (enModoDescanso) { document.getElementById("mesa-descanso-tiempo").innerText = txtTiempo; }
                 actualizarTV();
             } else {
                 clearInterval(intervalo); intervalo = null;
                 interfazSonidos.playChicharraFinal();
                 
                 if (enModoDoctor) {
-                    pause();
-                    mostrarNotificacion("¡TIEMPO MÉDICO AGOTADO! El competidor debe reincorporarse.", 4000);
+                    pause(); mostrarNotificacion("¡TIEMPO MÉDICO AGOTADO! El competidor debe reincorporarse.", 4000);
                 } else if (enModoDescanso) { 
                     finalizarDescansoYEntrarAlSiguienteRound(); 
                 } else { 
@@ -1030,6 +936,7 @@
         }
     }
 
+    // GUARDA CON FECHA Y HORA EXACTAS
     async function finalizarCombatePorReglamento(dictamenText, ganadorNombre, ganadorClub) {
         pause(); bloqueoCombatePorVictoria = true;
         document.getElementById("mesa-overlay-descanso").style.display = "none";
@@ -1038,6 +945,10 @@
             canal.publish('p', { type: 'LOCK_WINNER', color: dictamenText.includes("AZUL") ? 'azul' : 'rojo', name: ganadorNombre, club: ganadorClub });
         }
         renderizarPantallaGanadorLocalYTV(dictamenText.includes("AZUL") ? 'azul' : 'rojo', ganadorNombre, ganadorClub);
+
+        const ahora = new Date();
+        const fechaTxt = ahora.toISOString().split('T')[0];
+        const horaTxt = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
         const registroCombate = {
             evento: EVENTO_ACTUAL || "general",
@@ -1049,9 +960,12 @@
             rj: document.getElementById("lbl-name-rojo").innerText,
             clubRojo: document.getElementById("lbl-club-rojo").innerText,
             res: dictamenText, 
+            ganador: dictamenText.includes("AZUL") ? "AZUL" : "ROJO",
             detalles: [...estadisticasRounds],
             torneo: document.getElementById("cfg-campeonato").value,
-            fechaHora: firebase.firestore.FieldValue.serverTimestamp()
+            fecha: fechaTxt,
+            hora: horaTxt,
+            fechaHoraServer: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         combatesFinalizadosLogs.push(registroCombate);
@@ -1059,7 +973,7 @@
 
         try {
             await db.collection("HistorialOficial").add(registroCombate);
-            console.log("Combate registrado con éxito en Firebase!");
+            console.log("Combate registrado en Firebase!");
         } catch(e) {
             console.error("Error al guardar en Firebase:", e);
         }
@@ -1105,21 +1019,23 @@
         document.getElementById("aname").value = ""; document.getElementById("aclub").value = "";
         document.getElementById("rname").value = ""; document.getElementById("rclub").value = "";
         rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
+        historialAcciones = [];
         enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
         document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
         setNombres(); cambiarConfigTiempo();
-        document.getElementById("match-history-list").innerHTML = '<div class="history-item" style="color: gray;">Siguiente combate preparado.</div>';
+        renderizarHistorialConCorrecion();
         actualizar();
     }
 
     function resetMatch() {
         pause(); rojo = 0; azul = 0; gRojo = 0; gAzul = 0; wAzul = 0; wRojo = 0; round = 1; clics = [];
+        historialAcciones = [];
         enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
         document.getElementById("mesa-overlay-descanso").style.display = "none";
         document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
         document.getElementById("btn-medico").style.display = "block"; document.getElementById("btn-cancel-medico").style.display = "none";
         setNombres(); cambiarConfigTiempo();
-        document.getElementById("match-history-list").innerHTML = '<div class="history-item" style="color: gray;">Arena reseteada.</div>';
+        renderizarHistorialConCorrecion();
         actualizar(); removerPantallaGanadorLocalYTV();
         mostrarNotificacion("Arena restablecida", 2000);
     }
@@ -1129,7 +1045,13 @@
         if(combatesFinalizadosLogs.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay registros archivados.</td></tr>'; return; }
         let html = '';
         combatesFinalizadosLogs.forEach(c => {
-            html += `<tr><td style="font-weight:bold; color:#ffaa00;">#${c.num}</td><td><strong>${c.categoria}</strong><br>Azul: ${c.az} vs Rojo: ${c.rj}</td><td>Área ${AREA_ACTUAL}</td><td style="font-weight:bold; color:#28a745;">${c.res}</td></tr>`;
+            let roundsDesglose = c.detalles.map(r => `R${r.round}: A:${r.ptsAzul}(${r.gamAzul}G) | R:${r.ptsRojo}(${r.gamRojo}G)`).join(" <br> ");
+            html += `<tr>
+                <td style="font-weight:bold; color:#ffaa00;">#${c.num}<br><small style="color:gray">${c.hora || ''}</small></td>
+                <td><strong>${c.categoria}</strong><br><span style="color:#4d7cff">Az: ${c.az}</span> vs <span style="color:#ff4d4d">Rj: ${c.rj}</span></td>
+                <td style="font-size:10px;">${roundsDesglose}</td>
+                <td style="font-weight:bold; color:#28a745;">${c.ganador}<br><small>${c.res}</small></td>
+            </tr>`;
         });
         tbody.innerHTML = html;
     }
@@ -1174,31 +1096,31 @@
         if(combatesFinalizadosLogs.length === 0) { mostrarNotificacion("No hay combates para descargar."); return; }
         const pz = document.getElementById("printable-print-zone");
         
-        let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL DE RESULTADOS</h2>
-                    <h4 style="text-align:center;margin-top:2px;color:#555;">${document.getElementById("cfg-campeonato").value}</h4>
+        let html = `<h2 style="text-align:center;margin-bottom:2px;">REPORTE OFICIAL DE RESULTADOS (ÁREA ${AREA_ACTUAL})</h2>
+                    <h4 style="text-align:center;margin-top:2px;color:#555;">${document.getElementById("cfg-campeonato").value} - FECHA: ${new Date().toLocaleDateString()}</h4>
                     <table class="print-table">
                         <thead>
                             <tr>
-                                <th>COMBATE</th>
+                                <th>Nº / HORA</th>
                                 <th>CATEGORÍA</th>
+                                <th>COMPETIDORES</th>
                                 <th>DESGLOSE POR ROUND</th>
-                                <th>DICTAMEN</th>
+                                <th>GANADOR Y RESULTADO</th>
                             </tr>
                         </thead>
                         <tbody>`;
                         
         combatesFinalizadosLogs.forEach(c => {
-            let rSub = c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(G:${r.gamAzul}) | Rj:${r.ptsRojo}(G:${r.gamRojo})</span>`).join("");
-            
+            let rSub = c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ");
             html += `<tr>
-                <td style="text-align:center;font-weight:bold;">#${c.num}</td>
+                <td style="text-align:center;font-weight:bold;">#${c.num}<br><small>${c.hora || ''}</small></td>
+                <td><strong>${c.categoria}</strong></td>
                 <td>
-                    <strong>${c.categoria}</strong><br>
-                    <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} <span style="color:#555; font-style:italic;">(${c.clubAzul || document.getElementById("aclub").value || 'SIN CLUB'})</span><br>
-                    <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} <span style="color:#555; font-style:italic;">(${c.clubRojo || document.getElementById("rclub").value || 'SIN CLUB'})</span>
+                    <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.clubAzul || 'SIN CLUB'})<br>
+                    <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
                 </td>
                 <td>${rSub}</td>
-                <td style="font-weight:bold;color:green;">${c.res}</td>
+                <td style="font-weight:bold;color:green;">${c.ganador}<br><small>${c.res}</small></td>
             </tr>`;
         });
         
