@@ -157,7 +157,8 @@
         .ganador-club { font-size: 20px; opacity: 0.9; margin-bottom: 30px; font-weight: 600; }
 
         /* ==========================================
-           INTERFAZ JUEZ CORREGIDA (SE ADAPTA AL 100% DE LA PANTALLA MÓVIL)
+           INTERFAZ JUEZ REDISEÑADA CON CSS GRID
+           (Garantiza que el 100% quepa sin scroll)
            ========================================== */
         #juez-ui { 
             display: none; 
@@ -165,47 +166,50 @@
             top: 0; left: 0; 
             width: 100vw; 
             height: 100vh; 
-            max-height: 100vh;
             background: #0b0c10; 
             z-index: 999999; 
             flex-direction: column; 
             box-sizing: border-box;
-            padding: 6px;
+            padding: 4px;
             overflow: hidden;
         }
 
         .header-juez {
-            height: 4vh;
-            min-height: 25px;
+            height: 35px;
             background: #121824;
             border: 1px solid #2a2f42;
-            padding: 4px;
             text-align: center;
             font-weight: 900;
             border-radius: 6px;
             color: #ffaa00;
             font-size: 13px;
             letter-spacing: 1px;
-            margin-bottom: 6px;
-            flex-shrink: 0;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
-        .grid-juez-flex {
-            display: flex;
-            flex: 1;
-            gap: 6px;
+        .juez-main-grid {
+            display: grid;
+            grid-template-rows: 1fr 1.6fr 1.4fr 1.1fr;
+            gap: 4px;
+            height: calc(100vh - 47px);
             width: 100%;
-            height: 93vh;
         }
 
-        .col-juez {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
+        .juez-row-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            height: 100%;
+        }
+
+        .juez-row-quad {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 4px;
             height: 100%;
         }
 
@@ -221,8 +225,9 @@
             cursor: pointer;
             box-sizing: border-box;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-            transition: transform 0.05s ease, filter 0.05s ease;
             touch-action: manipulation;
+            width: 100%;
+            height: 100%;
         }
 
         .btn-juez-new:active {
@@ -230,23 +235,15 @@
             filter: brightness(1.3);
         }
 
-        /* Colores específicos con bordes luminosos */
-        .col-juez.b .btn-juez-new { background: #0033cc; border: 1.5px solid #3366ff; }
-        .col-juez.r .btn-juez-new { background: #a00000; border: 1.5px solid #ff3333; }
+        /* Colores */
+        .btn-juez-new.azul { background: #0033cc; border: 1.5px solid #3366ff; }
+        .btn-juez-new.rojo { background: #a00000; border: 1.5px solid #ff3333; }
 
-        /* Proporciones optimizadas para que todo quepa sin scroll */
-        .btn-juez-new.puno { flex: 1; }
-        .btn-juez-new.peto { flex: 1.8; }
-        .btn-juez-new.casco { flex: 1.5; }
-        .btn-juez-new.giro { flex: 1; }
-
-        .btn-juez-new .lbl-tag { font-size: 1.8vh; text-transform: uppercase; opacity: 0.85; font-weight: bold; }
-        .btn-juez-new .lbl-val { font-size: 3.8vh; line-height: 1; margin-top: 2px; }
-
-        .row-giros { display: flex; gap: 5px; flex: 1; }
-        .row-giros .btn-juez-new { flex: 1; }
-        .row-giros .btn-juez-new .lbl-tag { font-size: 1.4vh; }
-        .row-giros .btn-juez-new .lbl-val { font-size: 2.8vh; }
+        /* Fuentes adaptables */
+        .btn-juez-new .lbl-tag { font-size: clamp(10px, 2vh, 14px); text-transform: uppercase; opacity: 0.9; font-weight: bold; }
+        .btn-juez-new .lbl-val { font-size: clamp(20px, 4vh, 36px); line-height: 1; margin-top: 2px; }
+        .btn-juez-new.sm .lbl-tag { font-size: clamp(9px, 1.5vh, 12px); }
+        .btn-juez-new.sm .lbl-val { font-size: clamp(16px, 3vh, 26px); }
     </style>
 </head>
 <body>
@@ -455,66 +452,65 @@
     </div>
 </div>
 
+<!-- MANDO DEL JUEZ ESTRUCTURADO EN GRID (NUNCA SE HACE SCROLL) -->
 <div id="juez-ui">
     <div class="header-juez">ÁREA <span id="displayAreaJuez">1</span> — MANDO REMOTO JUEZ</div>
     
-    <div class="grid-juez-flex">
-        <!-- COLUMNA AZUL -->
-        <div class="col-juez b">
-            <button class="btn-juez-new puno" onclick="enviarPunto('azul', 1)">
+    <div class="juez-main-grid">
+        <!-- Fila 1: PUÑO -->
+        <div class="juez-row-split">
+            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 1)">
                 <span class="lbl-tag">Puño</span>
                 <span class="lbl-val">+1</span>
             </button>
-
-            <button class="btn-juez-new peto" onclick="enviarPunto('azul', 2)">
-                <span class="lbl-tag">Peto</span>
-                <span class="lbl-val">+2</span>
+            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 1)">
+                <span class="lbl-tag">Puño</span>
+                <span class="lbl-val">+1</span>
             </button>
-
-            <button class="btn-juez-new casco" onclick="enviarPunto('azul', 3)">
-                <span class="lbl-tag">Casco</span>
-                <span class="lbl-val">+3</span>
-            </button>
-
-            <div class="row-giros">
-                <button class="btn-juez-new giro" onclick="enviarPunto('azul', 4)">
-                    <span class="lbl-tag">G. Peto</span>
-                    <span class="lbl-val">+4</span>
-                </button>
-                <button class="btn-juez-new giro" onclick="enviarPunto('azul', 6)">
-                    <span class="lbl-tag">G. Casco</span>
-                    <span class="lbl-val">+6</span>
-                </button>
-            </div>
         </div>
 
-        <!-- COLUMNA ROJA -->
-        <div class="col-juez r">
-            <button class="btn-juez-new puno" onclick="enviarPunto('rojo', 1)">
-                <span class="lbl-tag">Puño</span>
-                <span class="lbl-val">+1</span>
-            </button>
-
-            <button class="btn-juez-new peto" onclick="enviarPunto('rojo', 2)">
+        <!-- Fila 2: PETO -->
+        <div class="juez-row-split">
+            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 2)">
                 <span class="lbl-tag">Peto</span>
                 <span class="lbl-val">+2</span>
             </button>
+            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 2)">
+                <span class="lbl-tag">Peto</span>
+                <span class="lbl-val">+2</span>
+            </button>
+        </div>
 
-            <button class="btn-juez-new casco" onclick="enviarPunto('rojo', 3)">
+        <!-- Fila 3: CASCO -->
+        <div class="juez-row-split">
+            <button class="btn-juez-new azul" onclick="enviarPunto('azul', 3)">
                 <span class="lbl-tag">Casco</span>
                 <span class="lbl-val">+3</span>
             </button>
+            <button class="btn-juez-new rojo" onclick="enviarPunto('rojo', 3)">
+                <span class="lbl-tag">Casco</span>
+                <span class="lbl-val">+3</span>
+            </button>
+        </div>
 
-            <div class="row-giros">
-                <button class="btn-juez-new giro" onclick="enviarPunto('rojo', 4)">
-                    <span class="lbl-tag">G. Peto</span>
-                    <span class="lbl-val">+4</span>
-                </button>
-                <button class="btn-juez-new giro" onclick="enviarPunto('rojo', 6)">
-                    <span class="lbl-tag">G. Casco</span>
-                    <span class="lbl-val">+6</span>
-                </button>
-            </div>
+        <!-- Fila 4: GIROS (+4 Y +6) -->
+        <div class="juez-row-quad">
+            <button class="btn-juez-new azul sm" onclick="enviarPunto('azul', 4)">
+                <span class="lbl-tag">G. Peto</span>
+                <span class="lbl-val">+4</span>
+            </button>
+            <button class="btn-juez-new azul sm" onclick="enviarPunto('azul', 6)">
+                <span class="lbl-tag">G. Casco</span>
+                <span class="lbl-val">+6</span>
+            </button>
+            <button class="btn-juez-new rojo sm" onclick="enviarPunto('rojo', 4)">
+                <span class="lbl-tag">G. Peto</span>
+                <span class="lbl-val">+4</span>
+            </button>
+            <button class="btn-juez-new rojo sm" onclick="enviarPunto('rojo', 6)">
+                <span class="lbl-tag">G. Casco</span>
+                <span class="lbl-val">+6</span>
+            </button>
         </div>
     </div>
 </div>
@@ -532,7 +528,6 @@
 
     let ably, canal;
 
-    // Generador de QR dinámico para los jueces con URL de GitHub Pages
     function generarQRJuez() {
         const contenedorQR = document.getElementById("qrcode");
         if(!contenedorQR) return;
@@ -548,7 +543,6 @@
         });
     }
 
-    // Función para validar la contraseña guardada en Firebase
     async function validarEIngresarMesa() {
         const evento = document.getElementById("inputNombreEvento").value.trim();
         const area = document.getElementById("inputNumeroArea").value.trim();
@@ -620,6 +614,7 @@
         canal = ably.channels.get(ABLY_CHANNEL_NAME);
     }
 
+    /* REGENERACIÓN COMPLETA DE SINTETIZADOR DE SONIDOS */
     const interfazSonidos = {
         ctx: null,
         inicializar() {
@@ -646,13 +641,23 @@
                 osc.stop(this.ctx.currentTime + retrasoInicio + duracion);
             } catch(e) { console.log("Error de Audio:", e); }
         },
-        playPunto() { this.emitirTono(950, 'sine', 0.10, 0.3); },
-        playFalta() {
-            this.emitirTono(440, 'sine', 0.12, 0.3);
-            this.emitirTono(330, 'sine', 0.15, 0.3, 0.08); 
+        // Sonido de Punto: Tono agudo y ultracorto tipo click electrónico
+        playPunto() { 
+            this.emitirTono(1200, 'sine', 0.08, 0.4); 
         },
-        playClickReloj() { this.emitirTono(500, 'triangle', 0.04, 0.3); },
-        playChicharraFinal() { this.emitirTono(200, 'square', 1.3, 0.4); }
+        // Sonido de Falta (Gam-jeom): Dos golpes graves y secos
+        playFalta() {
+            this.emitirTono(300, 'sawtooth', 0.1, 0.4);
+            this.emitirTono(200, 'sawtooth', 0.15, 0.4, 0.08); 
+        },
+        // Click del reloj
+        playClickReloj() { 
+            this.emitirTono(600, 'triangle', 0.03, 0.2); 
+        },
+        // Chicharra final de Round
+        playChicharraFinal() { 
+            this.emitirTono(180, 'sawtooth', 1.5, 0.6); 
+        }
     };
 
     let rojo=0, azul=0, gRojo=0, gAzul=0, tiempo=120, tiempoGuardadoAntesDoc=120, intervalo=null, round=1, wRojo=0, wAzul=0, clics=[];
