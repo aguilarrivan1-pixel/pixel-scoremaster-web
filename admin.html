@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Administración - Pixel ScoreMaster</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+      // Misma configuración de Firebase que la app principal
+      const firebaseConfig = {
+        apiKey: "AIzaSyBEdyO9hJzWC34qI9G0kchpNGVCpVb_MdA",
+        authDomain: "AIzaSyBEdyO9hJzWC34qI9G0kchpNGVCpVb_MdA",
+        projectId: "pixel-scoremaster-db",
+        storageBucket: "pixel-scoremaster-db.firebasestorage.app",
+        messagingSenderId: "824804321113",
+        appId: "1:824804321113:web:6d20f06c67eb564cd78e48"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0b0c10;
+            color: white;
+            padding: 20px;
+        }
+
+        .header-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #00f2fe;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #121824;
+            border: 1px solid #2a2f42;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        input, button, select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #2a2f42;
+            background: #1a202c;
+            color: white;
+            font-weight: bold;
+        }
+
+        button.btn-action {
+            background: #00f2fe;
+            color: #000;
+            cursor: pointer;
+            border: none;
+            text-transform: uppercase;
+        }
+
+        button.btn-action:hover {
+            background: #00b8c4;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #2a2f42;
+            text-align: left;
+        }
+
+        th {
+            background: #1a202c;
+            color: #ffaa00;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-panel">
+        <h2>🎛️ PANEL DE ADMINISTRACIÓN CENTRAL</h2>
+        <div>
+            <span style="color: #28a745; font-weight: bold;">● CONEXIÓN EN VIVO</span>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <!-- SECCIÓN 1: HISTORIAL DE COMBATES EN TIEMPO REAL -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: #ffaa00;">Historial de Combates Archivados</h3>
+                <button class="btn-action" onclick="cargarHistorialFirestore()">🔄 Actualizar</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Área</th>
+                        <th>Combate #</th>
+                        <th>Categoría</th>
+                        <th>Competidores</th>
+                        <th>Resultado</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-admin-historial">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: gray;">Cargando combates desde Firebase...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECCIÓN 2: SEGURIDAD Y CONFIGURACIÓN -->
+        <div>
+            <div class="card">
+                <h3 style="margin-top: 0; color: #00f2fe;">🔐 Seguridad de Mesas</h3>
+                <p style="font-size: 12px; color: #a0aec0;">Cambia la clave global de acceso para todas las mesas de control en vivo.</p>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="font-size: 12px;">Nueva Contraseña:</label><br>
+                    <input type="text" id="nuevaPassAdmin" placeholder="Ej: BOGOTA2026" style="width: 100%; margin-top: 5px; box-sizing: border-box;">
+                </div>
+
+                <button class="btn-action" style="width: 100%;" onclick="actualizarPasswordCentral()">Actualizar Clave</button>
+                <p id="msgPassStatus" style="font-size: 12px; display: none; margin-top: 10px;"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar combates desde Firestore
+        async function cargarHistorialFirestore() {
+            const tbody = document.getElementById("tabla-admin-historial");
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: gray;">Cargando...</td></tr>';
+
+            try {
+                const snapshot = await db.collection("HistorialOficial").get();
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: gray;">No hay combates registrados aún.</td></tr>';
+                    return;
+                }
+
+                let html = "";
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    html += `
+                        <tr>
+                            <td><strong>Área ${data.area || "1"}</strong></td>
+                            <td style="color: #ffaa00; font-weight: bold;">#${data.num}</td>
+                            <td>${data.categoria}</td>
+                            <td><span style="color:#0033cc;">Azul:</span> ${data.az}<br><span style="color:#a00000;">Rojo:</span> ${data.rj}</td>
+                            <td style="color: #28a745; font-weight: bold;">${data.res}</td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            } catch (error) {
+                console.error("Error al cargar historial:", error);
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Error al consultar Firebase.</td></tr>';
+            }
+        }
+
+        // Cambiar la contraseña centralizada en Firebase
+        async function actualizarPasswordCentral() {
+            const nuevaClave = document.getElementById("nuevaPassAdmin").value.trim();
+            const msg = document.getElementById("msgPassStatus");
+
+            if (!nuevaClave) {
+                msg.style.color = "#ff4d4d";
+                msg.innerText = "Escribe una contraseña válida.";
+                msg.style.display = "block";
+                return;
+            }
+
+            try {
+                await db.collection("Configuracion").doc("Acceso").set({
+                    password: nuevaClave
+                });
+                msg.style.color = "#28a745";
+                msg.innerText = "¡Contraseña actualizada con éxito para todas las mesas!";
+                msg.style.display = "block";
+                document.getElementById("nuevaPassAdmin").value = "";
+            } catch (error) {
+                console.error("Error al actualizar clave:", error);
+                msg.style.color = "#ff4d4d";
+                msg.innerText = "Error al actualizar clave en Firebase.";
+                msg.style.display = "block";
+            }
+        }
+
+        // Carga inicial al abrir
+        cargarHistorialFirestore();
+    </script>
+</body>
+</html>

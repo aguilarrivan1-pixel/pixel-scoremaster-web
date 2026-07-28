@@ -1,0 +1,12 @@
+{
+  "name": "pixel-scoremaster-tkd",
+  "version": "1.0.0",
+  "description": "Sistema Oficial de Puntuación Taekwondo - Pixel Nekotech",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^28.3.3"
+  }
+}
