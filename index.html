@@ -1207,12 +1207,23 @@
         }
     }
 
-    function abrirPantallaTV() {
-        if(ventanaTV && !ventanaTV.closed) { ventanaTV.focus(); return; }
-        ventanaTV = window.open("", "ScoreMasterTV", "width=1200,height=800");
-        let numCombateActual = document.getElementById("cfg-combate-num").value || "1";
+   function abrirPantallaTV() {
+    if(ventanaTV && !ventanaTV.closed) { 
+        ventanaTV.focus(); 
+        return; 
+    }
+    
+    // Intenta abrir la ventana
+    ventanaTV = window.open("", "ScoreMasterTV", "width=1200,height=800,menubar=no,toolbar=no,location=no");
+    
+    // Si el sistema bloqueó el pop-up, avisa al operador
+    if (!ventanaTV || ventanaTV.closed || typeof ventanaTV.closed == 'undefined') {
+        mostrarNotificacion("⚠️ La ventana emergente para TV fue bloqueada. Revisa los permisos.");
+        return;
+    }
 
-        let htmlTV = `<!DOCTYPE html>
+    let numCombateActual = document.getElementById("cfg-combate-num").value || "1";
+    // ... (el resto del código de la función se mantiene exactamente igual)
         <html lang="es">
         <head>
             <meta charset="UTF-8">
