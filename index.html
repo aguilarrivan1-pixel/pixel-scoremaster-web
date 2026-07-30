@@ -371,12 +371,23 @@
                     <div class="config-row"><label>Campeonato:</label><input id="cfg-campeonato" value="TORNEO OFICIAL LIGA BOGOTÁ"></div>
                     <div class="config-row"><label>Categoría:</label><input id="cfg-cat" value="MAYORES AVANZADO"></div>
                     <div class="config-row">
+                        <label>Modalidad:</label>
+                        <select id="cfg-modalidad-combate">
+                            <option value="ind" selected>Individual (Rounds)</option>
+                            <option value="equipo">Equipos (TK3 / TK5 Acumulado)</option>
+                        </select>
+                    </div>
+                    <div class="config-row">
                         <label>Competidor Azul:</label>
                         <input id="aname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;"><input id="aclub" placeholder="Delegación" oninput="setNombres()" style="width:78px;">
                     </div>
                     <div class="config-row">
                         <label>Competidor Rojo:</label>
                         <input id="rname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;"><input id="rclub" placeholder="Delegación" oninput="setNombres()" style="width:78px;">
+                    </div>
+                    <div class="config-row">
+                        <label>Point Gap (Dif. Pts):</label>
+                        <input type="number" id="cfg-point-gap" value="12" min="0" max="50" style="text-align: center; font-weight: bold;">
                     </div>
                     <div class="config-row">
                         <label>Límite Gam-jeoms:</label>
@@ -748,6 +759,44 @@
         });
     }
 
+    function evaluarPointGap() {
+        if(bloqueoCombatePorVictoria || enModoDescanso) return false;
+        
+        const limiteGap = parseInt(document.getElementById("cfg-point-gap").value) || 0;
+        if(limiteGap <= 0) return false;
+
+        const dif = Math.abs(azul - rojo);
+        if(dif >= limiteGap) {
+            pause();
+            interfazSonidos.playChicharraFinal();
+            
+            const colorGanador = azul > rojo ? "AZUL" : "ROJO";
+            const nomGanador = colorGanador === "AZUL" ? document.getElementById("lbl-name-azul").innerText : document.getElementById("lbl-name-rojo").innerText;
+            
+            mostrarNotificacion(`⚡ VENTAJA DE ${dif} PTS (POINT GAP). ${colorGanador} GANA ESTE ROUND.`, 4500);
+            
+            estadisticasRounds.push({ 
+                round: round, 
+                ptsAzul: azul, 
+                gamAzul: gAzul, 
+                ptsRojo: rojo, 
+                gamRojo: gRojo, 
+                nota: `Diferencia de Puntos (${dif} Pts)` 
+            });
+
+            if(colorGanador === "AZUL") wAzul++; else wRojo++;
+            
+            const modCombate = document.getElementById("cfg-modalidad-combate").value;
+            if(modCombate === "ind") {
+                azul = 0; rojo = 0; gAzul = 0; gRojo = 0;
+            }
+            
+            evaluarSiguientePasoDeRounds();
+            return true;
+        }
+        return false;
+    }
+
     function efectuarPunto(equipo, puntos, juecesTxt) {
         if(bloqueoCombatePorVictoria || enModoDescanso) return;
         if(equipo === 'rojo') rojo += puntos; else azul += puntos;
@@ -760,6 +809,8 @@
         
         actualizar();
         renderizarHistorialConCorrecion();
+
+        evaluarPointGap();
     }
 
     function deshacerAccion(idAccion) {
@@ -869,17 +920,25 @@
         actualizar();
         renderizarHistorialConCorrecion();
 
+        if(evaluarPointGap()) return;
+
         let maxGam = parseInt(document.getElementById("cfg-max-gamjeoms").value) || 5;
+        const modCombate = document.getElementById("cfg-modalidad-combate").value;
+
         if(gAzul >= maxGam) {
             pause(); interfazSonidos.playChicharraFinal();
             mostrarNotificacion(`Límite de Gam-jeoms alcanzado (${maxGam}). ROJO gana este round.`, 4000);
             estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Victoria por Gam-jeoms" });
-            wRojo++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+            wRojo++; 
+            if(modCombate === "ind") { azul = 0; rojo = 0; gAzul = 0; gRojo = 0; }
+            evaluarSiguientePasoDeRounds();
         } else if(gRojo >= maxGam) {
             pause(); interfazSonidos.playChicharraFinal();
             mostrarNotificacion(`Límite de Gam-jeoms alcanzado (${maxGam}). AZUL gana este round.`, 4000);
             estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Victoria por Gam-jeoms" });
-            wAzul++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+            wAzul++; 
+            if(modCombate === "ind") { azul = 0; rojo = 0; gAzul = 0; gRojo = 0; }
+            evaluarSiguientePasoDeRounds();
         }
     }
 
@@ -976,21 +1035,28 @@
     function finalizarRound() {
         pause();
         if(bloqueoCombatePorVictoria || enModoDescanso) return;
+        
+        const modCombate = document.getElementById("cfg-modalidad-combate").value;
+
         if(azul > rojo) { 
             wAzul++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por puntos" });
-            azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+            if(modCombate === "ind") { azul = 0; rojo = 0; gAzul = 0; gRojo = 0; }
+            evaluarSiguientePasoDeRounds();
         } else if(rojo > azul) { 
             wRojo++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por puntos" });
-            azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+            if(modCombate === "ind") { azul = 0; rojo = 0; gAzul = 0; gRojo = 0; }
+            evaluarSiguientePasoDeRounds();
         } else {
             if(gAzul < gRojo) { 
                 wAzul++; mostrarNotificacion(`Empate (${azul}-${rojo}). Azul gana por menos Gam-jeoms.`, 3500); 
                 estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por menos Gam-jeoms" });
-                azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+                if(modCombate === "ind") { azul = 0; rojo = 0; gAzul = 0; gRojo = 0; }
+                evaluarSiguientePasoDeRounds();
             } else if(gRojo < gAzul) { 
                 wRojo++; mostrarNotificacion(`Empate (${azul}-${rojo}). Rojo gana por menos Gam-jeoms.`, 3500); 
                 estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por menos Gam-jeoms" });
-                azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+                if(modCombate === "ind") { azul = 0; rojo = 0; gAzul = 0; gRojo = 0; }
+                evaluarSiguientePasoDeRounds();
             } else {
                 document.getElementById("panel-superioridad").style.display = "flex";
                 mostrarNotificacion("Empate absoluto. Mesa Técnica decide Superioridad.", 3500);
@@ -1000,9 +1066,13 @@
 
     function decidirSuperioridad(color) {
         document.getElementById("panel-superioridad").style.display = "none";
+        const modCombate = document.getElementById("cfg-modalidad-combate").value;
+
         if(color === 'azul') { wAzul++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Azul por Superioridad" }); } 
         else { wRojo++; estadisticasRounds.push({ round: round, ptsAzul: azul, gamAzul: gAzul, ptsRojo: rojo, gamRojo: gRojo, nota: "Rojo por Superioridad" }); }
-        azul = 0; rojo = 0; gAzul = 0; gRojo = 0; evaluarSiguientePasoDeRounds();
+        
+        if(modCombate === "ind") { azul = 0; rojo = 0; gAzul = 0; gRojo = 0; }
+        evaluarSiguientePasoDeRounds();
     }
 
     function evaluarSiguientePasoDeRounds() {
@@ -1030,7 +1100,12 @@
     }
 
     function finalizarDescansoYEntrarAlSiguienteRound() {
-        enModoDescanso = false; round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0;
+        const modCombate = document.getElementById("cfg-modalidad-combate").value;
+        enModoDescanso = false; round++; 
+        
+        if(modCombate === "ind") {
+            azul = 0; rojo = 0; gAzul = 0; gRojo = 0;
+        }
         
         document.getElementById("mesa-overlay-descanso").style.display = "none";
         document.getElementById("lbl-round-type").innerText = "ROUND";
@@ -1045,10 +1120,12 @@
 
     function forzarSiguienteRoundManual() {
         pause(); 
+        const modCombate = document.getElementById("cfg-modalidad-combate").value;
         if(enModoDescanso) { 
             finalizarDescansoYEntrarAlSiguienteRound(); 
         } else { 
-            round++; azul = 0; rojo = 0; gAzul = 0; gRojo = 0; 
+            round++; 
+            if(modCombate === "ind") { azul = 0; rojo = 0; gAzul = 0; gRojo = 0; }
             cambiarConfigTiempo(); actualizar(); 
         }
     }
@@ -1070,6 +1147,7 @@
             area: AREA_ACTUAL,
             num: document.getElementById("cfg-combate-num").value,
             categoria: document.getElementById("cfg-cat").value,
+            modalidad: document.getElementById("cfg-modalidad-combate").value === "ind" ? "Individual" : "TK3/TK5 Equipos",
             az: document.getElementById("lbl-name-azul").innerText,
             clubAzul: document.getElementById("lbl-club-azul").innerText,
             rj: document.getElementById("lbl-name-rojo").innerText,
@@ -1184,7 +1262,7 @@
             let roundsDesglose = c.detalles ? c.detalles.map(r => `R${r.round}: A:${r.ptsAzul}(${r.gamAzul}G) | R:${r.ptsRojo}(${r.gamRojo}G)`).join(" <br> ") : "-";
             html += `<tr>
                 <td style="font-weight:bold; color:#ffaa00;">#${c.num}<br><small style="color:gray">${c.hora || ''}</small></td>
-                <td><strong>${c.categoria}</strong><br><span style="color:#4d7cff">Az: ${c.az}</span> vs <span style="color:#ff4d4d">Rj: ${c.rj}</span></td>
+                <td><strong>${c.categoria}</strong> <small style="color:#00f2fe;">(${c.modalidad || 'Ind'})</small><br><span style="color:#4d7cff">Az: ${c.az}</span> vs <span style="color:#ff4d4d">Rj: ${c.rj}</span></td>
                 <td style="font-size:10px;">${roundsDesglose}</td>
                 <td style="font-weight:bold; color:#28a745;">${c.ganador}<br><small>${c.res}</small></td>
             </tr>`;
@@ -1255,7 +1333,7 @@
                             <thead>
                                 <tr>
                                     <th>COMBATE / HORA</th>
-                                    <th>CATEGORÍA</th>
+                                    <th>CATEGORÍA / MOD.</th>
                                     <th>COMPETIDORES</th>
                                     <th>DESGLOSE POR ROUND</th>
                                     <th>GANADOR Y DICTAMEN</th>
@@ -1267,7 +1345,7 @@
                 let rSub = c.detalles ? c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ") : "-";
                 html += `<tr>
                     <td style="text-align:center;font-weight:bold;">#${c.num}<br><small>${c.hora || ''}</small></td>
-                    <td><strong>${c.categoria}</strong></td>
+                    <td><strong>${c.categoria}</strong><br><small>(${c.modalidad || 'Ind'})</small></td>
                     <td>
                         <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.clubAzul || 'SIN CLUB'})<br>
                         <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
@@ -1288,20 +1366,14 @@
         }
     }
 
-    // 🔴 NUEVA FUNCIÓN ABRIR PANTALLA TV MEDIANTE URL
     function abrirPantallaTV() {
         if (ventanaTV && !ventanaTV.closed) { 
             ventanaTV.focus(); 
             return; 
         }
         
-        // Toma el número de combate actual para pasarlo en la URL
         let numCombateActual = document.getElementById("cfg-combate-num").value || "1";
-        
-        // Construye la URL de la misma app pero con parámetros de TV
         const urlTV = `${window.location.origin}${window.location.pathname}?mode=tv&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}&combate=${numCombateActual}`;
-        
-        // Abre la ventana apuntando a una URL real (evita bloqueos de seguridad de ventanas vacías)
         ventanaTV = window.open(urlTV, "ScoreMasterTV", "width=1200,height=800,menubar=no,toolbar=no,location=no");
         
         if (!ventanaTV || ventanaTV.closed || typeof ventanaTV.closed == 'undefined') {
@@ -1309,16 +1381,13 @@
             return;
         }
 
-        // Le da 800ms a la pantalla secundaria para cargar antes de mandarle la información
         setTimeout(() => { actualizarTV(); }, 800);
     }
 
-    // 🔴 ACTUALIZACIÓN TV EN VIVO SIN CAMBIOS (Sigue funcionando igual por manipulación del DOM)
     function actualizarTV() {
         if (!ventanaTV || ventanaTV.closed) return;
         const doc = ventanaTV.document;
         
-        // Verifica que el DOM de la TV ya cargó antes de inyectar datos
         if (doc.getElementById("tv-name-azul")) doc.getElementById("tv-name-azul").innerText = document.getElementById("lbl-name-azul").innerText;
         if (doc.getElementById("tv-name-rojo")) doc.getElementById("tv-name-rojo").innerText = document.getElementById("lbl-name-rojo").innerText;
         if (doc.getElementById("tv-club-azul")) doc.getElementById("tv-club-azul").innerText = document.getElementById("lbl-club-azul").innerText;
