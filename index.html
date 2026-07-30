@@ -455,8 +455,11 @@
     let ABLY_CHANNEL_NAME = "";
 
     const API_KEY = 'lghMsA.rFblDA:Uo_Ya0lwt-osgx2EhIM1egWJb1pTR4seB8MQKN_Rqp8';
+    
+    // SISTEMA DE DETECCIÓN DE MODOS (MESA, JUEZ, TV)
     const params = new URLSearchParams(window.location.search);
     const esJuez = window.innerWidth < 768 || params.get('mode') === 'juez';
+    const esTV = params.get('mode') === 'tv';
 
     let ably, canal;
     let rojo=0, azul=0, gRojo=0, gAzul=0, tiempo=120, tiempoGuardadoAntesDoc=120, intervalo=null, round=1, wRojo=0, wAzul=0, clics=[];
@@ -469,11 +472,108 @@
     let estadisticasRounds = [];
     let historialAcciones = [];
 
+    // LÓGICA DE INYECCIÓN DIRECTA PARA LA PANTALLA TV
+    if (esTV) {
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.innerHTML = `
+                <style>
+                    body { margin:0; background:#07090e; color:white; font-family:'Segoe UI', sans-serif; overflow:hidden; user-select:none; }
+                    .tv-frame { display:flex; height:100vh; position:relative; }
+                    .side { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2vh; }
+                    .side.b { background:#0033cc; }
+                    .side.r { background:#a00000; }
+                    .name { font-size:6vh; font-weight:900; text-transform:uppercase; text-shadow:0 4px 8px rgba(0,0,0,0.6); text-align:center; max-width:95%; }
+                    .club-sub { font-size:3vh; opacity:0.8; font-weight:bold; margin-top:1vh; text-transform:uppercase; }
+                    .score { font-size:38vh; font-family:'Arial Black', sans-serif; font-weight:900; line-height:0.85; text-shadow:0 10px 20px rgba(0,0,0,0.8); margin-top:2vh; }
+                    .center { width:26vw; background:linear-gradient(to right, rgba(160,0,0,0.3) 0%, #000 15%, #000 85%, rgba(0,51,204,0.3) 100%); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:4vh 0; box-sizing:border-box; z-index:5; }
+                    .lbl { font-size:2.5vh; color:#a0a5b5; font-weight:bold; letter-spacing:3px; text-transform:uppercase; }
+                    .r-num { font-size:10vh; font-weight:900; color:#ffaa00; line-height:1; }
+                    .time { background:#151821; border:3px solid #ffaa00; color:white; font-size:10vh; padding:1vh 3vh; border-radius:15px; font-family:monospace; font-weight:bold; }
+                    .gam-num { font-size:7vh; font-weight:900; color:white; }
+                    .rw-dot { font-size: 2.8vh; font-weight: bold; padding: 0.5vh 2vh; border-radius: 8px; background: #222633; border: 2px solid #2a2f42; color: #666; width: 80%; text-align: center; }
+                    #tv-pantalla-ganador, #tv-pantalla-descanso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); }
+                    .tv-ganador-box, .tv-descanso-box { padding: 6vh; border-radius: 35px; border: 5px solid #ffaa00; max-width: 70%; width: 60%; text-align:center; }
+                    .tv-descanso-box { background: #110a00; border-color: #ff5500; box-shadow: 0 0 50px rgba(255, 85, 0, 0.4); }
+                    .tv-ganador-titulo, .tv-descanso-titulo { font-size: 4vh; color: #ffaa00; font-weight: bold; }
+                    .tv-descanso-titulo { color: #ff5500; letter-spacing: 2px; }
+                    .tv-ganador-nombre { font-size: 8vh; font-weight: 900; text-transform: uppercase; }
+                    .tv-descanso-tiempo-gigante { font-size: 18vh; font-family: monospace; font-weight: bold; color: white; margin-top: 2vh; text-shadow: 0 0 20px rgba(255,255,255,0.4); }
+                    .tv-ganador-club { font-size: 4vh; opacity: 0.9; }
+                    .tv-log-container { position: absolute; top: 3vh; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 1vh; width: 22vw; }
+                    .tv-combate-tag { background: #ffaa00; color: black; font-weight: 900; padding: 0.4vh 1.5vw; border-radius: 6px; font-size: 2.3vh; display: inline-block; margin-top: 0.8vh; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+                </style>
+                <div class="tv-log-container" id="tv-visual-log-container"></div>
+                <div id="tv-pantalla-ganador">
+                    <div class="tv-ganador-box" id="tv-ganador-fondo">
+                        <div class="tv-ganador-titulo">COMBATE CONCLUIDO</div>
+                        <div class="tv-ganador-nombre" id="tv-ganador-texto">AZUL</div>
+                        <div class="tv-ganador-club" id="tv-ganador-club">DELEGACIÓN</div>
+                    </div>
+                </div>
+                <div id="tv-pantalla-descanso">
+                    <div class="tv-descanso-box">
+                        <div class="tv-descanso-titulo">TIEMPO DE DESCANSO</div>
+                        <div class="tv-descanso-tiempo-gigante" id="tv-descanso-tiempo">1:00</div>
+                    </div>
+                </div>
+                <div class="tv-frame">
+                    <div class="side r">
+                        <div class="name" id="tv-name-rojo">ROJO</div>
+                        <div class="club-sub" id="tv-club-rojo">CLUB</div>
+                        <div class="score" id="tv-rojo">0</div>
+                    </div>
+                    <div class="center">
+                        <div style="text-align:center;">
+                            <div class="lbl">ÁREA ${params.get('area') || "1"}</div>
+                            <div class="tv-combate-tag" id="tv-combate-label">COMBATE #${params.get('combate') || "1"}</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div class="lbl" id="tv-lbl-round">ROUND</div>
+                            <div class="r-num" id="tv-round">1</div>
+                        </div>
+                        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1vh;">
+                            <div class="rw-dot" id="tv-rw-rojo">ROJO: 0</div>
+                            <div class="rw-dot" id="tv-rw-azul">AZUL: 0</div>
+                        </div>
+                        <div class="time" id="tv-tiempo">2:00</div>
+                        <div style="display:flex; justify-content:space-around; width:100%; font-size:2.5vh; font-weight:bold; color:#a0a5b5;">
+                            <div style="text-align:center;">GAM<div class="gam-num" id="tv-gRojo">0</div></div>
+                            <div style="text-align:center;">GAM<div class="gam-num" id="tv-gAzul">0</div></div>
+                        </div>
+                    </div>
+                    <div class="side b">
+                        <div class="name" id="tv-name-azul">AZUL</div>
+                        <div class="club-sub" id="tv-club-azul">CLUB</div>
+                        <div class="score" id="tv-azul">0</div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    if(esJuez && !esTV) {
+        document.getElementById("operator-ui").style.display = "none";
+        document.getElementById("juez-ui").style.display = "flex";
+        accesoConcedido = true; 
+        document.getElementById("modalAcceso").style.display = "none";
+
+        const areaParam = params.get('area') || '1';
+        const eventoParam = params.get('evento') || 'general';
+        
+        ABLY_CHANNEL_NAME = `tkd-${eventoParam.toLowerCase().replace(/\s+/g, '-')}-area-${areaParam}`;
+        document.getElementById("displayAreaJuez").innerText = areaParam;
+
+        ably = new Ably.Realtime({ key: API_KEY });
+        canal = ably.channels.get(ABLY_CHANNEL_NAME);
+    }
+
     function mostrarNotificacion(msj, tiempoMs = 2800) {
         const toast = document.getElementById("toast-banner");
-        toast.innerText = msj;
-        toast.classList.add("show");
-        setTimeout(() => { toast.classList.remove("show"); }, tiempoMs);
+        if(toast) {
+            toast.innerText = msj;
+            toast.classList.add("show");
+            setTimeout(() => { toast.classList.remove("show"); }, tiempoMs);
+        }
     }
 
     const interfazSonidos = {
@@ -611,24 +711,8 @@
         }, 1500);
     }
 
-    if(esJuez) {
-        document.getElementById("operator-ui").style.display = "none";
-        document.getElementById("juez-ui").style.display = "flex";
-        accesoConcedido = true; 
-        document.getElementById("modalAcceso").style.display = "none";
-
-        const areaParam = params.get('area') || '1';
-        const eventoParam = params.get('evento') || 'general';
-        
-        ABLY_CHANNEL_NAME = `tkd-${eventoParam.toLowerCase().replace(/\s+/g, '-')}-area-${areaParam}`;
-        document.getElementById("displayAreaJuez").innerText = areaParam;
-
-        ably = new Ably.Realtime({ key: API_KEY });
-        canal = ably.channels.get(ABLY_CHANNEL_NAME);
-    }
-
     window.addEventListener('keydown', function(e) {
-        if (!accesoConcedido || esJuez || bloqueoCombatePorVictoria) return;
+        if (!accesoConcedido || esJuez || esTV || bloqueoCombatePorVictoria) return;
         if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
 
         const tecla = e.key.toLowerCase();
@@ -953,7 +1037,8 @@
         document.getElementById("lbl-round-type").style.color = "#a0a5b5";
         
         if(ventanaTV && !ventanaTV.closed) {
-            ventanaTV.document.getElementById("tv-pantalla-descanso").style.display = "none";
+            const modalDescansoTV = ventanaTV.document.getElementById("tv-pantalla-descanso");
+            if(modalDescansoTV) modalDescansoTV.style.display = "none";
         }
         cambiarConfigTiempo(); actualizar();
     }
@@ -1203,111 +1288,37 @@
         }
     }
 
+    // 🔴 NUEVA FUNCIÓN ABRIR PANTALLA TV MEDIANTE URL
     function abrirPantallaTV() {
         if (ventanaTV && !ventanaTV.closed) { 
             ventanaTV.focus(); 
             return; 
         }
         
-        ventanaTV = window.open("", "ScoreMasterTV", "width=1200,height=800,menubar=no,toolbar=no,location=no");
+        // Toma el número de combate actual para pasarlo en la URL
+        let numCombateActual = document.getElementById("cfg-combate-num").value || "1";
+        
+        // Construye la URL de la misma app pero con parámetros de TV
+        const urlTV = `${window.location.origin}${window.location.pathname}?mode=tv&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}&combate=${numCombateActual}`;
+        
+        // Abre la ventana apuntando a una URL real (evita bloqueos de seguridad de ventanas vacías)
+        ventanaTV = window.open(urlTV, "ScoreMasterTV", "width=1200,height=800,menubar=no,toolbar=no,location=no");
         
         if (!ventanaTV || ventanaTV.closed || typeof ventanaTV.closed == 'undefined') {
             mostrarNotificacion("⚠️ La ventana emergente para TV fue bloqueada. Revisa los permisos.");
             return;
         }
 
-        let numCombateActual = document.getElementById("cfg-combate-num").value || "1";
-
-        let htmlTV = `<!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>TKD Bogotá Score Master - Pantalla Pública</title>
-            <style>
-                body { margin:0; background:#07090e; color:white; font-family:'Segoe UI', sans-serif; overflow:hidden; user-select:none; }
-                .tv-frame { display:flex; height:100vh; position:relative; }
-                .side { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2vh; }
-                .side.b { background:#0033cc; }
-                .side.r { background:#a00000; }
-                .name { font-size:6vh; font-weight:900; text-transform:uppercase; text-shadow:0 4px 8px rgba(0,0,0,0.6); text-align:center; max-width:95%; }
-                .club-sub { font-size:3vh; opacity:0.8; font-weight:bold; margin-top:1vh; text-transform:uppercase; }
-                .score { font-size:38vh; font-family:'Arial Black', sans-serif; font-weight:900; line-height:0.85; text-shadow:0 10px 20px rgba(0,0,0,0.8); margin-top:2vh; }
-                .center { width:26vw; background:linear-gradient(to right, rgba(160,0,0,0.3) 0%, #000 15%, #000 85%, rgba(0,51,204,0.3) 100%); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:4vh 0; box-sizing:border-box; z-index:5; }
-                .lbl { font-size:2.5vh; color:#a0a5b5; font-weight:bold; letter-spacing:3px; text-transform:uppercase; }
-                .r-num { font-size:10vh; font-weight:900; color:#ffaa00; line-height:1; }
-                .time { background:#151821; border:3px solid #ffaa00; color:white; font-size:10vh; padding:1vh 3vh; border-radius:15px; font-family:monospace; font-weight:bold; }
-                .gam-num { font-size:7vh; font-weight:900; color:white; }
-                .rw-dot { font-size: 2.8vh; font-weight: bold; padding: 0.5vh 2vh; border-radius: 8px; background: #222633; border: 2px solid #2a2f42; color: #666; width: 80%; text-align: center; }
-                #tv-pantalla-ganador, #tv-pantalla-descanso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); }
-                .tv-ganador-box, .tv-descanso-box { padding: 6vh; border-radius: 35px; border: 5px solid #ffaa00; max-width: 70%; width: 60%; text-align:center; }
-                .tv-descanso-box { background: #110a00; border-color: #ff5500; box-shadow: 0 0 50px rgba(255, 85, 0, 0.4); }
-                .tv-ganador-titulo, .tv-descanso-titulo { font-size: 4vh; color: #ffaa00; font-weight: bold; }
-                .tv-descanso-titulo { color: #ff5500; letter-spacing: 2px; }
-                .tv-ganador-nombre { font-size: 8vh; font-weight: 900; text-transform: uppercase; }
-                .tv-descanso-tiempo-gigante { font-size: 18vh; font-family: monospace; font-weight: bold; color: white; margin-top: 2vh; text-shadow: 0 0 20px rgba(255,255,255,0.4); }
-                .tv-ganador-club { font-size: 4vh; opacity: 0.9; }
-                .tv-log-container { position: absolute; top: 3vh; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 1vh; width: 22vw; }
-                .tv-combate-tag { background: #ffaa00; color: black; font-weight: 900; padding: 0.4vh 1.5vw; border-radius: 6px; font-size: 2.3vh; display: inline-block; margin-top: 0.8vh; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-            </style>
-        </head>
-        <body>
-            <div class="tv-log-container" id="tv-visual-log-container"></div>
-            <div id="tv-pantalla-ganador">
-                <div class="tv-ganador-box" id="tv-ganador-fondo">
-                    <div class="tv-ganador-titulo">COMBATE CONCLUIDO</div>
-                    <div class="tv-ganador-nombre" id="tv-ganador-texto">AZUL</div>
-                    <div class="tv-ganador-club" id="tv-ganador-club">DELEGACIÓN</div>
-                </div>
-            </div>
-            <div id="tv-pantalla-descanso">
-                <div class="tv-descanso-box">
-                    <div class="tv-descanso-titulo">TIEMPO DE DESCANSO</div>
-                    <div class="tv-descanso-tiempo-gigante" id="tv-descanso-tiempo">1:00</div>
-                </div>
-            </div>
-            <div class="tv-frame">
-                <div class="side r">
-                    <div class="name" id="tv-name-rojo">ROJO</div>
-                    <div class="club-sub" id="tv-club-rojo">CLUB</div>
-                    <div class="score" id="tv-rojo">0</div>
-                </div>
-                <div class="center">
-                    <div style="text-align:center;">
-                        <div class="lbl">ÁREA ${AREA_ACTUAL}</div>
-                        <div class="tv-combate-tag" id="tv-combate-label">COMBATE #${numCombateActual}</div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div class="lbl" id="tv-lbl-round">ROUND</div>
-                        <div class="r-num" id="tv-round">1</div>
-                    </div>
-                    <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1vh;">
-                        <div class="rw-dot" id="tv-rw-rojo">ROJO: 0</div>
-                        <div class="rw-dot" id="tv-rw-azul">AZUL: 0</div>
-                    </div>
-                    <div class="time" id="tv-tiempo">2:00</div>
-                    <div style="display:flex; justify-content:space-around; width:100%; font-size:2.5vh; font-weight:bold; color:#a0a5b5;">
-                        <div style="text-align:center;">GAM<div class="gam-num" id="tv-gRojo">0</div></div>
-                        <div style="text-align:center;">GAM<div class="gam-num" id="tv-gAzul">0</div></div>
-                    </div>
-                </div>
-                <div class="side b">
-                    <div class="name" id="tv-name-azul">AZUL</div>
-                    <div class="club-sub" id="tv-club-azul">CLUB</div>
-                    <div class="score" id="tv-azul">0</div>
-                </div>
-            </div>
-        </body>
-        </html>`;
-
-        ventanaTV.document.open(); 
-        ventanaTV.document.write(htmlTV); 
-        ventanaTV.document.close();
-        setTimeout(() => { actualizarTV(); }, 300);
+        // Le da 800ms a la pantalla secundaria para cargar antes de mandarle la información
+        setTimeout(() => { actualizarTV(); }, 800);
     }
 
+    // 🔴 ACTUALIZACIÓN TV EN VIVO SIN CAMBIOS (Sigue funcionando igual por manipulación del DOM)
     function actualizarTV() {
         if (!ventanaTV || ventanaTV.closed) return;
         const doc = ventanaTV.document;
+        
+        // Verifica que el DOM de la TV ya cargó antes de inyectar datos
         if (doc.getElementById("tv-name-azul")) doc.getElementById("tv-name-azul").innerText = document.getElementById("lbl-name-azul").innerText;
         if (doc.getElementById("tv-name-rojo")) doc.getElementById("tv-name-rojo").innerText = document.getElementById("lbl-name-rojo").innerText;
         if (doc.getElementById("tv-club-azul")) doc.getElementById("tv-club-azul").innerText = document.getElementById("lbl-club-azul").innerText;
