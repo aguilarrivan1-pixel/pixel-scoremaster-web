@@ -968,7 +968,6 @@
         }
     }
 
-    // REGISTRA COMBATE CON FECHA/HORA Y DESPLIEGA ANUNCIO OBLIGATORIO
     async function finalizarCombatePorReglamento(dictamenText, ganadorNombre, ganadorClub) {
         pause(); bloqueoCombatePorVictoria = true;
         document.getElementById("mesa-overlay-descanso").style.display = "none";
@@ -1019,7 +1018,6 @@
         document.getElementById("ganador-club-texto").innerText = club;
         fondo.style.borderColor = (color === 'azul') ? "#00f2fe" : "#ff4d4d";
         
-        // Pre-carga valores por defecto para el siguiente combate en los inputs
         document.getElementById("modal-next-cat").value = document.getElementById("cfg-cat").value;
         document.getElementById("modal-next-az-name").value = "";
         document.getElementById("modal-next-az-club").value = "";
@@ -1051,7 +1049,6 @@
     }
 
     function siguienteCombateListo() {
-        // Asigna las nuevas configuraciones ingresadas en la alerta
         const nCat = document.getElementById("modal-next-cat").value.trim();
         const nAzName = document.getElementById("modal-next-az-name").value.trim();
         const nAzClub = document.getElementById("modal-next-az-club").value.trim();
@@ -1146,7 +1143,6 @@
 
     function enviarPunto(equipo, puntos) { if(canal) canal.publish('p', { e: equipo, p: puntos }); }
 
-    // GENERACIÓN CORREGIDA DE IMPRESIÓN Y DESCARGA PDF EN MESA
     async function imprimirHistorialDelDia() {
         mostrarNotificacion("Cargando reporte de combates...");
         try {
@@ -1207,23 +1203,22 @@
         }
     }
 
-   function abrirPantallaTV() {
-    if(ventanaTV && !ventanaTV.closed) { 
-        ventanaTV.focus(); 
-        return; 
-    }
-    
-    // Intenta abrir la ventana
-    ventanaTV = window.open("", "ScoreMasterTV", "width=1200,height=800,menubar=no,toolbar=no,location=no");
-    
-    // Si el sistema bloqueó el pop-up, avisa al operador
-    if (!ventanaTV || ventanaTV.closed || typeof ventanaTV.closed == 'undefined') {
-        mostrarNotificacion("⚠️ La ventana emergente para TV fue bloqueada. Revisa los permisos.");
-        return;
-    }
+    function abrirPantallaTV() {
+        if (ventanaTV && !ventanaTV.closed) { 
+            ventanaTV.focus(); 
+            return; 
+        }
+        
+        ventanaTV = window.open("", "ScoreMasterTV", "width=1200,height=800,menubar=no,toolbar=no,location=no");
+        
+        if (!ventanaTV || ventanaTV.closed || typeof ventanaTV.closed == 'undefined') {
+            mostrarNotificacion("⚠️ La ventana emergente para TV fue bloqueada. Revisa los permisos.");
+            return;
+        }
 
-    let numCombateActual = document.getElementById("cfg-combate-num").value || "1";
-    // ... (el resto del código de la función se mantiene exactamente igual)
+        let numCombateActual = document.getElementById("cfg-combate-num").value || "1";
+
+        let htmlTV = `<!DOCTYPE html>
         <html lang="es">
         <head>
             <meta charset="UTF-8">
@@ -1340,3 +1335,4 @@
     }
 </script>
 </body>
+</html>
