@@ -68,7 +68,7 @@
         .tab-ev-btn { background: #1a202c; border: 1px solid var(--panel-border); color: white; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; text-transform: uppercase; white-space: nowrap; }
         .tab-ev-btn.active { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
 
-        .main-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 20px; }
+        .main-grid { display: grid; grid-template-columns: 2fr 1.2fr; gap: 20px; }
         .panel-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
 
         .card-header { font-size: 15px; font-weight: bold; color: #ffaa00; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
@@ -77,15 +77,16 @@
         .admin-table th { background: #0b0c10; color: #ffaa00; padding: 8px; text-align: left; border-bottom: 1px solid var(--panel-border); }
         .admin-table td { padding: 8px; border-bottom: 1px solid #1a1d26; vertical-align: top; }
 
-        .sec-input { width: 100%; padding: 10px; margin-top: 6px; margin-bottom: 12px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight: bold; }
+        .sec-input { width: 100%; padding: 10px; margin-top: 4px; margin-bottom: 10px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight: bold; font-size: 12px; }
         .btn-cyan { width: 100%; padding: 10px; background: var(--accent-cyan); border: none; color: #000; font-weight: 900; border-radius: 6px; cursor: pointer; text-transform: uppercase; font-size: 12px; }
         .btn-refresh { background: var(--accent-cyan); color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; }
         .btn-delete-ev { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 11px; margin-left: 8px; }
         .btn-pdf { background: #0056b3; color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; font-size: 12px; }
 
-        .areas-live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .area-box { background: #0d111a; border: 1px solid #2a2f42; padding: 10px; border-radius: 8px; text-align: center; }
+        .areas-live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .area-box { background: #0d111a; border: 1px solid #2a2f42; padding: 10px; border-radius: 8px; text-align: center; position: relative; }
         .area-box.active { border-color: #28a745; box-shadow: 0 0 8px rgba(40,167,69,0.2); }
+        .btn-kill-area { background: #ff2a2a; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; margin-top: 6px; width: 100%; }
 
         #printable-admin-zone { display: none; }
         @media print {
@@ -95,7 +96,6 @@
             .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
             .print-table th, .print-table td { border: 1px solid #333; padding: 6px; font-size: 10px; text-align: left; color: black !important; }
             .print-table th { background: #eee !important; font-weight: bold; }
-            .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 4px; border-radius: 4px; font-size: 9px; margin-right: 4px; color: black; }
         }
     </style>
 </head>
@@ -110,7 +110,7 @@
 
     <div style="text-align: left; margin-bottom: 20px;">
       <label style="font-size: 12px; color: #cbd5e0;">Clave Maestra Administrador:</label>
-      <input type="password" id="adminPassword" placeholder="••••••••" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;" onkeydown="if(event.key==='Enter') autenticarAdminMaster()">
+      <input type="password" id="adminPassword" placeholder="••••••••" class="sec-input" onkeydown="if(event.key==='Enter') autenticarAdminMaster()">
     </div>
 
     <button onclick="autenticarAdminMaster()" class="btn-cyan">Ingresar al Panel Master</button>
@@ -125,12 +125,10 @@
     <div class="live-tag"><div class="dot"></div> MONITOREO GENERAL EN VIVO</div>
 </div>
 
-<!-- BARRA DINÁMICA DE EVENTOS DETECTADOS -->
 <div class="event-tabs-bar" id="eventTabsBar">
     <button class="tab-ev-btn active" onclick="filtrarPorEvento('TODOS', this)">🌐 TODOS LOS EVENTOS</button>
 </div>
 
-<!-- MONITOR DE ÁREAS ACTIVAS -->
 <div class="panel-card" style="margin-bottom: 15px;">
     <div class="card-header">
         <span>🌐 Áreas transmitiendo en vivo (<span id="cantAreasActivas">0</span> activas)</span>
@@ -170,25 +168,36 @@
         <button class="btn-pdf" onclick="imprimirPDFConsolidadoMaster()">🖨️ IMPRIMIR / DESCARGAR PDF OFICIAL</button>
     </div>
 
+    <!-- PANEL DE CONTROL DE SEGURIDAD Y EVENTOS -->
     <div class="panel-card">
         <div class="card-header">
-            <span>🔒 Seguridad Global</span>
+            <span>➕ Crear / Registrar Evento</span>
         </div>
+        <label style="font-size: 11px; color: white; font-weight: bold;">Nombre del Evento:</label>
+        <input type="text" id="evNombreNew" class="sec-input" placeholder="Ej: Copa Bogota 2026">
 
+        <label style="font-size: 11px; color: white; font-weight: bold;">Contraseña para Mesas:</label>
+        <input type="password" id="evPassNew" class="sec-input" placeholder="••••••••">
+
+        <label style="font-size: 11px; color: white; font-weight: bold;">Límite de Áreas Permitidas:</label>
+        <input type="number" id="evMaxAreasNew" class="sec-input" value="4" min="1" max="20">
+
+        <button class="btn-cyan" onclick="crearNuevoEventoEspecial()" style="margin-bottom: 20px;">GUARDAR EVENTO Y CLAVE</button>
+
+        <div class="card-header" style="border-top: 1px solid var(--panel-border); padding-top: 12px;">
+            <span>🚨 Bloqueo Remoto (Kill-Switch)</span>
+        </div>
         <p style="font-size: 11px; color: var(--text-gray); margin-top: 0;">
-            Cambia la clave global de acceso para las mesas de control y juzgados.
+            Selecciona un evento arriba para alternar el bloqueo general del evento o áreas individuales.
         </p>
-
-        <label style="font-size: 11px; color: white; font-weight: bold;">Nueva Contraseña para Mesas:</label>
-        <input type="password" id="nuevaClaveMesas" class="sec-input" placeholder="Ej: BOGOTA2026">
-
-        <button class="btn-cyan" onclick="actualizarClaveMesasGlobal()">ACTUALIZAR CLAVE GLOBAL</button>
+        <button id="btnToggleBloqueoEv" class="btn-cyan" style="background:#dc3545; color:white; display:none;" onclick="conmutarBloqueoEventoGlobal()">🔴 BLOQUEAR EVENTO COMPLETO</button>
     </div>
 </div>
 
 <script>
     let todosLosCombatesRaw = [];
     let eventoSeleccionadoFiltro = "TODOS";
+    let dictEventosConfig = {};
 
     function mostrarToast(msj) {
         const toast = document.getElementById("toast-banner");
@@ -213,6 +222,7 @@
                 document.getElementById("modalAdminAcceso").style.display = "none";
                 mostrarToast("Autenticado como Administrador Master");
                 
+                escucharEventosYConfiguraciones();
                 escucharHistorialEnTiempoReal();
                 iniciarMonitoreoTodasLasAreasEnVivo();
             } else {
@@ -226,16 +236,99 @@
         }
     }
 
-    async function actualizarClaveMesasGlobal() {
-        const nuevaPass = document.getElementById("nuevaClaveMesas").value.trim();
-        if(!nuevaPass) { mostrarToast("Escribe una contraseña válida"); return; }
+    function escucharEventosYConfiguraciones() {
+        db.collection("Eventos").onSnapshot(snapshot => {
+            dictEventosConfig = {};
+            let listaEventos = [];
+            snapshot.forEach(doc => {
+                dictEventosConfig[doc.id] = doc.data();
+                listaEventos.push(doc.id.toUpperCase());
+            });
+            reconstruirTabs(listaEventos);
+            actualizarEstadoBotonBloqueo();
+        });
+    }
+
+    async function crearNuevoEventoEspecial() {
+        const nombreRaw = document.getElementById("evNombreNew").value.trim();
+        const pass = document.getElementById("evPassNew").value.trim();
+        const maxAreas = parseInt(document.getElementById("evMaxAreasNew").value) || 1;
+
+        if (!nombreRaw || !pass) {
+            mostrarToast("Completa el nombre y la clave del evento.");
+            return;
+        }
+
+        const evId = nombreRaw.toLowerCase().replace(/\s+/g, '-');
 
         try {
-            await db.collection("Configuracion").doc("Acceso").set({ password: nuevaPass }, { merge: true });
-            document.getElementById("nuevaClaveMesas").value = "";
-            mostrarToast("🔒 Clave global actualizada en Firebase");
+            await db.collection("Eventos").doc(evId).set({
+                nombre: nombreRaw,
+                password: pass,
+                maxAreas: maxAreas,
+                estado: "activo",
+                areasBloqueadas: []
+            }, { merge: true });
+
+            mostrarToast(`✅ Evento "${nombreRaw}" creado con éxito.`);
+            document.getElementById("evNombreNew").value = "";
+            document.getElementById("evPassNew").value = "";
         } catch(e) {
-            console.error("Error cambiando clave:", e);
+            console.error("Error al crear evento:", e);
+            mostrarToast("❌ Error guardando en Firebase.");
+        }
+    }
+
+    async function conmutarBloqueoEventoGlobal() {
+        if(eventoSeleccionadoFiltro === "TODOS") return;
+        const evId = eventoSeleccionadoFiltro.toLowerCase();
+        const cfgActual = dictEventosConfig[evId];
+        if(!cfgActual) return;
+
+        const nuevoEstado = cfgActual.estado === "bloqueado" ? "activo" : "bloqueado";
+        try {
+            await db.collection("Eventos").doc(evId).set({ estado: nuevoEstado }, { merge: true });
+            mostrarToast(`Evento ${nuevoEstado === 'bloqueado' ? '🔴 BLOQUEADO' : '🟢 ACTIVADO'}`);
+        } catch(e) {
+            console.error("Error al conmutar bloqueo:", e);
+        }
+    }
+
+    async function bloquearAreaEspecifica(evId, numArea) {
+        const cfgActual = dictEventosConfig[evId] || { areasBloqueadas: [] };
+        let arrBloqueadas = cfgActual.areasBloqueadas || [];
+        
+        if (arrBloqueadas.includes(numArea)) {
+            arrBloqueadas = arrBloqueadas.filter(a => a !== numArea);
+        } else {
+            arrBloqueadas.push(numArea);
+        }
+
+        try {
+            await db.collection("Eventos").doc(evId).set({ areasBloqueadas: arrBloqueadas }, { merge: true });
+            mostrarToast(`Área ${numArea} ${arrBloqueadas.includes(numArea) ? 'suspensa' : 'rehabilitada'}`);
+        } catch(e) {
+            console.error("Error al bloquear área:", e);
+        }
+    }
+
+    function actualizarEstadoBotonBloqueo() {
+        const btnToggle = document.getElementById("btnToggleBloqueoEv");
+        if(eventoSeleccionadoFiltro === "TODOS") {
+            btnToggle.style.display = "none";
+            return;
+        }
+
+        btnToggle.style.display = "block";
+        const evId = eventoSeleccionadoFiltro.toLowerCase();
+        const cfg = dictEventosConfig[evId];
+
+        if(cfg && cfg.estado === "bloqueado") {
+            btnToggle.innerText = "🟢 DESBLOQUEAR EVENTO COMPLETO";
+            btnToggle.style.background = "#28a745";
+        } else {
+            btnToggle.innerText = "🔴 BLOQUEAR EVENTO COMPLETO";
+            btnToggle.style.background = "#dc3545";
         }
     }
 
@@ -254,16 +347,23 @@
             let contador = 0;
             snapshot.forEach(doc => {
                 const data = doc.data();
-                if (eventoSeleccionadoFiltro === "TODOS" || (data.evento && data.evento.toUpperCase() === eventoSeleccionadoFiltro)) {
+                const evId = (data.evento || '').toLowerCase();
+                if (eventoSeleccionadoFiltro === "TODOS" || evId === eventoSeleccionadoFiltro.toLowerCase()) {
                     contador++;
+                    const cfgEv = dictEventosConfig[evId] || {};
+                    const esAreaBloqueada = (cfgEv.areasBloqueadas || []).includes(parseInt(data.area));
+
                     html += `
-                    <div class="area-box active">
+                    <div class="area-box ${esAreaBloqueada ? '' : 'active'}" style="${esAreaBloqueada ? 'border-color:#ff2a2a;' : ''}">
                         <div style="font-size:10px; font-weight:bold; color:var(--accent-cyan); text-transform:uppercase;">${data.evento || 'EVENTO'}</div>
                         <div style="font-size:12px; font-weight:bold; color:#ffaa00;">ÁREA ${data.area} (R${data.round})</div>
                         <div style="font-size:16px; font-weight:900; margin: 2px 0;">
-                            <span style="color:#0033cc;">${data.azul}</span> vs <span style="color:#a00000;">${data.rojo}</span>
+                            <span style="color:#0033cc;">${data.azul}</span> vs <span style="color:#a0a5b5;">${data.rojo}</span>
                         </div>
                         <div style="font-family:monospace; color:#20c997; font-weight:bold; font-size:12px;">⏱️ ${data.tiempo}</div>
+                        <button class="btn-kill-area" onclick="bloquearAreaEspecifica('${evId}', ${parseInt(data.area)})">
+                            ${esAreaBloqueada ? '🟢 Reabrir Área' : '🔴 Suspender Área'}
+                        </button>
                     </div>`;
                 }
             });
@@ -278,21 +378,16 @@
             if(snapshot.empty) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">No hay combates archivados en Firebase.</td></tr>';
                 todosLosCombatesRaw = [];
-                reconstruirTabs([]);
                 return;
             }
 
             todosLosCombatesRaw = [];
-            let eventosSet = new Set();
-
             snapshot.forEach(doc => {
                 const c = doc.data();
-                c._idDoc = doc.id; // Guarda ID para poder borrar
+                c._idDoc = doc.id;
                 todosLosCombatesRaw.push(c);
-                if(c.evento) eventosSet.add(c.evento.toUpperCase());
             });
 
-            reconstruirTabs(Array.from(eventosSet));
             renderizarTablaFiltrada();
         });
     }
@@ -317,10 +412,10 @@
         eventoSeleccionadoFiltro = evNombre;
         document.getElementById("lblFiltroEvento").innerText = evNombre;
         
-        // Muestra u oculta botón de eliminar si seleccionaste un evento específico
         const btnDel = document.getElementById("btnBorrarEvento");
         btnDel.style.display = (evNombre === "TODOS") ? "none" : "inline-block";
 
+        actualizarEstadoBotonBloqueo();
         renderizarTablaFiltrada();
     }
 
@@ -351,7 +446,6 @@
         tbody.innerHTML = html;
     }
 
-    // ELIMINA TODOS LOS REGISTROS DEL EVENTO SELECCIONADO
     async function confirmarYEliminarEventoActual() {
         if(eventoSeleccionadoFiltro === "TODOS") return;
 
@@ -370,6 +464,9 @@
                     batch.delete(docRef);
                 }
             });
+
+            const evDocRef = db.collection("Eventos").doc(eventoSeleccionadoFiltro.toLowerCase());
+            batch.delete(evDocRef);
 
             await batch.commit();
             mostrarToast(`✅ Evento "${eventoSeleccionadoFiltro}" eliminado con éxito.`);
