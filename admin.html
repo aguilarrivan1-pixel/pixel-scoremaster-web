@@ -329,6 +329,10 @@
             arrBloqueadas = arrBloqueadas.filter(a => a !== numArea);
         } else {
             arrBloqueadas.push(numArea);
+            // Si la suspendemos, eliminamos su documento activo de la base de datos inmediatamente
+            try {
+                await db.collection("Eventos").doc(evId).collection("AreasActivas").doc(`Area_${numArea}`).delete();
+            } catch(e) {}
         }
 
         try {
@@ -386,16 +390,31 @@
 
             let html = "";
             let contador = 0;
+            const ahora = Date.now();
+
             snapshot.forEach(doc => {
                 const data = doc.data();
                 const evId = (data.evento || '').toLowerCase();
                 const numArea = parseInt(data.area);
 
+                // Si no existe la configuración del evento en Firebase, limpiamos este documento fantasma
+                if (evId && !dictEventosConfig[evId]) {
+                    doc.ref.delete().catch(()=>{});
+                    return;
+                }
+
                 if (eventoSeleccionadoFiltro === "TODOS" || evId === eventoSeleccionadoFiltro.toLowerCase()) {
                     const cfgEv = dictEventosConfig[evId] || {};
                     const esAreaBloqueada = (cfgEv.areasBloqueadas || []).includes(numArea);
 
-                    // SI ESTÁ BLOQUEADA: No se muestra en la lista activa
+                    // Si la señal tiene más de 12 segundos sin actualización, consideramos la mesa offline y borramos
+                    let ultimaActualizacionMs = data.ultimaActualizacion ? data.ultimaActualizacion.toMillis() : 0;
+                    if (ahora - ultimaActualizacionMs > 12000) {
+                        doc.ref.delete().catch(()=>{});
+                        return;
+                    }
+
+                    // Muestra únicamente las áreas que están activas y NO suspendidas
                     if (!esAreaBloqueada) {
                         contador++;
                         html += `
@@ -495,27 +514,35 @@
     async function confirmarYEliminarEventoActual() {
         if(eventoSeleccionadoFiltro === "TODOS") return;
 
-        const confirmacion = confirm(`⚠️ ¿Estás seguro de que deseas ELIMINAR POR COMPLETO el evento "${eventoSeleccionadoFiltro}" y todos sus combates registrados?\n\nEsta acción no se puede deshacer.`);
+        const confirmacion = confirm(`⚠️ ¿Estás seguro de que deseas ELIMINAR POR COMPLETO el evento "${eventoSeleccionadoFiltro}", sus áreas activas y todos sus combates registrados?\n\nEsta acción no se puede deshacer.`);
         if(!confirmacion) return;
 
         mostrarToast("Eliminando evento de Firebase...");
 
         try {
+            const evId = eventoSeleccionadoFiltro.toLowerCase();
             const batch = db.batch();
-            const paraEliminar = todosLosCombatesRaw.filter(c => c.evento && c.evento.toUpperCase() === eventoSeleccionadoFiltro);
 
+            // 1. Eliminar combates archivados
+            const paraEliminar = todosLosCombatesRaw.filter(c => c.evento && c.evento.toUpperCase() === eventoSeleccionadoFiltro);
             paraEliminar.forEach(c => {
                 if(c._idDoc) {
-                    const docRef = db.collection("HistorialOficial").doc(c._idDoc);
-                    batch.delete(docRef);
+                    batch.delete(db.collection("HistorialOficial").doc(c._idDoc));
                 }
             });
 
-            const evDocRef = db.collection("Eventos").doc(eventoSeleccionadoFiltro.toLowerCase());
-            batch.delete(evDocRef);
+            // 2. Eliminar áreas en vivo vinculadas a este evento
+            const snapAreas = await db.collection("Eventos").doc(evId).collection("AreasActivas").get();
+            snapAreas.forEach(aDoc => {
+                batch.delete(aDoc.ref);
+            });
+
+            // 3. Eliminar el documento de configuración del evento
+            batch.delete(db.collection("Eventos").doc(evId));
 
             await batch.commit();
-            mostrarToast(`✅ Evento "${eventoSeleccionadoFiltro}" eliminado con éxito.`);
+            
+            mostrarToast(`✅ Evento "${eventoSeleccionadoFiltro}" eliminado por completo.`);
             eventoSeleccionadoFiltro = "TODOS";
             document.getElementById("btnBorrarEvento").style.display = "none";
             document.getElementById("lblFiltroEvento").innerText = "TODOS LOS EVENTOS";
