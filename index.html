@@ -670,43 +670,38 @@
         const evId = evento.toLowerCase().replace(/\s+/g, '-');
 
         try {
-            // 1. Busca si existe una configuración directa para el Evento especificado
+            // Consulta exclusiva a la configuración del Evento
             const evDoc = await db.collection("Eventos").doc(evId).get();
-            let claveValida = false;
-            let maxAreasPermitidas = 99;
 
-            if (evDoc.exists) {
-                const dataEv = evDoc.data();
-                if (dataEv.estado === "bloqueado") {
-                    lblError.innerText = "⛔ Evento Bloqueado por la Administración Master.";
-                    lblError.style.display = "block";
-                    return;
-                }
-                if ((dataEv.areasBloqueadas || []).includes(areaNum)) {
-                    lblError.innerText = `⛔ Área ${areaNum} suspendida temporalmente por el Admin.`;
-                    lblError.style.display = "block";
-                    return;
-                }
-
-                maxAreasPermitidas = dataEv.maxAreas || 99;
-                if (areaNum > maxAreasPermitidas) {
-                    lblError.innerText = `Límite superado. Este evento solo permite ${maxAreasPermitidas} Áreas.`;
-                    lblError.style.display = "block";
-                    return;
-                }
-
-                if (passIngresada === dataEv.password) claveValida = true;
+            if (!evDoc.exists) {
+                lblError.innerText = "El evento no existe o no ha sido registrado por el Administrador.";
+                lblError.style.display = "block";
+                return;
             }
 
-            // 2. Si no coincide con clave del evento, valida contra la Clave Global Master
-            if (!claveValida) {
-                const masterDoc = await db.collection("Configuracion").doc("Acceso").get();
-                if (masterDoc.exists && passIngresada === masterDoc.data().password) {
-                    claveValida = true;
-                }
+            const dataEv = evDoc.data();
+
+            if (dataEv.estado === "bloqueado") {
+                lblError.innerText = "⛔ Evento Bloqueado por la Administración Master.";
+                lblError.style.display = "block";
+                return;
             }
 
-            if (claveValida) {
+            if ((dataEv.areasBloqueadas || []).includes(areaNum)) {
+                lblError.innerText = `⛔ Área ${areaNum} suspendida temporalmente por el Admin.`;
+                lblError.style.display = "block";
+                return;
+            }
+
+            const maxAreasPermitidas = dataEv.maxAreas || 99;
+            if (areaNum > maxAreasPermitidas) {
+                lblError.innerText = `Límite superado. Este evento solo permite ${maxAreasPermitidas} Áreas.`;
+                lblError.style.display = "block";
+                return;
+            }
+
+            // Única validación: Contraseña exclusiva del evento
+            if (passIngresada === dataEv.password) {
                 accesoConcedido = true;
                 EVENTO_ACTUAL = evId;
                 AREA_ACTUAL = areaStr;
