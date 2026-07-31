@@ -478,6 +478,7 @@
     let bloqueoCombatePorVictoria = false;
     let estadisticasRounds = [];
     let historialAcciones = [];
+    let intervaloSincronizacion = null;
 
     if (esTV) {
         document.addEventListener('DOMContentLoaded', () => {
@@ -729,23 +730,10 @@
         }
     }
 
-    function escucharKillSwitchRemoto() {
-        if (!EVENTO_ACTUAL) return;
-        db.collection("Eventos").doc(EVENTO_ACTUAL).onSnapshot(doc => {
-            if (!doc.exists) return;
-            const data = doc.data();
-            const areaNum = parseInt(AREA_ACTUAL);
-
-            if (data.estado === "bloqueado" || (data.areasBloqueadas || []).includes(areaNum)) {
-                pause();
-                alert("⛔ ATENCIÓN: Esta Mesa de Control ha sido SUSPENDIDA o BLOQUEADA remotamente por la Administración Master.");
-                location.reload();
-            }
-        });
-    }
-
     function iniciarSincronizacionEstadoAreaEnVivo() {
-        setInterval(() => {
+        if(intervaloSincronizacion) clearInterval(intervaloSincronizacion);
+        
+        intervaloSincronizacion = setInterval(() => {
             if(!EVENTO_ACTUAL || !accesoConcedido) return;
             let min = Math.floor(tiempo / 60); let seg = tiempo % 60;
             db.collection("Eventos").doc(EVENTO_ACTUAL).collection("AreasActivas").doc(`Area_${AREA_ACTUAL}`).set({
@@ -758,6 +746,27 @@
                 ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
         }, 1500);
+    }
+
+    function escucharKillSwitchRemoto() {
+        if (!EVENTO_ACTUAL) return;
+        db.collection("Eventos").doc(EVENTO_ACTUAL).onSnapshot(async (doc) => {
+            const areaNum = parseInt(AREA_ACTUAL);
+
+            // Si el evento fue eliminado o el área fue suspendida:
+            if (!doc.exists || doc.data().estado === "bloqueado" || (doc.data().areasBloqueadas || []).includes(areaNum)) {
+                if(intervaloSincronizacion) clearInterval(intervaloSincronizacion);
+                pause();
+
+                // Borramos el registro activo en vivo antes de recargar
+                try {
+                    await db.collection("Eventos").doc(EVENTO_ACTUAL).collection("AreasActivas").doc(`Area_${AREA_ACTUAL}`).delete();
+                } catch(e){}
+
+                alert("⛔ ATENCIÓN: Esta Mesa de Control ha sido SUSPENDIDA o BLOQUEADA por el Administrador.");
+                location.reload();
+            }
+        });
     }
 
     window.addEventListener('keydown', function(e) {
