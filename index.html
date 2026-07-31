@@ -670,7 +670,6 @@
         const evId = evento.toLowerCase().replace(/\s+/g, '-');
 
         try {
-            // Consulta exclusiva a la configuración del Evento
             const evDoc = await db.collection("Eventos").doc(evId).get();
 
             if (!evDoc.exists) {
@@ -700,7 +699,6 @@
                 return;
             }
 
-            // Única validación: Contraseña exclusiva del evento
             if (passIngresada === dataEv.password) {
                 accesoConcedido = true;
                 EVENTO_ACTUAL = evId;
@@ -740,7 +738,7 @@
 
             if (data.estado === "bloqueado" || (data.areasBloqueadas || []).includes(areaNum)) {
                 pause();
-                alert("⛔ ATENCIÓN: Esta Mesa de Control ha sido BLOQUEADA O SUSPENDIDA remotamente por el Administrador.");
+                alert("⛔ ATENCIÓN: Esta Mesa de Control ha sido SUSPENDIDA o BLOQUEADA remotamente por la Administración Master.");
                 location.reload();
             }
         });
