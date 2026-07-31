@@ -139,7 +139,6 @@
         .log-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; width: 280px; }
         .qr-area { display: flex; justify-content: center; background: white; padding: 6px; border-radius: 6px; margin-top: 8px; width: fit-content; margin-left: auto; margin-right: auto;}
 
-        /* ANUNCIO / MODAL DE GANADOR Y NUEVO COMBATE */
         #pantalla-ganador { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999998; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(0,0,0,0.96); }
         .ganador-box { padding: 35px; border-radius: 20px; border: 3px solid #ffaa00; box-shadow: 0 0 40px rgba(255,170,0,0.3); max-width: 520px; width: 90%; background: #121824; color: white; }
         .ganador-titulo { font-size: 20px; letter-spacing: 2px; margin-bottom: 5px; color: #ffaa00; font-weight: bold; }
@@ -174,7 +173,6 @@
         .btn-juez-new .lbl-tag { font-size: 11px; text-transform: uppercase; font-weight: bold; }
         .btn-juez-new .lbl-val { font-size: 26px; font-weight: 900; }
 
-        /* CORRECCIÓN DE ESTILOS DE IMPRESIÓN Y GENERACIÓN DE PDF */
         #printable-print-zone { display: none; }
         @media print {
             body * { visibility: hidden !important; }
@@ -220,7 +218,6 @@
 
 <div class="log-container" id="visual-log-container"></div>
 
-<!-- ALERTA / FORMULARIO PARA INGRESO DEL SIGUIENTE COMBATE -->
 <div id="pantalla-ganador">
     <div class="ganador-box" id="ganador-fondo">
         <div class="ganador-titulo">🏆 COMBATE CONCLUIDO</div>
@@ -467,7 +464,6 @@
 
     const API_KEY = 'lghMsA.rFblDA:Uo_Ya0lwt-osgx2EhIM1egWJb1pTR4seB8MQKN_Rqp8';
     
-    // SISTEMA DE DETECCIÓN DE MODOS (MESA, JUEZ, TV)
     const params = new URLSearchParams(window.location.search);
     const esJuez = window.innerWidth < 768 || params.get('mode') === 'juez';
     const esTV = params.get('mode') === 'tv';
@@ -483,7 +479,6 @@
     let estadisticasRounds = [];
     let historialAcciones = [];
 
-    // LÓGICA DE INYECCIÓN DIRECTA PARA LA PANTALLA TV
     if (esTV) {
         document.addEventListener('DOMContentLoaded', () => {
             document.body.innerHTML = `
@@ -660,50 +655,100 @@
 
     async function validarEIngresarMesa() {
         const evento = document.getElementById("inputNombreEvento").value.trim();
-        const area = document.getElementById("inputNumeroArea").value.trim();
+        const areaStr = document.getElementById("inputNumeroArea").value.trim();
+        const areaNum = parseInt(areaStr) || 1;
         const passIngresada = document.getElementById("inputPassword").value.trim();
         const lblError = document.getElementById("mensajeErrorAcceso");
 
-        if (!evento || !area || !passIngresada) {
+        if (!evento || !areaStr || !passIngresada) {
             lblError.innerText = "Por favor completa todos los campos.";
             lblError.style.display = "block";
             return;
         }
 
         lblError.style.display = "none";
+        const evId = evento.toLowerCase().replace(/\s+/g, '-');
 
         try {
-            const docRef = await db.collection("Configuracion").doc("Acceso").get();
-            if (docRef.exists) {
-                const passCorrecta = docRef.data().password;
-                if (passIngresada === passCorrecta) {
-                    accesoConcedido = true;
-                    EVENTO_ACTUAL = evento.toLowerCase().replace(/\s+/g, '-');
-                    AREA_ACTUAL = area;
-                    ABLY_CHANNEL_NAME = `tkd-${EVENTO_ACTUAL}-area-${AREA_ACTUAL}`;
+            // 1. Busca si existe una configuración directa para el Evento especificado
+            const evDoc = await db.collection("Eventos").doc(evId).get();
+            let claveValida = false;
+            let maxAreasPermitidas = 99;
 
-                    document.getElementById("displayArea").innerText = AREA_ACTUAL;
-                    document.getElementById("displayAreaJuez").innerText = AREA_ACTUAL;
-
-                    ably = new Ably.Realtime({ key: API_KEY });
-                    canal = ably.channels.get(ABLY_CHANNEL_NAME);
-                    subscribirEventosAbly();
-
-                    generarQRJuez();
-                    try { interfazSonidos.inicializar(); } catch(e) {}
-                    document.getElementById("modalAcceso").style.display = "none";
-                    
-                    iniciarSincronizacionEstadoAreaEnVivo();
-                } else {
-                    lblError.innerText = "Contraseña incorrecta.";
+            if (evDoc.exists) {
+                const dataEv = evDoc.data();
+                if (dataEv.estado === "bloqueado") {
+                    lblError.innerText = "⛔ Evento Bloqueado por la Administración Master.";
                     lblError.style.display = "block";
+                    return;
                 }
+                if ((dataEv.areasBloqueadas || []).includes(areaNum)) {
+                    lblError.innerText = `⛔ Área ${areaNum} suspendida temporalmente por el Admin.`;
+                    lblError.style.display = "block";
+                    return;
+                }
+
+                maxAreasPermitidas = dataEv.maxAreas || 99;
+                if (areaNum > maxAreasPermitidas) {
+                    lblError.innerText = `Límite superado. Este evento solo permite ${maxAreasPermitidas} Áreas.`;
+                    lblError.style.display = "block";
+                    return;
+                }
+
+                if (passIngresada === dataEv.password) claveValida = true;
+            }
+
+            // 2. Si no coincide con clave del evento, valida contra la Clave Global Master
+            if (!claveValida) {
+                const masterDoc = await db.collection("Configuracion").doc("Acceso").get();
+                if (masterDoc.exists && passIngresada === masterDoc.data().password) {
+                    claveValida = true;
+                }
+            }
+
+            if (claveValida) {
+                accesoConcedido = true;
+                EVENTO_ACTUAL = evId;
+                AREA_ACTUAL = areaStr;
+                ABLY_CHANNEL_NAME = `tkd-${EVENTO_ACTUAL}-area-${AREA_ACTUAL}`;
+
+                document.getElementById("displayArea").innerText = AREA_ACTUAL;
+                document.getElementById("displayAreaJuez").innerText = AREA_ACTUAL;
+
+                ably = new Ably.Realtime({ key: API_KEY });
+                canal = ably.channels.get(ABLY_CHANNEL_NAME);
+                subscribirEventosAbly();
+
+                generarQRJuez();
+                try { interfazSonidos.inicializar(); } catch(e) {}
+                document.getElementById("modalAcceso").style.display = "none";
+                
+                iniciarSincronizacionEstadoAreaEnVivo();
+                escucharKillSwitchRemoto();
+            } else {
+                lblError.innerText = "Contraseña incorrecta para este evento.";
+                lblError.style.display = "block";
             }
         } catch (error) {
             console.error("Error al validar clave:", error);
             lblError.innerText = "Error de conexión con Firebase.";
             lblError.style.display = "block";
         }
+    }
+
+    function escucharKillSwitchRemoto() {
+        if (!EVENTO_ACTUAL) return;
+        db.collection("Eventos").doc(EVENTO_ACTUAL).onSnapshot(doc => {
+            if (!doc.exists) return;
+            const data = doc.data();
+            const areaNum = parseInt(AREA_ACTUAL);
+
+            if (data.estado === "bloqueado" || (data.areasBloqueadas || []).includes(areaNum)) {
+                pause();
+                alert("⛔ ATENCIÓN: Esta Mesa de Control ha sido BLOQUEADA O SUSPENDIDA remotamente por el Administrador.");
+                location.reload();
+            }
+        });
     }
 
     function iniciarSincronizacionEstadoAreaEnVivo() {
@@ -1348,7 +1393,7 @@
                     <td><strong>${c.categoria}</strong><br><small>(${c.modalidad || 'Ind'})</small></td>
                     <td>
                         <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.clubAzul || 'SIN CLUB'})<br>
-                        <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
+                        <span style="color:#a0a5b5; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
                     </td>
                     <td>${rSub}</td>
                     <td style="font-weight:bold;color:green;">${c.ganador || ''}<br><small>${c.res}</small></td>
