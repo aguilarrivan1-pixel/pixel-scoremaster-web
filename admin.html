@@ -185,6 +185,15 @@
         <button class="btn-cyan" onclick="crearNuevoEventoEspecial()" style="margin-bottom: 20px;">GUARDAR EVENTO Y CLAVE</button>
 
         <div class="card-header" style="border-top: 1px solid var(--panel-border); padding-top: 12px;">
+            <span>🔑 Cambiar Clave Maestra Admin</span>
+        </div>
+        <p style="font-size: 11px; color: var(--text-gray); margin-top: 0;">
+            Esta es la contraseña para ingresar a este Panel Master Administrador.
+        </p>
+        <input type="password" id="nuevaClaveMasterAdmin" class="sec-input" placeholder="Nueva Clave Maestra">
+        <button class="btn-cyan" onclick="actualizarClaveMasterAdmin()" style="margin-bottom: 20px;">ACTUALIZAR CLAVE MAESTRA</button>
+
+        <div class="card-header" style="border-top: 1px solid var(--panel-border); padding-top: 12px;">
             <span>🚨 Bloqueo Remoto (Kill-Switch)</span>
         </div>
         <p style="font-size: 11px; color: var(--text-gray); margin-top: 0;">
@@ -233,6 +242,23 @@
             console.error("Error al autenticar:", error);
             lblError.innerText = "Error de conexión con Firebase.";
             lblError.style.display = "block";
+        }
+    }
+
+    async function actualizarClaveMasterAdmin() {
+        const nuevaPass = document.getElementById("nuevaClaveMasterAdmin").value.trim();
+        if (!nuevaPass) { 
+            mostrarToast("Escribe una contraseña válida"); 
+            return; 
+        }
+
+        try {
+            await db.collection("Configuracion").doc("Acceso").set({ password: nuevaPass }, { merge: true });
+            document.getElementById("nuevaClaveMasterAdmin").value = "";
+            mostrarToast("🔒 Clave Maestra Administrador actualizada");
+        } catch(e) {
+            console.error("Error cambiando clave maestra:", e);
+            mostrarToast("❌ Error al actualizar clave maestra");
         }
     }
 
@@ -512,7 +538,7 @@
                 <td><strong>${c.categoria}</strong></td>
                 <td>
                     <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.clubAzul || 'SIN CLUB'})<br>
-                    <span style="color:#a00000; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
+                    <span style="color:#a0a5b5; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
                 </td>
                 <td>${rSub}</td>
                 <td style="font-weight:bold;color:green;">${c.ganador}<br><small>${c.res}</small></td>
