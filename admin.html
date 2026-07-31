@@ -86,7 +86,7 @@
         .areas-live-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px; }
         .area-box { background: #0d111a; border: 1px solid #2a2f42; padding: 10px; border-radius: 8px; text-align: center; position: relative; }
         .area-box.active { border-color: #28a745; box-shadow: 0 0 8px rgba(40,167,69,0.2); }
-        .btn-kill-area { background: #ff2a2a; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; margin-top: 6px; width: 100%; }
+        .btn-kill-area { background: #ff2a2a; color: white; border: none; padding: 6px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; margin-top: 6px; width: 100%; }
 
         #printable-admin-zone { display: none; }
         @media print {
@@ -200,6 +200,7 @@
             Selecciona un evento arriba para alternar el bloqueo general del evento o áreas individuales.
         </p>
         <button id="btnToggleBloqueoEv" class="btn-cyan" style="background:#dc3545; color:white; display:none;" onclick="conmutarBloqueoEventoGlobal()">🔴 BLOQUEAR EVENTO COMPLETO</button>
+        <div id="contenedorAreasSuspendidas"></div>
     </div>
 </div>
 
@@ -340,21 +341,35 @@
 
     function actualizarEstadoBotonBloqueo() {
         const btnToggle = document.getElementById("btnToggleBloqueoEv");
+        const contBloq = document.getElementById("contenedorAreasSuspendidas");
+
         if(eventoSeleccionadoFiltro === "TODOS") {
             btnToggle.style.display = "none";
+            contBloq.innerHTML = "";
             return;
         }
 
         btnToggle.style.display = "block";
         const evId = eventoSeleccionadoFiltro.toLowerCase();
-        const cfg = dictEventosConfig[evId];
+        const cfg = dictEventosConfig[evId] || {};
 
-        if(cfg && cfg.estado === "bloqueado") {
+        if(cfg.estado === "bloqueado") {
             btnToggle.innerText = "🟢 DESBLOQUEAR EVENTO COMPLETO";
             btnToggle.style.background = "#28a745";
         } else {
             btnToggle.innerText = "🔴 BLOQUEAR EVENTO COMPLETO";
             btnToggle.style.background = "#dc3545";
+        }
+
+        const arrBloq = cfg.areasBloqueadas || [];
+        if(arrBloq.length > 0) {
+            let htmlBloq = `<div style="margin-top:12px; font-size:11px; color:#ffaa00; font-weight:bold;">Áreas suspendidas en este evento:</div>`;
+            arrBloq.forEach(aNum => {
+                htmlBloq += `<button class="btn-kill-area" style="background:#28a745; margin-top:6px;" onclick="bloquearAreaEspecifica('${evId}', ${aNum})">🟢 Habilitar / Reabrir Área ${aNum}</button>`;
+            });
+            contBloq.innerHTML = htmlBloq;
+        } else {
+            contBloq.innerHTML = "";
         }
     }
 
@@ -374,27 +389,32 @@
             snapshot.forEach(doc => {
                 const data = doc.data();
                 const evId = (data.evento || '').toLowerCase();
-                if (eventoSeleccionadoFiltro === "TODOS" || evId === eventoSeleccionadoFiltro.toLowerCase()) {
-                    contador++;
-                    const cfgEv = dictEventosConfig[evId] || {};
-                    const esAreaBloqueada = (cfgEv.areasBloqueadas || []).includes(parseInt(data.area));
+                const numArea = parseInt(data.area);
 
-                    html += `
-                    <div class="area-box ${esAreaBloqueada ? '' : 'active'}" style="${esAreaBloqueada ? 'border-color:#ff2a2a;' : ''}">
-                        <div style="font-size:10px; font-weight:bold; color:var(--accent-cyan); text-transform:uppercase;">${data.evento || 'EVENTO'}</div>
-                        <div style="font-size:12px; font-weight:bold; color:#ffaa00;">ÁREA ${data.area} (R${data.round})</div>
-                        <div style="font-size:16px; font-weight:900; margin: 2px 0;">
-                            <span style="color:#0033cc;">${data.azul}</span> vs <span style="color:#a0a5b5;">${data.rojo}</span>
-                        </div>
-                        <div style="font-family:monospace; color:#20c997; font-weight:bold; font-size:12px;">⏱️ ${data.tiempo}</div>
-                        <button class="btn-kill-area" onclick="bloquearAreaEspecifica('${evId}', ${parseInt(data.area)})">
-                            ${esAreaBloqueada ? '🟢 Reabrir Área' : '🔴 Suspender Área'}
-                        </button>
-                    </div>`;
+                if (eventoSeleccionadoFiltro === "TODOS" || evId === eventoSeleccionadoFiltro.toLowerCase()) {
+                    const cfgEv = dictEventosConfig[evId] || {};
+                    const esAreaBloqueada = (cfgEv.areasBloqueadas || []).includes(numArea);
+
+                    // SI ESTÁ BLOQUEADA: No se muestra en la lista activa
+                    if (!esAreaBloqueada) {
+                        contador++;
+                        html += `
+                        <div class="area-box active">
+                            <div style="font-size:10px; font-weight:bold; color:var(--accent-cyan); text-transform:uppercase;">${data.evento || 'EVENTO'}</div>
+                            <div style="font-size:12px; font-weight:bold; color:#ffaa00;">ÁREA ${data.area} (R${data.round})</div>
+                            <div style="font-size:16px; font-weight:900; margin: 2px 0;">
+                                <span style="color:#0033cc;">${data.azul}</span> vs <span style="color:#a0a5b5;">${data.rojo}</span>
+                            </div>
+                            <div style="font-family:monospace; color:#20c997; font-weight:bold; font-size:12px;">⏱️ ${data.tiempo}</div>
+                            <button class="btn-kill-area" style="background:#ff2a2a;" onclick="bloquearAreaEspecifica('${evId}', ${numArea})">
+                                🔴 Suspender Área
+                            </button>
+                        </div>`;
+                    }
                 }
             });
             lblCant.innerText = contador;
-            container.innerHTML = html || '<div style="color:gray; font-size:12px;">No hay áreas activas en este evento.</div>';
+            container.innerHTML = html || '<div style="color:gray; font-size:12px;">No hay áreas activas transmitiendo.</div>';
         });
     }
 
