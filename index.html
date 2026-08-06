@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Pixel ScoreMaster TKD - KPNP Edition</title>
+    <title>Pixel ScoreMaster TKD - KPNP Pro Edition</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -43,12 +43,12 @@
 
         #toast-banner {
             position: fixed; top: -70px; left: 50%; transform: translateX(-50%);
-            background: #ff2a2a; color: white; padding: 12px 24px; border-radius: 8px;
-            font-weight: 800; font-size: 14px; z-index: 9999999;
+            background: #ff2a2a; color: white; padding: 10px 20px; border-radius: 8px;
+            font-weight: 800; font-size: 13px; z-index: 9999999;
             box-shadow: 0 4px 20px rgba(255, 0, 0, 0.5); border: 2px solid #ffffff;
             transition: top 0.3s ease-in-out; text-align: center; pointer-events: none;
         }
-        #toast-banner.show { top: 20px; }
+        #toast-banner.show { top: 15px; }
 
         #modalAcceso {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -57,64 +57,64 @@
         }
         .modal-box {
             background: #121824; border: 2px solid #00f2fe; border-radius: 12px; 
-            padding: 30px; width: 380px; text-align: center; color: white; 
+            padding: 25px; width: 360px; text-align: center; color: white; 
             box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);
         }
 
-        .top-bar { background: #07080c; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--panel-border); font-size: 13px; }
+        .top-bar { background: #07080c; padding: 6px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--panel-border); font-size: 12px; }
         .stream-status { display: flex; align-items: center; gap: 8px; color: #28a745; font-weight: bold; }
-        .stream-dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
-        .top-buttons { display: flex; gap: 8px; }
-        .btn-top { background: #1f2433; color: white; border: 1px solid var(--panel-border); padding: 4px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;}
+        .stream-dot { width: 9px; height: 9px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
+        .top-buttons { display: flex; gap: 6px; }
+        .btn-top { background: #1f2433; color: white; border: 1px solid var(--panel-border); padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;}
         .btn-top:hover { background: #2d3247; }
         .btn-stream { background: var(--kpnp-gold); color: #000; border: none; }
 
-        .main-container { display: flex; flex: 1; padding: 10px; gap: 10px; height: calc(100dvh - 40px); box-sizing: border-box; }
-        .left-arena { flex: 1.35; display: flex; flex-direction: column; gap: 10px; }
-        .scoreboard-frame { flex: 1; background: #050609; border-radius: 12px; border: 1px solid var(--panel-border); display: flex; position: relative; overflow: hidden; }
-        .side { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; position: relative; }
+        .main-container { display: flex; flex: 1; padding: 8px; gap: 8px; height: calc(100dvh - 36px); box-sizing: border-box; }
+        .left-arena { flex: 1.35; display: flex; flex-direction: column; gap: 8px; }
+        .scoreboard-frame { flex: 1; background: #050609; border-radius: 10px; border: 1px solid var(--panel-border); display: flex; position: relative; overflow: hidden; }
+        .side { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; position: relative; }
         .side.b-side { background: var(--accent-blue); }
         .side.r-side { background: var(--accent-rojo); }
 
-        .fighter-name-display { font-size: 26px; font-weight: 800; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); text-align: center; }
-        .fighter-club-display { font-size: 13px; color: rgba(255,255,255,0.75); font-weight: bold; margin-top: 2px; text-transform: uppercase; }
-        .fighter-weight-badge { font-size: 11px; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 4px; margin-top: 4px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); }
-        .score-display { font-size: clamp(110px, 13vw, 190px); font-family: 'Arial Black', sans-serif; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 10px rgba(0,0,0,0.7); }
+        .fighter-name-display { font-size: 24px; font-weight: 800; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); text-align: center; }
+        .fighter-club-display { font-size: 12px; color: rgba(255,255,255,0.75); font-weight: bold; margin-top: 2px; text-transform: uppercase; }
+        .fighter-weight-badge { font-size: 10px; background: rgba(0,0,0,0.4); padding: 2px 6px; border-radius: 4px; margin-top: 3px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); }
+        .score-display { font-size: clamp(90px, 11vw, 160px); font-family: 'Arial Black', sans-serif; font-weight: 900; line-height: 0.85; text-shadow: 0 4px 10px rgba(0,0,0,0.7); }
 
-        .center-column { width: 250px; background: linear-gradient(to right, rgba(0,51,204,0.4) 0%, rgba(0,0,0,1) 18%, rgba(0,0,0,1) 82%, rgba(160,0,0,0.4) 100%); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 12px 0; position: relative; z-index: 2; }
-        .arena-title { font-size: 12px; color: var(--text-gray); letter-spacing: 2px; font-weight: bold; text-align: center; }
-        .phase-tag { font-size: 11px; color: var(--kpnp-gold); font-weight: 800; background: rgba(255,170,0,0.15); border: 1px solid var(--kpnp-gold); padding: 2px 8px; border-radius: 4px; margin-top: 2px; text-transform: uppercase; }
+        .center-column { width: 230px; background: linear-gradient(to right, rgba(0,51,204,0.4) 0%, rgba(0,0,0,1) 18%, rgba(0,0,0,1) 82%, rgba(160,0,0,0.4) 100%); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 10px 0; position: relative; z-index: 2; }
+        .arena-title { font-size: 11px; color: var(--text-gray); letter-spacing: 1.5px; font-weight: bold; text-align: center; }
+        .phase-tag { font-size: 10px; color: var(--kpnp-gold); font-weight: 800; background: rgba(255,170,0,0.15); border: 1px solid var(--kpnp-gold); padding: 2px 6px; border-radius: 4px; margin-top: 2px; text-transform: uppercase; }
         
         .round-display { text-align: center; }
-        .round-lbl { font-size: 11px; color: var(--text-gray); font-weight: bold; }
-        .round-num { font-size: 34px; font-weight: 900; color: var(--kpnp-gold); }
+        .round-lbl { font-size: 10px; color: var(--text-gray); font-weight: bold; }
+        .round-num { font-size: 30px; font-weight: 900; color: var(--kpnp-gold); }
         
-        .rounds-won-container { display: flex; gap: 12px; justify-content: center; margin-bottom: 5px; }
-        .rw-dot { font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #1a1e2b; border: 1px solid var(--panel-border); color: #666; }
+        .rounds-won-container { display: flex; gap: 8px; justify-content: center; margin-bottom: 3px; }
+        .rw-dot { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: #1a1e2b; border: 1px solid var(--panel-border); color: #666; }
         .rw-dot.b-won { background: #0033cc; border-color: #3366ff; color: white; box-shadow: 0 0 8px rgba(0,51,204,0.6); }
         .rw-dot.r-won { background: #a00000; border-color: #ff3333; color: white; box-shadow: 0 0 8px rgba(160,0,0,0.6); }
 
-        .superiority-box { display: none; flex-direction: column; gap: 6px; background: #151821; border: 2px solid var(--kpnp-gold); padding: 8px; border-radius: 8px; width: 90%; text-align: center; }
-        .sup-buttons { display: flex; gap: 6px; }
-        .btn-sup { flex: 1; padding: 6px; font-size: 11px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; color: white; }
+        .superiority-box { display: none; flex-direction: column; gap: 4px; background: #151821; border: 2px solid var(--kpnp-gold); padding: 6px; border-radius: 6px; width: 90%; text-align: center; }
+        .sup-buttons { display: flex; gap: 4px; }
+        .btn-sup { flex: 1; padding: 5px; font-size: 10px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; color: white; }
         .btn-sup.b { background: #0033cc; }
         .btn-sup.r { background: #a00000; }
 
-        .timer-display { background: #12151f; border: 2px solid var(--kpnp-gold); color: white; font-size: 46px; padding: 2px 14px; border-radius: 8px; font-family: monospace; font-weight: bold; cursor: pointer; }
-        .gamjeom-row { display: flex; justify-content: space-around; width: 100%; font-size: 11px; color: var(--text-gray); font-weight: bold; }
-        .gamjeom-counter { font-size: 22px; color: white; font-weight: 900; }
+        .timer-display { background: #12151f; border: 2px solid var(--kpnp-gold); color: white; font-size: 40px; padding: 0px 10px; border-radius: 8px; font-family: monospace; font-weight: bold; cursor: pointer; }
+        .gamjeom-row { display: flex; justify-content: space-around; width: 100%; font-size: 10px; color: var(--text-gray); font-weight: bold; }
+        .gamjeom-counter { font-size: 18px; color: white; font-weight: 900; }
 
-        /* ESTILOS BOTONERA KPNP OFICIAL (INCREMENTO Y DECREMENTO) */
-        .kpnp-control-panel { background: #0c0f17; border: 1px solid #1f2638; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .kpnp-grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* BOTONERA KPNP COMPACTA Y OPTIMIZADA */
+        .kpnp-control-panel { background: #0c0f17; border: 1px solid #1f2638; border-radius: 10px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+        .kpnp-grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         
-        .kpnp-side-box { background: #07090e; border-radius: 10px; padding: 8px; border: 1px solid #1a202c; display: flex; flex-direction: column; gap: 5px; }
-        .kpnp-side-title { font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; text-align: center; padding-bottom: 2px; border-bottom: 1px solid #1a202c; }
+        .kpnp-side-box { background: #07090e; border-radius: 8px; padding: 6px; border: 1px solid #1a202c; display: flex; flex-direction: column; gap: 3px; }
+        .kpnp-side-title { font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; text-align: center; padding-bottom: 2px; border-bottom: 1px solid #1a202c; }
         
-        .kpnp-btn-row-dual { display: grid; grid-template-columns: 2fr 1fr; gap: 4px; }
+        .kpnp-btn-row-dual { display: grid; grid-template-columns: 2.2fr 1fr; gap: 3px; }
         
-        .btn-kpnp-plus { padding: 7px 4px; border-radius: 5px; font-weight: 900; border: none; font-size: 10px; cursor: pointer; color: white; transition: background 0.1s; }
-        .btn-kpnp-minus { padding: 7px 4px; border-radius: 5px; font-weight: 800; border: 1px solid #3a4259; background: #161b26; font-size: 10px; cursor: pointer; color: #a0a5b5; }
+        .btn-kpnp-plus { padding: 4px 2px; border-radius: 4px; font-weight: 900; border: none; font-size: 9.5px; cursor: pointer; color: white; transition: background 0.1s; }
+        .btn-kpnp-minus { padding: 4px 2px; border-radius: 4px; font-weight: 800; border: 1px solid #3a4259; background: #161b26; font-size: 9px; cursor: pointer; color: #a0a5b5; }
         .btn-kpnp-minus:hover { background: #d9534f; color: white; border-color: #ff4d4d; }
 
         .btn-kpnp-plus.b { background: #0033cc; border: 1px solid #3366ff; }
@@ -123,57 +123,57 @@
         .btn-kpnp-plus.r { background: #a00000; border: 1px solid #ff3333; }
         .btn-kpnp-plus.r:hover { background: #800000; }
 
-        .kpnp-falta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 2px; }
-        .btn-gam-add { background: #222838; border: 1px solid #3b445e; color: white; padding: 6px; border-radius: 4px; font-weight: bold; font-size: 10px; cursor: pointer; }
-        .btn-gam-sub { background: #141824; border: 1px solid #282e40; color: #8a92a6; padding: 6px; border-radius: 4px; font-weight: bold; font-size: 10px; cursor: pointer; }
+        .kpnp-falta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-top: 1px; }
+        .btn-gam-add { background: #222838; border: 1px solid #3b445e; color: white; padding: 4px; border-radius: 3px; font-weight: bold; font-size: 9px; cursor: pointer; }
+        .btn-gam-sub { background: #141824; border: 1px solid #282e40; color: #8a92a6; padding: 4px; border-radius: 3px; font-weight: bold; font-size: 9px; cursor: pointer; }
         .btn-gam-sub:hover { background: #800000; color: white; }
 
-        .btn-10s-add { background: #7a1515; border: 1px solid #ff4d4d; color: #ffffff; padding: 6px; border-radius: 4px; font-weight: 900; font-size: 10px; cursor: pointer; }
-        .btn-10s-sub { background: #2b1515; border: 1px solid #5a2828; color: #ff9999; padding: 6px; border-radius: 4px; font-weight: bold; font-size: 10px; cursor: pointer; }
+        .btn-10s-add { background: #7a1515; border: 1px solid #ff4d4d; color: #ffffff; padding: 4px; border-radius: 3px; font-weight: 900; font-size: 9px; cursor: pointer; }
+        .btn-10s-sub { background: #2b1515; border: 1px solid #5a2828; color: #ff9999; padding: 4px; border-radius: 3px; font-weight: bold; font-size: 9px; cursor: pointer; }
 
-        .right-panels { width: 440px; display: flex; flex-direction: column; gap: 10px; }
-        .panel-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; }
-        .match-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-        .btn-ctrl { padding: 10px; border-radius: 6px; border: none; font-weight: bold; color: white; background: #222736; cursor: pointer; font-size: 11px; text-transform: uppercase;}
+        .right-panels { width: 410px; display: flex; flex-direction: column; gap: 8px; }
+        .panel-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 10px; padding: 10px; }
+        .match-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; }
+        .btn-ctrl { padding: 8px; border-radius: 5px; border: none; font-weight: bold; color: white; background: #222736; cursor: pointer; font-size: 10.5px; text-transform: uppercase;}
         .btn-ctrl.start { background: #28a745; }
         .btn-ctrl.doctor { background: #d9534f; grid-column: span 2; }
         .btn-ctrl.cancel-doc { background: var(--kpnp-gold); color: black; grid-column: span 2; display: none; }
 
-        .tabs-header { display: flex; border-bottom: 2px solid var(--panel-border); margin-bottom: 10px; }
-        .tab-btn { background: none; border: none; color: var(--text-gray); padding: 6px 10px; cursor: pointer; font-weight: bold; font-size: 11px; }
+        .tabs-header { display: flex; border-bottom: 2px solid var(--panel-border); margin-bottom: 8px; }
+        .tab-btn { background: none; border: none; color: var(--text-gray); padding: 5px 8px; cursor: pointer; font-weight: bold; font-size: 10.5px; }
         .tab-btn.active { color: var(--kpnp-gold); border-bottom: 2px solid var(--kpnp-gold); margin-bottom: -2px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .config-scroll { max-height: 220px; overflow-y: auto; padding-right: 4px; }
-        .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 11px; color: var(--text-gray); }
-        .config-row select, .config-row input { background: #080a0f; border: 1px solid var(--panel-border); color: white; padding: 5px; border-radius: 4px; width: 160px; font-weight: bold;}
+        .config-scroll { max-height: 200px; overflow-y: auto; padding-right: 4px; }
+        .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 10.5px; color: var(--text-gray); }
+        .config-row select, .config-row input { background: #080a0f; border: 1px solid var(--panel-border); color: white; padding: 4px; border-radius: 4px; width: 150px; font-weight: bold; font-size: 10.5px;}
 
-        .history-list { height: 170px; overflow-y: auto; font-size: 11px; font-family: monospace; background: #080a0f; padding: 6px; border-radius: 4px; border: 1px solid var(--panel-border); }
-        .history-item { padding: 5px; border-bottom: 1px solid #181c28; display: flex; justify-content: space-between; align-items: center; }
-        .btn-undo-action { background: #d9534f; color: white; border: none; border-radius: 4px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-weight: bold; margin-left: 6px; }
+        .history-list { height: 150px; overflow-y: auto; font-size: 10px; font-family: monospace; background: #080a0f; padding: 5px; border-radius: 4px; border: 1px solid var(--panel-border); }
+        .history-item { padding: 4px; border-bottom: 1px solid #181c28; display: flex; justify-content: space-between; align-items: center; }
+        .btn-undo-action { background: #d9534f; color: white; border: none; border-radius: 3px; padding: 2px 5px; font-size: 8.5px; cursor: pointer; font-weight: bold; margin-left: 4px; }
 
-        .history-table-wrapper { max-height: 190px; overflow-y: auto; background: #080a0f; border-radius: 6px; border: 1px solid var(--panel-border); }
-        .tkd-table { width: 100%; border-collapse: collapse; font-size: 10px; color: white; text-align: left; }
-        .tkd-table th { background: #07080c; color: var(--kpnp-gold); padding: 6px; font-weight: bold; position: sticky; top: 0; border-bottom: 1px solid var(--panel-border); }
-        .tkd-table td { padding: 6px; border-bottom: 1px solid #181c28; vertical-align: top; }
+        .history-table-wrapper { max-height: 170px; overflow-y: auto; background: #080a0f; border-radius: 6px; border: 1px solid var(--panel-border); }
+        .tkd-table { width: 100%; border-collapse: collapse; font-size: 9.5px; color: white; text-align: left; }
+        .tkd-table th { background: #07080c; color: var(--kpnp-gold); padding: 5px; font-weight: bold; position: sticky; top: 0; border-bottom: 1px solid var(--panel-border); }
+        .tkd-table td { padding: 5px; border-bottom: 1px solid #181c28; vertical-align: top; }
 
-        .log-container { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; width: 280px; }
-        .qr-area { display: flex; justify-content: center; background: white; padding: 5px; border-radius: 6px; margin-top: 6px; width: fit-content; margin-left: auto; margin-right: auto;}
+        .log-container { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 5px; pointer-events: none; width: 260px; }
+        .qr-area { display: flex; justify-content: center; background: white; padding: 4px; border-radius: 6px; margin-top: 5px; width: fit-content; margin-left: auto; margin-right: auto;}
 
         #pantalla-ganador { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999998; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(0,0,0,0.96); }
-        .ganador-box { padding: 30px; border-radius: 20px; border: 3px solid var(--kpnp-gold); box-shadow: 0 0 40px rgba(255,170,0,0.3); max-width: 540px; width: 90%; background: #121824; color: white; }
-        .ganador-titulo { font-size: 18px; letter-spacing: 2px; margin-bottom: 5px; color: var(--kpnp-gold); font-weight: bold; }
-        .ganador-nombre { font-size: 38px; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .ganador-club { font-size: 16px; opacity: 0.9; margin-bottom: 15px; font-weight: 600; }
+        .ganador-box { padding: 25px; border-radius: 18px; border: 3px solid var(--kpnp-gold); box-shadow: 0 0 40px rgba(255,170,0,0.3); max-width: 500px; width: 90%; background: #121824; color: white; }
+        .ganador-titulo { font-size: 16px; letter-spacing: 2px; margin-bottom: 4px; color: var(--kpnp-gold); font-weight: bold; }
+        .ganador-nombre { font-size: 34px; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .ganador-club { font-size: 15px; opacity: 0.9; margin-bottom: 12px; font-weight: 600; }
 
-        .modal-nuevo-combate-inputs { background: #1a202c; border: 1px solid #2a2f42; padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: left; }
-        .modal-nuevo-combate-inputs label { font-size: 10px; color: #a0aec0; font-weight: bold; display: block; margin-top: 4px; }
-        .modal-nuevo-combate-inputs input, .modal-nuevo-combate-inputs select { width: 100%; padding: 6px; margin-top: 2px; background: #07090e; border: 1px solid #4a5568; color: white; border-radius: 4px; box-sizing: border-box; font-weight: bold; font-size: 11px; }
+        .modal-nuevo-combate-inputs { background: #1a202c; border: 1px solid #2a2f42; padding: 10px; border-radius: 8px; margin-bottom: 12px; text-align: left; }
+        .modal-nuevo-combate-inputs label { font-size: 9.5px; color: #a0aec0; font-weight: bold; display: block; margin-top: 3px; }
+        .modal-nuevo-combate-inputs input, .modal-nuevo-combate-inputs select { width: 100%; padding: 5px; margin-top: 2px; background: #07090e; border: 1px solid #4a5568; color: white; border-radius: 4px; box-sizing: border-box; font-weight: bold; font-size: 10.5px; }
 
         #mesa-overlay-descanso {
             display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(17, 10, 0, 0.96); border: 3px solid #ff5500; border-radius: 12px;
+            background: rgba(17, 10, 0, 0.96); border: 3px solid #ff5500; border-radius: 10px;
             z-index: 99; flex-direction: column; align-items: center; justify-content: center;
         }
 
@@ -184,26 +184,26 @@
             padding: 4px; overflow: hidden;
         }
 
-        .header-juez { height: 30px; background: #121824; border: 1px solid #2a2f42; text-align: center; font-weight: 900; border-radius: 6px; color: var(--kpnp-gold); font-size: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
-        .juez-container-grid { display: grid; grid-template-rows: 1fr 1.8fr 1.4fr 1fr; gap: 4px; height: calc(100dvh - 42px); width: 100%; }
+        .header-juez { height: 28px; background: #121824; border: 1px solid #2a2f42; text-align: center; font-weight: 900; border-radius: 6px; color: var(--kpnp-gold); font-size: 11px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+        .juez-container-grid { display: grid; grid-template-rows: 1fr 1.8fr 1.4fr 1fr; gap: 4px; height: calc(100dvh - 38px); width: 100%; }
         .juez-split-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; height: 100%; }
         .juez-split-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; height: 100%; }
 
         .btn-juez-new { border: none; border-radius: 8px; color: white; font-weight: 900; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; touch-action: manipulation; width: 100%; height: 100%; }
         .btn-juez-new.azul { background: #0033cc; border: 1.5px solid #3366ff; }
         .btn-juez-new.rojo { background: #a00000; border: 1.5px solid #ff3333; }
-        .btn-juez-new .lbl-tag { font-size: 11px; text-transform: uppercase; font-weight: bold; }
-        .btn-juez-new .lbl-val { font-size: 26px; font-weight: 900; }
+        .btn-juez-new .lbl-tag { font-size: 10px; text-transform: uppercase; font-weight: bold; }
+        .btn-juez-new .lbl-val { font-size: 24px; font-weight: 900; }
 
         #printable-print-zone { display: none; }
         @media print {
             body * { visibility: hidden !important; }
             #printable-print-zone, #printable-print-zone * { visibility: visible !important; }
             #printable-print-zone { display: block !important; position: absolute; left: 0; top: 0; width: 100%; color: black !important; font-family: sans-serif; background: white !important; }
-            .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-            .print-table th, .print-table td { border: 1px solid #333; padding: 5px; font-size: 10px; text-align: left; color: black !important; }
+            .print-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+            .print-table th, .print-table td { border: 1px solid #333; padding: 4px; font-size: 9.5px; text-align: left; color: black !important; }
             .print-table th { background: #eee !important; font-weight: bold; }
-            .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 4px; border-radius: 4px; font-size: 9px; margin-right: 4px; color: black; }
+            .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 4px; border-radius: 3px; font-size: 8.5px; margin-right: 3px; color: black; }
         }
     </style>
 </head>
@@ -214,27 +214,27 @@
 <div id="modalAcceso">
   <div class="modal-box">
     <h2 style="margin-top: 0; color: #00f2fe; text-transform: uppercase;">Mesa de Control</h2>
-    <p style="font-size: 12px; color: #a0aec0; margin-bottom: 20px;">Configura la sesión del torneo</p>
+    <p style="font-size: 11px; color: #a0aec0; margin-bottom: 18px;">Configura la sesión del torneo</p>
     
-    <div style="text-align: left; margin-bottom: 12px;">
-      <label style="font-size: 11px; color: #cbd5e0;">Nombre del Evento:</label>
-      <input type="text" id="inputNombreEvento" placeholder="Ej: Copa Bogota 2026" style="width: 100%; padding: 8px; margin-top: 4px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight:bold;">
+    <div style="text-align: left; margin-bottom: 10px;">
+      <label style="font-size: 10.5px; color: #cbd5e0;">Nombre del Evento:</label>
+      <input type="text" id="inputNombreEvento" placeholder="Ej: Copa Bogota 2026" style="width: 100%; padding: 7px; margin-top: 3px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight:bold;">
     </div>
 
-    <div style="text-align: left; margin-bottom: 12px;">
-      <label style="font-size: 11px; color: #cbd5e0;">Número de Área:</label>
-      <input type="number" id="inputNumeroArea" placeholder="Ej: 1" value="1" style="width: 100%; padding: 8px; margin-top: 4px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight:bold;">
+    <div style="text-align: left; margin-bottom: 10px;">
+      <label style="font-size: 10.5px; color: #cbd5e0;">Número de Área:</label>
+      <input type="number" id="inputNumeroArea" placeholder="Ej: 1" value="1" style="width: 100%; padding: 7px; margin-top: 3px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight:bold;">
     </div>
 
-    <div style="text-align: left; margin-bottom: 20px;">
-      <label style="font-size: 11px; color: #cbd5e0;">Contraseña de Acceso:</label>
-      <input type="password" id="inputPassword" placeholder="••••••••" style="width: 100%; padding: 8px; margin-top: 4px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;" onkeydown="if(event.key==='Enter') validarEIngresarMesa()">
+    <div style="text-align: left; margin-bottom: 18px;">
+      <label style="font-size: 10.5px; color: #cbd5e0;">Contraseña de Acceso:</label>
+      <input type="password" id="inputPassword" placeholder="••••••••" style="width: 100%; padding: 7px; margin-top: 3px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;" onkeydown="if(event.key==='Enter') validarEIngresarMesa()">
     </div>
 
-    <button onclick="validarEIngresarMesa()" style="width: 100%; padding: 12px; background: #00f2fe; border: none; color: #000; font-weight: 900; border-radius: 6px; cursor: pointer; font-size: 14px; text-transform: uppercase;">
+    <button onclick="validarEIngresarMesa()" style="width: 100%; padding: 10px; background: #00f2fe; border: none; color: #000; font-weight: 900; border-radius: 6px; cursor: pointer; font-size: 13px; text-transform: uppercase;">
       Ingresar a la Mesa
     </button>
-    <p id="mensajeErrorAcceso" style="color: #ff4d4d; font-size: 12px; margin-top: 15px; display: none; font-weight: bold;"></p>
+    <p id="mensajeErrorAcceso" style="color: #ff4d4d; font-size: 11px; margin-top: 12px; display: none; font-weight: bold;"></p>
   </div>
 </div>
 
@@ -247,7 +247,7 @@
         <div class="ganador-club" id="ganador-club-texto">DELEGACIÓN</div>
 
         <div class="modal-nuevo-combate-inputs">
-            <div style="font-size:11px; font-weight:bold; color:#00f2fe; margin-bottom:6px; text-transform:uppercase; text-align:center;">
+            <div style="font-size:10.5px; font-weight:bold; color:#00f2fe; margin-bottom:5px; text-transform:uppercase; text-align:center;">
                 📝 Datos del Próximo Combate
             </div>
             
@@ -269,7 +269,7 @@
                 </div>
             </div>
 
-            <div style="display:flex; gap:8px; margin-top:4px;">
+            <div style="display:flex; gap:6px; margin-top:4px;">
                 <div style="flex:1;">
                     <label style="color:#4d7cff;">Azul (Nombre | Club | Peso):</label>
                     <input type="text" id="modal-next-az-name" placeholder="Nombre">
@@ -285,7 +285,7 @@
             </div>
         </div>
 
-        <button class="btn-ctrl" style="background:var(--kpnp-gold); color:black; padding:12px 20px; font-size:12px; border-radius:8px; cursor: pointer; font-weight:900; width:100%;" onclick="siguienteCombateListo()">➡️ CONFIRMAR E INICIAR SIGUIENTE COMBATE</button>
+        <button class="btn-ctrl" style="background:var(--kpnp-gold); color:black; padding:10px 16px; font-size:11px; border-radius:6px; cursor: pointer; font-weight:900; width:100%;" onclick="siguienteCombateListo()">➡️ CONFIRMAR E INICIAR SIGUIENTE COMBATE</button>
     </div>
 </div>
 
@@ -294,7 +294,7 @@
 <div id="operator-ui" style="display: flex; flex-direction: column; height: 100%;">
     <div class="top-bar">
         <div class="stream-status"><div class="stream-dot"></div>ÁREA CONTROL — TRANSMISIÓN ACTIVA</div>
-        <div style="font-size: 13px; font-weight: bold; color: #ff4500; letter-spacing: 1px;">LIGA DE TAEKWONDO DE BOGOTÁ</div>
+        <div style="font-size: 12px; font-weight: bold; color: #ff4500; letter-spacing: 1px;">LIGA DE TAEKWONDO DE BOGOTÁ</div>
         <div class="top-buttons">
             <button class="btn-top" style="background: #00f2fe; color: black; border: none;" onclick="lanzarVersusTV()">⚔️ PRESENTAR VERSUS</button>
             <button class="btn-top btn-stream" onclick="abrirPantallaTV()">📺 SEGUNDA PANTALLA (TV)</button>
@@ -306,8 +306,8 @@
         <div class="left-arena">
             <div class="scoreboard-frame">
                 <div id="mesa-overlay-descanso">
-                    <div style="font-size: 20px; color: #ff5500; font-weight: bold; letter-spacing: 2px;">TIEMPO DE DESCANSO</div>
-                    <div id="mesa-descanso-tiempo" style="font-size: 90px; font-family: monospace; font-weight: bold; color: white; margin-top: 10px;">1:00</div>
+                    <div style="font-size: 18px; color: #ff5500; font-weight: bold; letter-spacing: 2px;">TIEMPO DE DESCANSO</div>
+                    <div id="mesa-descanso-tiempo" style="font-size: 80px; font-family: monospace; font-weight: bold; color: white; margin-top: 5px;">1:00</div>
                 </div>
 
                 <div class="side b-side">
@@ -331,7 +331,7 @@
                     </div>
 
                     <div class="superiority-box" id="panel-superioridad">
-                        <div style="font-size:10px; font-weight:bold; color:var(--kpnp-gold); margin-bottom:4px;">DECISIÓN SUPERIORIDAD</div>
+                        <div style="font-size:9.5px; font-weight:bold; color:var(--kpnp-gold); margin-bottom:3px;">DECISIÓN SUPERIORIDAD</div>
                         <div class="sup-buttons">
                             <button class="btn-sup b" onclick="decidirSuperioridad('azul')">Azul</button>
                             <button class="btn-sup r" onclick="decidirSuperioridad('rojo')">Rojo</button>
@@ -353,41 +353,35 @@
                 </div>
             </div>
 
-            <!-- MESA DE CONTROL BOTONERA KPNP COMPLETA (+ / -) -->
+            <!-- MESA DE CONTROL BOTONERA KPNP COMPACTA -->
             <div class="kpnp-control-panel">
                 <div class="kpnp-grid-split">
                     
                     <!-- PANEL AZUL (MESA CONTROL) -->
-                    <div class="kpnp-side-box" style="border-top: 4px solid #0033cc;">
+                    <div class="kpnp-side-box" style="border-top: 3px solid #0033cc;">
                         <div class="kpnp-side-title" style="color: #4d7cff;">Mesa Azul</div>
                         
-                        <!-- PUÑO (+1 / -1) -->
                         <div class="kpnp-btn-row-dual">
                             <button class="btn-kpnp-plus b" onclick="puntoMesa('azul', 1)">+1 PUÑO</button>
                             <button class="btn-kpnp-minus" onclick="restarPuntoMesa('azul', 1)">-1</button>
                         </div>
-                        <!-- PETO (+2 / -2) -->
                         <div class="kpnp-btn-row-dual">
                             <button class="btn-kpnp-plus b" onclick="puntoMesa('azul', 2)">+2 PETO</button>
                             <button class="btn-kpnp-minus" onclick="restarPuntoMesa('azul', 2)">-2</button>
                         </div>
-                        <!-- CASCO (+3 / -3) -->
                         <div class="kpnp-btn-row-dual">
                             <button class="btn-kpnp-plus b" onclick="puntoMesa('azul', 3)">+3 CASCO</button>
                             <button class="btn-kpnp-minus" onclick="restarPuntoMesa('azul', 3)">-3</button>
                         </div>
-                        <!-- GIRO PETO (+4 / -4) -->
                         <div class="kpnp-btn-row-dual">
                             <button class="btn-kpnp-plus b" onclick="puntoMesa('azul', 4)">+4 G. PETO</button>
                             <button class="btn-kpnp-minus" onclick="restarPuntoMesa('azul', 4)">-4</button>
                         </div>
-                        <!-- GIRO CASCO (+6 / -6) -->
                         <div class="kpnp-btn-row-dual">
                             <button class="btn-kpnp-plus b" onclick="puntoMesa('azul', 6)">+6 G. CASCO</button>
                             <button class="btn-kpnp-minus" onclick="restarPuntoMesa('azul', 6)">-6</button>
                         </div>
 
-                        <!-- GAM-JEOM Y REGLA 10 SEG AZUL -->
                         <div class="kpnp-falta-grid">
                             <button class="btn-gam-add" onclick="penal('azul')">+1 Gam-jeom</button>
                             <button class="btn-gam-sub" onclick="restarPenal('azul')">-1 Gam-jeom</button>
@@ -399,36 +393,30 @@
                     </div>
 
                     <!-- PANEL ROJO (MESA CONTROL) -->
-                    <div class="kpnp-side-box" style="border-top: 4px solid #a00000;">
+                    <div class="kpnp-side-box" style="border-top: 3px solid #a00000;">
                         <div class="kpnp-side-title" style="color: #ff4d4d;">Mesa Rojo</div>
                         
-                        <!-- PUÑO (+1 / -1) -->
                         <div class="kpnp-btn-row-dual">
                             <button class="btn-kpnp-plus r" onclick="puntoMesa('rojo', 1)">+1 PUÑO</button>
                             <button class="btn-kpnp-minus" onclick="restarPuntoMesa('rojo', 1)">-1</button>
                         </div>
-                        <!-- PETO (+2 / -2) -->
                         <div class="kpnp-btn-row-dual">
                             <button class="btn-kpnp-plus r" onclick="puntoMesa('rojo', 2)">+2 PETO</button>
                             <button class="btn-kpnp-minus" onclick="restarPuntoMesa('rojo', 2)">-2</button>
                         </div>
-                        <!-- CASCO (+3 / -3) -->
                         <div class="kpnp-btn-row-dual">
                             <button class="btn-kpnp-plus r" onclick="puntoMesa('rojo', 3)">+3 CASCO</button>
                             <button class="btn-kpnp-minus" onclick="restarPuntoMesa('rojo', 3)">-3</button>
                         </div>
-                        <!-- GIRO PETO (+4 / -4) -->
                         <div class="kpnp-btn-row-dual">
                             <button class="btn-kpnp-plus r" onclick="puntoMesa('rojo', 4)">+4 G. PETO</button>
                             <button class="btn-kpnp-minus" onclick="restarPuntoMesa('rojo', 4)">-4</button>
                         </div>
-                        <!-- GIRO CASCO (+6 / -6) -->
                         <div class="kpnp-btn-row-dual">
                             <button class="btn-kpnp-plus r" onclick="puntoMesa('rojo', 6)">+6 G. CASCO</button>
                             <button class="btn-kpnp-minus" onclick="restarPuntoMesa('rojo', 6)">-6</button>
                         </div>
 
-                        <!-- GAM-JEOM Y REGLA 10 SEG ROJO -->
                         <div class="kpnp-falta-grid">
                             <button class="btn-gam-add" onclick="penal('rojo')">+1 Gam-jeom</button>
                             <button class="btn-gam-sub" onclick="restarPenal('rojo')">-1 Gam-jeom</button>
@@ -445,7 +433,7 @@
 
         <div class="right-panels">
             <div class="panel-box">
-                <div class="arena-title" style="margin-bottom:8px; text-align:left;">Control del Estado del Tiempo</div>
+                <div class="arena-title" style="margin-bottom:6px; text-align:left;">Control del Estado del Tiempo</div>
                 <div class="match-grid">
                     <button class="btn-ctrl start" id="btn-play" onclick="conmutarRelojMesa()">START ROUND <span class="hint-key">[Espacio]</span></button>
                     <button class="btn-ctrl" onclick="pause()">PAUSE</button>
@@ -464,7 +452,7 @@
                 </div>
 
                 <div id="tab-history" class="tab-content active">
-                    <div style="font-size:10px; color:#a0a5b5; margin-bottom:4px;">Acciones registradas en el round:</div>
+                    <div style="font-size:9.5px; color:#a0a5b5; margin-bottom:3px;">Acciones registradas en el round:</div>
                     <div class="history-list" id="match-history-list">
                         <div class="history-item" style="color: gray;">Esperando acciones de combate...</div>
                     </div>
@@ -473,6 +461,7 @@
                 <div id="tab-rules" class="tab-content config-scroll">
                     <div class="config-row"><label>Combate Nº:</label><input id="cfg-combate-num" value="1"></div>
                     <div class="config-row"><label>Campeonato:</label><input id="cfg-campeonato" value="TORNEO OFICIAL LIGA BOGOTÁ"></div>
+                    <div class="config-row"><label>Patrocinador / Banner:</label><input id="cfg-sponsors-text" value="LIGA DE TAEKWONDO DE BOGOTÁ — OFICIAL 2026"></div>
                     <div class="config-row"><label>Categoría:</label><input id="cfg-cat" value="MAYORES"></div>
                     <div class="config-row">
                         <label>Etapa / Fase:</label>
@@ -498,21 +487,21 @@
                     </div>
                     <div class="config-row">
                         <label>Azul (Nombre / Peso):</label>
-                        <input id="aname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;">
-                        <input id="aweight" placeholder="-58kg" oninput="setNombres()" style="width:78px;">
+                        <input id="aname" placeholder="Nombre" oninput="setNombres()" style="width:72px; margin-right:2px;">
+                        <input id="aweight" placeholder="-58kg" oninput="setNombres()" style="width:72px;">
                     </div>
                     <div class="config-row">
                         <label>Azul Delegación:</label>
-                        <input id="aclub" placeholder="Delegación" oninput="setNombres()" style="width:160px;">
+                        <input id="aclub" placeholder="Delegación" oninput="setNombres()" style="width:150px;">
                     </div>
                     <div class="config-row">
                         <label>Rojo (Nombre / Peso):</label>
-                        <input id="rname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;">
-                        <input id="rweight" placeholder="-58kg" oninput="setNombres()" style="width:78px;">
+                        <input id="rname" placeholder="Nombre" oninput="setNombres()" style="width:72px; margin-right:2px;">
+                        <input id="rweight" placeholder="-58kg" oninput="setNombres()" style="width:72px;">
                     </div>
                     <div class="config-row">
                         <label>Rojo Delegación:</label>
-                        <input id="rclub" placeholder="Delegación" oninput="setNombres()" style="width:160px;">
+                        <input id="rclub" placeholder="Delegación" oninput="setNombres()" style="width:150px;">
                     </div>
                     <div class="config-row">
                         <label>Límite Gam-jeoms:</label>
@@ -551,7 +540,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <button class="btn-ctrl" style="background:#0056b3; width:100%; margin-top:8px; font-size:11px;" onclick="imprimirHistorialDelDia()">🖨️ IMPRIMIR / DESCARGAR PDF (ÁREA)</button>
+                    <button class="btn-ctrl" style="background:#0056b3; width:100%; margin-top:6px; font-size:10px;" onclick="imprimirHistorialDelDia()">🖨️ IMPRIMIR / DESCARGAR PDF (ÁREA)</button>
                 </div>
 
                 <div class="qr-area" id="qrcode"></div>
@@ -631,7 +620,6 @@
                     .gam-num { font-size:6.5vh; font-weight:900; color:white; }
                     .rw-dot { font-size: 2.5vh; font-weight: bold; padding: 0.5vh 2vh; border-radius: 8px; background: #222633; border: 2px solid #2a2f42; color: #666; width: 80%; text-align: center; }
                     
-                    /* OVERLAYS ESPECTÁCULO PIXEL SCOREMASTER */
                     #tv-brand-watermark { position: absolute; bottom: 12px; right: 20px; font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.35); letter-spacing: 1.5px; z-index: 99; pointer-events: none; text-transform: uppercase; }
                     
                     #tv-pantalla-versus { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; background: radial-gradient(circle, #101522 0%, #040508 100%); flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; }
@@ -644,7 +632,7 @@
                     #tv-pantalla-ganador, #tv-pantalla-descanso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); }
                     .tv-ganador-box, .tv-descanso-box { padding: 5vh; border-radius: 30px; border: 4px solid #ffaa00; max-width: 70%; width: 60%; text-align:center; }
                     .tv-descanso-box { background: #110a00; border-color: #ff5500; box-shadow: 0 0 50px rgba(255, 85, 0, 0.4); position: relative; }
-                    .tv-sponsors-banner { position: absolute; bottom: 2vh; left: 50%; transform: translateX(-50%); font-size: 2vh; font-weight: 800; color: #ffaa00; letter-spacing: 2px; text-transform: uppercase; }
+                    .tv-sponsors-banner { position: absolute; bottom: 2vh; left: 50%; transform: translateX(-50%); font-size: 2.2vh; font-weight: 800; color: #ffaa00; letter-spacing: 2px; text-transform: uppercase; width: 90%; text-align: center; }
                     
                     .tv-ganador-titulo, .tv-descanso-titulo { font-size: 3.5vh; color: #ffaa00; font-weight: bold; }
                     .tv-descanso-titulo { color: #ff5500; letter-spacing: 2px; }
@@ -687,7 +675,7 @@
                     <div class="tv-descanso-box">
                         <div class="tv-descanso-titulo">TIEMPO DE DESCANSO</div>
                         <div class="tv-descanso-tiempo-gigante" id="tv-descanso-tiempo">1:00</div>
-                        <div class="tv-sponsors-banner">LIGA DE TAEKWONDO DE BOGOTÁ — OFICIAL 2026</div>
+                        <div class="tv-sponsors-banner" id="tv-sponsors-banner-txt">LIGA DE TAEKWONDO DE BOGOTÁ — OFICIAL 2026</div>
                     </div>
                 </div>
 
@@ -843,7 +831,7 @@
         contenedorQR.innerHTML = "";
         const urlGitHubPages = "https://aguilarrivan1-pixel.github.io/pixel-scoremaster-web/"; 
         const urlJuez = `${urlGitHubPages}?mode=juez&area=${AREA_ACTUAL}&evento=${EVENTO_ACTUAL}`;
-        new QRCode(contenedorQR, { text: urlJuez, width: 85, height: 85 });
+        new QRCode(contenedorQR, { text: urlJuez, width: 80, height: 80 });
     }
 
     async function validarEIngresarMesa() {
@@ -1041,7 +1029,6 @@
         interfazSonidos.playPunto();
         dispararLogVisual(equipo, puntos, juecesTxt);
         
-        // EFECTO VISUAL GLOW EN TV PARA PUNTOS ALTOS (+3, +4, +6)
         if (puntos >= 3 && ventanaTV && !ventanaTV.closed) {
             const targetSide = ventanaTV.document.getElementById(equipo === 'azul' ? 'tv-side-azul-box' : 'tv-side-rojo-box');
             if(targetSide) {
@@ -1190,7 +1177,7 @@
         let absPts = Math.abs(puntos);
         let nombreTecnica = absPts === 1 ? "Puño" : absPts === 2 ? "Peto" : absPts === 3 ? "Cabeza" : absPts === 4 ? "Giro Peto" : "Giro Cabeza";
         let signo = puntos > 0 ? "+" : "";
-        const HTMLCard = `<div><strong>${nombreTecnica}</strong><br><small>${juecesTxt}</small></div><div style="font-size:15px; font-weight:bold; margin-left:auto;">${signo}${puntos}</div>`;
+        const HTMLCard = `<div><strong>${nombreTecnica}</strong><br><small>${juecesTxt}</small></div><div style="font-size:14px; font-weight:bold; margin-left:auto;">${signo}${puntos}</div>`;
         inyectarCardLog(document.getElementById("visual-log-container"), equipo, HTMLCard);
         if (ventanaTV && !ventanaTV.closed) { inyectarCardLog(ventanaTV.document.getElementById("tv-visual-log-container"), equipo, HTMLCard); }
     }
@@ -1198,7 +1185,7 @@
     function inyectarCardLog(contenedor, equipo, contenido) {
         if(!contenedor) return;
         const card = document.createElement("div");
-        card.style.cssText = `background:rgba(20,24,36,0.95); border-radius:8px; padding:6px 12px; display:flex; align-items:center; border-left:5px solid ${equipo==='azul'?'#0033cc':'#a00000'}; color:white; margin-bottom:4px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); font-size:11px; width:220px;`;
+        card.style.cssText = `background:rgba(20,24,36,0.95); border-radius:6px; padding:5px 10px; display:flex; align-items:center; border-left:4px solid ${equipo==='azul'?'#0033cc':'#a00000'}; color:white; margin-bottom:4px; box-shadow: 0 2px 8px rgba(0,0,0,0.5); font-size:10px; width:200px;`;
         card.innerHTML = contenido;
         contenedor.appendChild(card);
         setTimeout(() => { card.remove(); }, 2500);
@@ -1324,7 +1311,6 @@
         if(intervalo && intervalo !== "ESPERANDO_VALIDACION") return;
         interfazSonidos.playClickReloj();
         
-        // Cierra el Versus en TV al iniciar tiempo
         if (ventanaTV && !ventanaTV.closed) {
             const vsLayer = ventanaTV.document.getElementById("tv-pantalla-versus");
             if(vsLayer) vsLayer.style.display = "none";
@@ -1500,6 +1486,7 @@
             clubRojo: document.getElementById("lbl-club-rojo").innerText,
             res: dictamenText, 
             ganador: dictamenText.includes("AZUL") ? "AZUL" : "ROJO",
+            ganadorNombre: ganadorNombre,
             detalles: [...estadisticasRounds],
             torneo: document.getElementById("cfg-campeonato").value,
             fecha: fechaTxt,
@@ -1512,6 +1499,17 @@
 
         try {
             await db.collection("HistorialOficial").add(registroCombate);
+            
+            // Sincroniza resultado directo para la Llave del Torneo en Firebase
+            await db.collection("Eventos").doc(EVENTO_ACTUAL).collection("LlavesPartidas").add({
+                combateNum: document.getElementById("cfg-combate-num").value,
+                fase: document.getElementById("cfg-fase-llave").value,
+                categoria: document.getElementById("cfg-cat").value,
+                ganadorNombre: ganadorNombre,
+                ganadorColor: dictamenText.includes("AZUL") ? "AZUL" : "ROJO",
+                ganadorClub: ganadorClub,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
         } catch(e) {
             console.error("Error al guardar en Firebase:", e);
         }
@@ -1593,7 +1591,7 @@
         setNombres(); cambiarConfigTiempo();
         renderizarHistorialConCorrecion();
         actualizar();
-        lanzarVersusTV(); // Proyecta el Versus automáticamente al cargar el nuevo combate
+        lanzarVersusTV();
         mostrarNotificacion("✅ Nuevo combate listo para iniciar", 2500);
     }
 
@@ -1781,6 +1779,11 @@
         if (doc.getElementById("tv-rw-azul")) { doc.getElementById("tv-rw-azul").className = "rw-dot" + (wAzul > 0 ? " b-won" : ""); doc.getElementById("tv-rw-azul").innerText = `AZUL: ${wAzul}`; }
         if (doc.getElementById("tv-rw-rojo")) { doc.getElementById("tv-rw-rojo").className = "rw-dot" + (wRojo > 0 ? " r-won" : ""); doc.getElementById("tv-rw-rojo").innerText = `ROJO: ${wRojo}`; }
         
+        // Actualización dinámica del Banner de Patrocinadores
+        if (doc.getElementById("tv-sponsors-banner-txt")) {
+            doc.getElementById("tv-sponsors-banner-txt").innerText = document.getElementById("cfg-sponsors-text").value || "LIGA DE TAEKWONDO DE BOGOTÁ";
+        }
+
         const modalDescansoTV = doc.getElementById("tv-pantalla-descanso");
         if (modalDescansoTV) {
             if (enModoDescanso) {
