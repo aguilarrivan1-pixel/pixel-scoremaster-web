@@ -104,20 +104,32 @@
         .gamjeom-row { display: flex; justify-content: space-around; width: 100%; font-size: 11px; color: var(--text-gray); font-weight: bold; }
         .gamjeom-counter { font-size: 22px; color: white; font-weight: 900; }
 
-        /* MESA DE CONTROL ESTILO KPNP */
-        .kpnp-control-panel { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        /* ESTILOS BOTONERA KPNP OFICIAL (INCREMENTO Y DECREMENTO) */
+        .kpnp-control-panel { background: #0c0f17; border: 1px solid #1f2638; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
         .kpnp-grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .kpnp-side-box { background: #0a0d14; border-radius: 8px; padding: 8px; border: 1px solid var(--panel-border); }
-        .kpnp-side-title { font-size: 11px; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; text-align: center; }
         
-        .btn-kpnp { padding: 8px 4px; border-radius: 5px; font-weight: 900; border: none; font-size: 11px; cursor: pointer; color: white; text-align: center; transition: all 0.1s; }
-        .btn-kpnp.b { background: #0033cc; border: 1px solid #3366ff; }
-        .btn-kpnp.r { background: #a00000; border: 1px solid #ff3333; }
-        .btn-kpnp.gam { background: #2b3040; border: 1px solid #4a5268; }
-        .btn-kpnp.gam-spec { background: #7a1515; border: 1px solid #ff4d4d; color: #ffcccc; }
+        .kpnp-side-box { background: #07090e; border-radius: 10px; padding: 8px; border: 1px solid #1a202c; display: flex; flex-direction: column; gap: 5px; }
+        .kpnp-side-title { font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; text-align: center; padding-bottom: 2px; border-bottom: 1px solid #1a202c; }
+        
+        .kpnp-btn-row-dual { display: grid; grid-template-columns: 2fr 1fr; gap: 4px; }
+        
+        .btn-kpnp-plus { padding: 7px 4px; border-radius: 5px; font-weight: 900; border: none; font-size: 10px; cursor: pointer; color: white; transition: background 0.1s; }
+        .btn-kpnp-minus { padding: 7px 4px; border-radius: 5px; font-weight: 800; border: 1px solid #3a4259; background: #161b26; font-size: 10px; cursor: pointer; color: #a0a5b5; }
+        .btn-kpnp-minus:hover { background: #d9534f; color: white; border-color: #ff4d4d; }
 
-        .kpnp-btn-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 6px; }
-        .kpnp-gam-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .btn-kpnp-plus.b { background: #0033cc; border: 1px solid #3366ff; }
+        .btn-kpnp-plus.b:hover { background: #0022aa; }
+        
+        .btn-kpnp-plus.r { background: #a00000; border: 1px solid #ff3333; }
+        .btn-kpnp-plus.r:hover { background: #800000; }
+
+        .kpnp-falta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 2px; }
+        .btn-gam-add { background: #222838; border: 1px solid #3b445e; color: white; padding: 6px; border-radius: 4px; font-weight: bold; font-size: 10px; cursor: pointer; }
+        .btn-gam-sub { background: #141824; border: 1px solid #282e40; color: #8a92a6; padding: 6px; border-radius: 4px; font-weight: bold; font-size: 10px; cursor: pointer; }
+        .btn-gam-sub:hover { background: #800000; color: white; }
+
+        .btn-10s-add { background: #7a1515; border: 1px solid #ff4d4d; color: #ffffff; padding: 6px; border-radius: 4px; font-weight: 900; font-size: 10px; cursor: pointer; }
+        .btn-10s-sub { background: #2b1515; border: 1px solid #5a2828; color: #ff9999; padding: 6px; border-radius: 4px; font-weight: bold; font-size: 10px; cursor: pointer; }
 
         .right-panels { width: 440px; display: flex; flex-direction: column; gap: 10px; }
         .panel-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; }
@@ -284,6 +296,7 @@
         <div class="stream-status"><div class="stream-dot"></div>ÁREA CONTROL — TRANSMISIÓN ACTIVA</div>
         <div style="font-size: 13px; font-weight: bold; color: #ff4500; letter-spacing: 1px;">LIGA DE TAEKWONDO DE BOGOTÁ</div>
         <div class="top-buttons">
+            <button class="btn-top" style="background: #00f2fe; color: black; border: none;" onclick="lanzarVersusTV()">⚔️ PRESENTAR VERSUS</button>
             <button class="btn-top btn-stream" onclick="abrirPantallaTV()">📺 SEGUNDA PANTALLA (TV)</button>
             <button class="btn-top" onclick="resetMatch()">RESET ARENA</button>
         </div>
@@ -340,42 +353,92 @@
                 </div>
             </div>
 
-            <!-- CONTROLES KPNP DE MESA -->
+            <!-- MESA DE CONTROL BOTONERA KPNP COMPLETA (+ / -) -->
             <div class="kpnp-control-panel">
                 <div class="kpnp-grid-split">
-                    <!-- CONTROLES AZUL -->
-                    <div class="kpnp-side-box" style="border-left: 4px solid #0033cc;">
-                        <div class="kpnp-side-title" style="color: #4d7cff;">Mesa Control Azul</div>
-                        <div class="kpnp-btn-row">
-                            <button class="btn-kpnp b" onclick="puntoMesa('azul', 1)">+1 Pño</button>
-                            <button class="btn-kpnp b" onclick="puntoMesa('azul', 2)">+2 Peto</button>
-                            <button class="btn-kpnp b" onclick="puntoMesa('azul', 3)">+3 Cab</button>
-                            <button class="btn-kpnp b" onclick="puntoMesa('azul', 4)">+4 G-Peto</button>
-                            <button class="btn-kpnp b" onclick="puntoMesa('azul', 6)">+6 G-Cab</button>
+                    
+                    <!-- PANEL AZUL (MESA CONTROL) -->
+                    <div class="kpnp-side-box" style="border-top: 4px solid #0033cc;">
+                        <div class="kpnp-side-title" style="color: #4d7cff;">Mesa Azul</div>
+                        
+                        <!-- PUÑO (+1 / -1) -->
+                        <div class="kpnp-btn-row-dual">
+                            <button class="btn-kpnp-plus b" onclick="puntoMesa('azul', 1)">+1 PUÑO</button>
+                            <button class="btn-kpnp-minus" onclick="restarPuntoMesa('azul', 1)">-1</button>
                         </div>
-                        <div class="kpnp-gam-row">
-                            <button class="btn-kpnp gam" onclick="penal('azul')">+1 Gam [B]</button>
-                            <button class="btn-kpnp gam-spec" onclick="penalUltimos10Segundos('azul')">🚨 Gam 10s (+2 Rj)</button>
-                            <button class="btn-kpnp gam" onclick="restarPenal('azul')">-1 Gam</button>
+                        <!-- PETO (+2 / -2) -->
+                        <div class="kpnp-btn-row-dual">
+                            <button class="btn-kpnp-plus b" onclick="puntoMesa('azul', 2)">+2 PETO</button>
+                            <button class="btn-kpnp-minus" onclick="restarPuntoMesa('azul', 2)">-2</button>
+                        </div>
+                        <!-- CASCO (+3 / -3) -->
+                        <div class="kpnp-btn-row-dual">
+                            <button class="btn-kpnp-plus b" onclick="puntoMesa('azul', 3)">+3 CASCO</button>
+                            <button class="btn-kpnp-minus" onclick="restarPuntoMesa('azul', 3)">-3</button>
+                        </div>
+                        <!-- GIRO PETO (+4 / -4) -->
+                        <div class="kpnp-btn-row-dual">
+                            <button class="btn-kpnp-plus b" onclick="puntoMesa('azul', 4)">+4 G. PETO</button>
+                            <button class="btn-kpnp-minus" onclick="restarPuntoMesa('azul', 4)">-4</button>
+                        </div>
+                        <!-- GIRO CASCO (+6 / -6) -->
+                        <div class="kpnp-btn-row-dual">
+                            <button class="btn-kpnp-plus b" onclick="puntoMesa('azul', 6)">+6 G. CASCO</button>
+                            <button class="btn-kpnp-minus" onclick="restarPuntoMesa('azul', 6)">-6</button>
+                        </div>
+
+                        <!-- GAM-JEOM Y REGLA 10 SEG AZUL -->
+                        <div class="kpnp-falta-grid">
+                            <button class="btn-gam-add" onclick="penal('azul')">+1 Gam-jeom</button>
+                            <button class="btn-gam-sub" onclick="restarPenal('azul')">-1 Gam-jeom</button>
+                        </div>
+                        <div class="kpnp-falta-grid">
+                            <button class="btn-10s-add" onclick="penalUltimos10Segundos('azul')">🚨 Gam 10s (+2 Rj)</button>
+                            <button class="btn-10s-sub" onclick="restarPenalUltimos10Segundos('azul')">↩️ Revertir 10s</button>
                         </div>
                     </div>
 
-                    <!-- CONTROLES ROJO -->
-                    <div class="kpnp-side-box" style="border-left: 4px solid #a00000;">
-                        <div class="kpnp-side-title" style="color: #ff4d4d;">Mesa Control Rojo</div>
-                        <div class="kpnp-btn-row">
-                            <button class="btn-kpnp r" onclick="puntoMesa('rojo', 1)">+1 Pño</button>
-                            <button class="btn-kpnp r" onclick="puntoMesa('rojo', 2)">+2 Peto</button>
-                            <button class="btn-kpnp r" onclick="puntoMesa('rojo', 3)">+3 Cab</button>
-                            <button class="btn-kpnp r" onclick="puntoMesa('rojo', 4)">+4 G-Peto</button>
-                            <button class="btn-kpnp r" onclick="puntoMesa('rojo', 6)">+6 G-Cab</button>
+                    <!-- PANEL ROJO (MESA CONTROL) -->
+                    <div class="kpnp-side-box" style="border-top: 4px solid #a00000;">
+                        <div class="kpnp-side-title" style="color: #ff4d4d;">Mesa Rojo</div>
+                        
+                        <!-- PUÑO (+1 / -1) -->
+                        <div class="kpnp-btn-row-dual">
+                            <button class="btn-kpnp-plus r" onclick="puntoMesa('rojo', 1)">+1 PUÑO</button>
+                            <button class="btn-kpnp-minus" onclick="restarPuntoMesa('rojo', 1)">-1</button>
                         </div>
-                        <div class="kpnp-gam-row">
-                            <button class="btn-kpnp gam" onclick="penal('rojo')">+1 Gam [R]</button>
-                            <button class="btn-kpnp gam-spec" onclick="penalUltimos10Segundos('rojo')">🚨 Gam 10s (+2 Az)</button>
-                            <button class="btn-kpnp gam" onclick="restarPenal('rojo')">-1 Gam</button>
+                        <!-- PETO (+2 / -2) -->
+                        <div class="kpnp-btn-row-dual">
+                            <button class="btn-kpnp-plus r" onclick="puntoMesa('rojo', 2)">+2 PETO</button>
+                            <button class="btn-kpnp-minus" onclick="restarPuntoMesa('rojo', 2)">-2</button>
+                        </div>
+                        <!-- CASCO (+3 / -3) -->
+                        <div class="kpnp-btn-row-dual">
+                            <button class="btn-kpnp-plus r" onclick="puntoMesa('rojo', 3)">+3 CASCO</button>
+                            <button class="btn-kpnp-minus" onclick="restarPuntoMesa('rojo', 3)">-3</button>
+                        </div>
+                        <!-- GIRO PETO (+4 / -4) -->
+                        <div class="kpnp-btn-row-dual">
+                            <button class="btn-kpnp-plus r" onclick="puntoMesa('rojo', 4)">+4 G. PETO</button>
+                            <button class="btn-kpnp-minus" onclick="restarPuntoMesa('rojo', 4)">-4</button>
+                        </div>
+                        <!-- GIRO CASCO (+6 / -6) -->
+                        <div class="kpnp-btn-row-dual">
+                            <button class="btn-kpnp-plus r" onclick="puntoMesa('rojo', 6)">+6 G. CASCO</button>
+                            <button class="btn-kpnp-minus" onclick="restarPuntoMesa('rojo', 6)">-6</button>
+                        </div>
+
+                        <!-- GAM-JEOM Y REGLA 10 SEG ROJO -->
+                        <div class="kpnp-falta-grid">
+                            <button class="btn-gam-add" onclick="penal('rojo')">+1 Gam-jeom</button>
+                            <button class="btn-gam-sub" onclick="restarPenal('rojo')">-1 Gam-jeom</button>
+                        </div>
+                        <div class="kpnp-falta-grid">
+                            <button class="btn-10s-add" onclick="penalUltimos10Segundos('rojo')">🚨 Gam 10s (+2 Az)</button>
+                            <button class="btn-10s-sub" onclick="restarPenalUltimos10Segundos('rojo')">↩️ Revertir 10s</button>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -551,9 +614,11 @@
                 <style>
                     body { margin:0; background:#07090e; color:white; font-family:'Segoe UI', sans-serif; overflow:hidden; user-select:none; }
                     .tv-frame { display:flex; height:100vh; position:relative; }
-                    .side { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2vh; }
+                    .side { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2vh; transition: background 0.3s; }
                     .side.b { background:#0033cc; }
                     .side.r { background:#a00000; }
+                    .side.glow { filter: brightness(1.6); animation: flashPulse 0.4s ease-in-out; }
+                    @keyframes flashPulse { 0% { opacity: 0.7; } 50% { opacity: 1; transform: scale(1.01); } 100% { opacity: 1; transform: scale(1); } }
                     .name { font-size:5.5vh; font-weight:900; text-transform:uppercase; text-shadow:0 4px 8px rgba(0,0,0,0.6); text-align:center; max-width:95%; }
                     .club-sub { font-size:2.8vh; opacity:0.85; font-weight:bold; margin-top:0.5vh; text-transform:uppercase; }
                     .weight-sub { font-size:2.2vh; background:rgba(0,0,0,0.4); padding:0.4vh 1.5vw; border-radius:6px; margin-top:1vh; font-weight:bold; }
@@ -565,9 +630,22 @@
                     .time { background:#151821; border:3px solid #ffaa00; color:white; font-size:9.5vh; padding:0.8vh 2.5vh; border-radius:15px; font-family:monospace; font-weight:bold; }
                     .gam-num { font-size:6.5vh; font-weight:900; color:white; }
                     .rw-dot { font-size: 2.5vh; font-weight: bold; padding: 0.5vh 2vh; border-radius: 8px; background: #222633; border: 2px solid #2a2f42; color: #666; width: 80%; text-align: center; }
+                    
+                    /* OVERLAYS ESPECTÁCULO PIXEL SCOREMASTER */
+                    #tv-brand-watermark { position: absolute; bottom: 12px; right: 20px; font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.35); letter-spacing: 1.5px; z-index: 99; pointer-events: none; text-transform: uppercase; }
+                    
+                    #tv-pantalla-versus { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; background: radial-gradient(circle, #101522 0%, #040508 100%); flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; }
+                    .vs-card-container { display: flex; width: 90%; height: 60vh; border-radius: 20px; overflow: hidden; border: 3px solid #ffaa00; box-shadow: 0 0 50px rgba(255,170,0,0.3); }
+                    .vs-side-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2vh; text-transform: uppercase; }
+                    .vs-side-box.b { background: linear-gradient(135deg, #001a66 0%, #0033cc 100%); }
+                    .vs-side-box.r { background: linear-gradient(135deg, #660000 0%, #a00000 100%); }
+                    .vs-divider { width: 100px; background: #000; display: flex; align-items: center; justify-content: center; font-size: 5vh; font-weight: 900; color: #ffaa00; border-left: 2px solid #ffaa00; border-right: 2px solid #ffaa00; }
+
                     #tv-pantalla-ganador, #tv-pantalla-descanso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); }
                     .tv-ganador-box, .tv-descanso-box { padding: 5vh; border-radius: 30px; border: 4px solid #ffaa00; max-width: 70%; width: 60%; text-align:center; }
-                    .tv-descanso-box { background: #110a00; border-color: #ff5500; box-shadow: 0 0 50px rgba(255, 85, 0, 0.4); }
+                    .tv-descanso-box { background: #110a00; border-color: #ff5500; box-shadow: 0 0 50px rgba(255, 85, 0, 0.4); position: relative; }
+                    .tv-sponsors-banner { position: absolute; bottom: 2vh; left: 50%; transform: translateX(-50%); font-size: 2vh; font-weight: 800; color: #ffaa00; letter-spacing: 2px; text-transform: uppercase; }
+                    
                     .tv-ganador-titulo, .tv-descanso-titulo { font-size: 3.5vh; color: #ffaa00; font-weight: bold; }
                     .tv-descanso-titulo { color: #ff5500; letter-spacing: 2px; }
                     .tv-ganador-nombre { font-size: 7.5vh; font-weight: 900; text-transform: uppercase; }
@@ -576,7 +654,27 @@
                     .tv-log-container { position: absolute; top: 2vh; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 1vh; width: 22vw; }
                     .tv-combate-tag { background: #ffaa00; color: black; font-weight: 900; padding: 0.3vh 1.2vw; border-radius: 6px; font-size: 2vh; display: inline-block; margin-top: 0.5vh; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
                 </style>
+                <div id="tv-brand-watermark">⚡ POWERED BY PIXEL SCOREMASTER</div>
                 <div class="tv-log-container" id="tv-visual-log-container"></div>
+                
+                <div id="tv-pantalla-versus">
+                    <div style="font-size:3.5vh; font-weight:900; color:#ffaa00; letter-spacing:3px; margin-bottom:2vh; text-transform:uppercase;" id="vs-header-fase">CUARTOS DE FINAL</div>
+                    <div class="vs-card-container">
+                        <div class="vs-side-box b">
+                            <div style="font-size:6vh; font-weight:900;" id="vs-az-name">AZUL</div>
+                            <div style="font-size:3vh; opacity:0.8;" id="vs-az-club">CLUB</div>
+                            <div style="font-size:2.5vh; background:rgba(0,0,0,0.4); padding:0.5vh 2vw; border-radius:8px; margin-top:2vh; font-weight:bold;" id="vs-az-weight">-58 KG</div>
+                        </div>
+                        <div class="vs-divider">VS</div>
+                        <div class="vs-side-box r">
+                            <div style="font-size:6vh; font-weight:900;" id="vs-rj-name">ROJO</div>
+                            <div style="font-size:3vh; opacity:0.8;" id="vs-rj-club">CLUB</div>
+                            <div style="font-size:2.5vh; background:rgba(0,0,0,0.4); padding:0.5vh 2vw; border-radius:8px; margin-top:2vh; font-weight:bold;" id="vs-rj-weight">-58 KG</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:3vh; font-size:2.2vh; color:#a0a5b5; font-weight:bold; letter-spacing:1px;" id="vs-evento-name">LIGA DE TAEKWONDO DE BOGOTÁ</div>
+                </div>
+
                 <div id="tv-pantalla-ganador">
                     <div class="tv-ganador-box" id="tv-ganador-fondo">
                         <div class="tv-ganador-titulo">COMBATE CONCLUIDO</div>
@@ -584,14 +682,17 @@
                         <div class="tv-ganador-club" id="tv-ganador-club">DELEGACIÓN</div>
                     </div>
                 </div>
+
                 <div id="tv-pantalla-descanso">
                     <div class="tv-descanso-box">
                         <div class="tv-descanso-titulo">TIEMPO DE DESCANSO</div>
                         <div class="tv-descanso-tiempo-gigante" id="tv-descanso-tiempo">1:00</div>
+                        <div class="tv-sponsors-banner">LIGA DE TAEKWONDO DE BOGOTÁ — OFICIAL 2026</div>
                     </div>
                 </div>
+
                 <div class="tv-frame">
-                    <div class="side r">
+                    <div class="side r" id="tv-side-rojo-box">
                         <div class="name" id="tv-name-rojo">ROJO</div>
                         <div class="club-sub" id="tv-club-rojo">CLUB</div>
                         <div class="weight-sub" id="tv-weight-rojo">-58 KG</div>
@@ -617,7 +718,7 @@
                             <div style="text-align:center;">GAM<div class="gam-num" id="tv-gAzul">0</div></div>
                         </div>
                     </div>
-                    <div class="side b">
+                    <div class="side b" id="tv-side-azul-box">
                         <div class="name" id="tv-name-azul">AZUL</div>
                         <div class="club-sub" id="tv-club-azul">CLUB</div>
                         <div class="weight-sub" id="tv-weight-azul">-58 KG</div>
@@ -940,6 +1041,15 @@
         interfazSonidos.playPunto();
         dispararLogVisual(equipo, puntos, juecesTxt);
         
+        // EFECTO VISUAL GLOW EN TV PARA PUNTOS ALTOS (+3, +4, +6)
+        if (puntos >= 3 && ventanaTV && !ventanaTV.closed) {
+            const targetSide = ventanaTV.document.getElementById(equipo === 'azul' ? 'tv-side-azul-box' : 'tv-side-rojo-box');
+            if(targetSide) {
+                targetSide.classList.add('glow');
+                setTimeout(() => targetSide.classList.remove('glow'), 400);
+            }
+        }
+
         const idAccion = Date.now();
         historialAcciones.unshift({ id: idAccion, tipo: 'punto', equipo, puntos, procedencia: juecesTxt });
         
@@ -990,6 +1100,52 @@
         }
     }
 
+    function restarPenalUltimos10Segundos(equipoSancionado) {
+        if (bloqueoCombatePorVictoria || enModoDescanso) return;
+
+        if (equipoSancionado === 'azul') {
+            if (gAzul > 0) gAzul--;
+            if (rojo >= 2) rojo -= 2;
+            dispararLogVisual('azul', -2, 'Revertido 10s (-2 Rj)');
+        } else {
+            if (gRojo > 0) gRojo--;
+            if (azul >= 2) azul -= 2;
+            dispararLogVisual('rojo', -2, 'Revertido 10s (-2 Az)');
+        }
+
+        const idAccion = Date.now();
+        historialAcciones.unshift({ 
+            id: idAccion, 
+            tipo: 'falta_10s_revertida', 
+            equipo: equipoSancionado, 
+            puntos: -2, 
+            procedencia: 'Corrección Gam 10s' 
+        });
+
+        actualizar();
+        renderizarHistorialConCorrecion();
+        mostrarNotificacion(`↩️ REVERTIDA FALTA 10 SEG A COMPETIDOR ${equipoSancionado.toUpperCase()}`, 3000);
+    }
+
+    function restarPuntoMesa(equipo, puntos) {
+        if (bloqueoCombatePorVictoria || enModoDescanso) return;
+        
+        if (equipo === 'rojo') {
+            rojo = Math.max(0, rojo - puntos);
+        } else {
+            azul = Math.max(0, azul - puntos);
+        }
+
+        interfazSonidos.playFalta();
+        dispararLogVisual(equipo, -puntos, 'Mesa Corrigió');
+        
+        const idAccion = Date.now();
+        historialAcciones.unshift({ id: idAccion, tipo: 'punto_restado', equipo, puntos: -puntos, procedencia: 'Mesa Control' });
+        
+        actualizar();
+        renderizarHistorialConCorrecion();
+    }
+
     function deshacerAccion(idAccion) {
         const idx = historialAcciones.findIndex(a => a.id === idAccion);
         if(idx === -1) return;
@@ -1021,8 +1177,9 @@
 
         let html = "";
         historialAcciones.forEach(a => {
+            let ptsTxt = a.puntos > 0 ? `+${a.puntos}` : `${a.puntos}`;
             html += `<div class="history-item">
-                <span style="color:${a.equipo==='azul'?'#4d7cff':'#ff4d4d'}">[R${round}] ${a.equipo.toUpperCase()} +${a.puntos || 1} (${a.procedencia})</span>
+                <span style="color:${a.equipo==='azul'?'#4d7cff':'#ff4d4d'}">[R${round}] ${a.equipo.toUpperCase()} ${ptsTxt} (${a.procedencia})</span>
                 <button class="btn-undo-action" onclick="deshacerAccion(${a.id})">🗑️ Corregir</button>
             </div>`;
         });
@@ -1030,8 +1187,10 @@
     }
 
     function dispararLogVisual(equipo, puntos, juecesTxt) {
-        let nombreTecnica = puntos === 1 ? "Puño" : puntos === 2 ? "Peto" : puntos === 3 ? "Cabeza" : puntos === 4 ? "Giro Peto" : "Giro Cabeza";
-        const HTMLCard = `<div><strong>${nombreTecnica}</strong><br><small>${juecesTxt}</small></div><div style="font-size:15px; font-weight:bold; margin-left:auto;">+${puntos}</div>`;
+        let absPts = Math.abs(puntos);
+        let nombreTecnica = absPts === 1 ? "Puño" : absPts === 2 ? "Peto" : absPts === 3 ? "Cabeza" : absPts === 4 ? "Giro Peto" : "Giro Cabeza";
+        let signo = puntos > 0 ? "+" : "";
+        const HTMLCard = `<div><strong>${nombreTecnica}</strong><br><small>${juecesTxt}</small></div><div style="font-size:15px; font-weight:bold; margin-left:auto;">${signo}${puntos}</div>`;
         inyectarCardLog(document.getElementById("visual-log-container"), equipo, HTMLCard);
         if (ventanaTV && !ventanaTV.closed) { inyectarCardLog(ventanaTV.document.getElementById("tv-visual-log-container"), equipo, HTMLCard); }
     }
@@ -1165,6 +1324,12 @@
         if(intervalo && intervalo !== "ESPERANDO_VALIDACION") return;
         interfazSonidos.playClickReloj();
         
+        // Cierra el Versus en TV al iniciar tiempo
+        if (ventanaTV && !ventanaTV.closed) {
+            const vsLayer = ventanaTV.document.getElementById("tv-pantalla-versus");
+            if(vsLayer) vsLayer.style.display = "none";
+        }
+
         if (enModoDoctor) {
             document.getElementById("btn-play").innerHTML = `TIEMPO MÉDICO CORRIENDO <span class="hint-key">[Espacio]</span>`;
             document.getElementById("btn-play").style.background = "#d9534f";
@@ -1428,6 +1593,7 @@
         setNombres(); cambiarConfigTiempo();
         renderizarHistorialConCorrecion();
         actualizar();
+        lanzarVersusTV(); // Proyecta el Versus automáticamente al cargar el nuevo combate
         mostrarNotificacion("✅ Nuevo combate listo para iniciar", 2500);
     }
 
@@ -1493,6 +1659,23 @@
         if(nuevo) {
             let arr = nuevo.split(":");
             if(arr.length === 2) { tiempo = (parseInt(arr[0]) * 60) + parseInt(arr[1]); let min = Math.floor(tiempo / 60); let seg = tiempo % 60; document.getElementById("tiempo").innerText = `${min}:${seg<10?'0':''}${seg}`; actualizarTV(); }
+        }
+    }
+
+    function lanzarVersusTV() {
+        if (!ventanaTV || ventanaTV.closed) return;
+        const doc = ventanaTV.document;
+        const versusLayer = doc.getElementById("tv-pantalla-versus");
+        if(versusLayer) {
+            doc.getElementById("vs-az-name").innerText = document.getElementById("lbl-name-azul").innerText;
+            doc.getElementById("vs-az-club").innerText = document.getElementById("lbl-club-azul").innerText;
+            doc.getElementById("vs-az-weight").innerText = document.getElementById("lbl-weight-azul").innerText;
+            doc.getElementById("vs-rj-name").innerText = document.getElementById("lbl-name-rojo").innerText;
+            doc.getElementById("vs-rj-club").innerText = document.getElementById("lbl-club-rojo").innerText;
+            doc.getElementById("vs-rj-weight").innerText = document.getElementById("lbl-weight-rojo").innerText;
+            doc.getElementById("vs-header-fase").innerText = document.getElementById("lbl-fase-display").innerText;
+            doc.getElementById("vs-evento-name").innerText = document.getElementById("cfg-campeonato").value;
+            versusLayer.style.display = "flex";
         }
     }
 
