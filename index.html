@@ -920,6 +920,8 @@
                 azul: azul,
                 rojo: rojo,
                 round: round,
+                fase: document.getElementById("cfg-fase-llave").value,
+                categoria: document.getElementById("cfg-cat").value,
                 tiempo: `${min}:${seg<10?'0':''}${seg}`,
                 ultimaActualizacion: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
