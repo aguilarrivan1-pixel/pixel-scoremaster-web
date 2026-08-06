@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Pixel ScoreMaster TKD</title>
+    <title>Pixel ScoreMaster TKD - KPNP Edition</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -24,12 +24,13 @@
     
     <style>
         :root {
-            --bg-dark: #12141c;
-            --panel-bg: #1a1d26;
-            --panel-border: #2a2f42;
+            --bg-dark: #090b10;
+            --panel-bg: #121622;
+            --panel-border: #23293a;
             --accent-blue: #0033cc;
             --accent-rojo: #a00000;
             --text-gray: #a0a5b5;
+            --kpnp-gold: #ffaa00;
         }
 
         html, body { 
@@ -60,94 +61,103 @@
             box-shadow: 0 0 25px rgba(0, 242, 254, 0.25);
         }
 
-        .top-bar { background: #0b0c10; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--panel-border); font-size: 13px; }
+        .top-bar { background: #07080c; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--panel-border); font-size: 13px; }
         .stream-status { display: flex; align-items: center; gap: 8px; color: #28a745; font-weight: bold; }
         .stream-dot { width: 10px; height: 10px; background: #28a745; border-radius: 50%; box-shadow: 0 0 8px #28a745; }
         .top-buttons { display: flex; gap: 8px; }
-        .btn-top { background: #222633; color: white; border: 1px solid var(--panel-border); padding: 4px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;}
+        .btn-top { background: #1f2433; color: white; border: 1px solid var(--panel-border); padding: 4px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold;}
         .btn-top:hover { background: #2d3247; }
-        .btn-stream { background: #ffaa00; color: #000; border: none; }
+        .btn-stream { background: var(--kpnp-gold); color: #000; border: none; }
 
-        .main-container { display: flex; flex: 1; padding: 12px; gap: 12px; height: calc(100dvh - 40px); box-sizing: border-box; }
-        .left-arena { flex: 1.3; display: flex; flex-direction: column; gap: 10px; }
-        .scoreboard-frame { flex: 1; background: #07090e; border-radius: 12px; border: 1px solid var(--panel-border); display: flex; position: relative; overflow: hidden; }
-        .side { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
+        .main-container { display: flex; flex: 1; padding: 10px; gap: 10px; height: calc(100dvh - 40px); box-sizing: border-box; }
+        .left-arena { flex: 1.35; display: flex; flex-direction: column; gap: 10px; }
+        .scoreboard-frame { flex: 1; background: #050609; border-radius: 12px; border: 1px solid var(--panel-border); display: flex; position: relative; overflow: hidden; }
+        .side { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; position: relative; }
         .side.b-side { background: var(--accent-blue); }
         .side.r-side { background: var(--accent-rojo); }
 
         .fighter-name-display { font-size: 26px; font-weight: 800; text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5); text-align: center; }
-        .fighter-club-display { font-size: 14px; color: rgba(255,255,255,0.7); font-weight: bold; margin-top: 2px; }
-        .score-display { font-size: clamp(120px, 14vw, 200px); font-family: 'Arial Black', sans-serif; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 10px rgba(0,0,0,0.7); }
+        .fighter-club-display { font-size: 13px; color: rgba(255,255,255,0.75); font-weight: bold; margin-top: 2px; text-transform: uppercase; }
+        .fighter-weight-badge { font-size: 11px; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 4px; margin-top: 4px; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); }
+        .score-display { font-size: clamp(110px, 13vw, 190px); font-family: 'Arial Black', sans-serif; font-weight: 900; line-height: 0.9; text-shadow: 0 4px 10px rgba(0,0,0,0.7); }
 
-        .center-column { width: 240px; background: linear-gradient(to right, rgba(0,51,204,0.4) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 80%, rgba(160,0,0,0.4) 100%); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 15px 0; position: relative; z-index: 2; }
-        .arena-title { font-size: 13px; color: var(--text-gray); letter-spacing: 2px; font-weight: bold; text-align: center; }
+        .center-column { width: 250px; background: linear-gradient(to right, rgba(0,51,204,0.4) 0%, rgba(0,0,0,1) 18%, rgba(0,0,0,1) 82%, rgba(160,0,0,0.4) 100%); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 12px 0; position: relative; z-index: 2; }
+        .arena-title { font-size: 12px; color: var(--text-gray); letter-spacing: 2px; font-weight: bold; text-align: center; }
+        .phase-tag { font-size: 11px; color: var(--kpnp-gold); font-weight: 800; background: rgba(255,170,0,0.15); border: 1px solid var(--kpnp-gold); padding: 2px 8px; border-radius: 4px; margin-top: 2px; text-transform: uppercase; }
+        
         .round-display { text-align: center; }
         .round-lbl { font-size: 11px; color: var(--text-gray); font-weight: bold; }
-        .round-num { font-size: 36px; font-weight: 900; color: #ffaa00; }
+        .round-num { font-size: 34px; font-weight: 900; color: var(--kpnp-gold); }
         
-        .rounds-won-container { display: flex; gap: 14px; justify-content: center; margin-bottom: 5px; }
-        .rw-dot { font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #222633; border: 1px solid var(--panel-border); color: #666; }
+        .rounds-won-container { display: flex; gap: 12px; justify-content: center; margin-bottom: 5px; }
+        .rw-dot { font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #1a1e2b; border: 1px solid var(--panel-border); color: #666; }
         .rw-dot.b-won { background: #0033cc; border-color: #3366ff; color: white; box-shadow: 0 0 8px rgba(0,51,204,0.6); }
         .rw-dot.r-won { background: #a00000; border-color: #ff3333; color: white; box-shadow: 0 0 8px rgba(160,0,0,0.6); }
 
-        .superiority-box { display: none; flex-direction: column; gap: 6px; background: #151821; border: 2px solid #ffaa00; padding: 8px; border-radius: 8px; width: 90%; text-align: center; }
+        .superiority-box { display: none; flex-direction: column; gap: 6px; background: #151821; border: 2px solid var(--kpnp-gold); padding: 8px; border-radius: 8px; width: 90%; text-align: center; }
         .sup-buttons { display: flex; gap: 6px; }
         .btn-sup { flex: 1; padding: 6px; font-size: 11px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; color: white; }
         .btn-sup.b { background: #0033cc; }
         .btn-sup.r { background: #a00000; }
 
-        .timer-display { background: #151821; border: 2px solid #ffaa00; color: white; font-size: 50px; padding: 4px 15px; border-radius: 8px; font-family: monospace; font-weight: bold; cursor: pointer; }
+        .timer-display { background: #12151f; border: 2px solid var(--kpnp-gold); color: white; font-size: 46px; padding: 2px 14px; border-radius: 8px; font-family: monospace; font-weight: bold; cursor: pointer; }
         .gamjeom-row { display: flex; justify-content: space-around; width: 100%; font-size: 11px; color: var(--text-gray); font-weight: bold; }
-        .gamjeom-counter { font-size: 24px; color: white; font-weight: 900; }
+        .gamjeom-counter { font-size: 22px; color: white; font-weight: 900; }
 
-        .scoreboard-editor-container { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; }
-        .mesa-title { font-size: 12px; color: var(--text-gray); margin-bottom: 8px; font-weight: bold; text-transform: uppercase; }
-        .button-group-mesa { display: flex; gap: 4px; margin-bottom: 8px; }
-        .btn-m { flex: 1; padding: 10px 4px; border-radius: 6px; font-weight: bold; border: none; font-size: 11px; cursor: pointer; color: white; white-space: nowrap;}
-        .btn-m.b { background: #1a44cc; border: 1px solid #3366ff; }
-        .btn-m.r { background: #cc1a1a; border: 1px solid #ff3333; }
-        .gam-mesa-row { display: flex; gap: 8px; }
-        .btn-gam-m { flex: 1; background: #2d3247; color: white; border: 1px solid var(--panel-border); padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        /* MESA DE CONTROL ESTILO KPNP */
+        .kpnp-control-panel { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .kpnp-grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .kpnp-side-box { background: #0a0d14; border-radius: 8px; padding: 8px; border: 1px solid var(--panel-border); }
+        .kpnp-side-title { font-size: 11px; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; text-align: center; }
+        
+        .btn-kpnp { padding: 8px 4px; border-radius: 5px; font-weight: 900; border: none; font-size: 11px; cursor: pointer; color: white; text-align: center; transition: all 0.1s; }
+        .btn-kpnp.b { background: #0033cc; border: 1px solid #3366ff; }
+        .btn-kpnp.r { background: #a00000; border: 1px solid #ff3333; }
+        .btn-kpnp.gam { background: #2b3040; border: 1px solid #4a5268; }
+        .btn-kpnp.gam-spec { background: #7a1515; border: 1px solid #ff4d4d; color: #ffcccc; }
 
-        .right-panels { width: 450px; display: flex; flex-direction: column; gap: 12px; }
-        .panel-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px; }
+        .kpnp-btn-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 6px; }
+        .kpnp-gam-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+
+        .right-panels { width: 440px; display: flex; flex-direction: column; gap: 10px; }
+        .panel-box { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 12px; }
         .match-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-        .btn-ctrl { padding: 10px; border-radius: 6px; border: none; font-weight: bold; color: white; background: #2a2f42; cursor: pointer; font-size: 11px; text-transform: uppercase;}
+        .btn-ctrl { padding: 10px; border-radius: 6px; border: none; font-weight: bold; color: white; background: #222736; cursor: pointer; font-size: 11px; text-transform: uppercase;}
         .btn-ctrl.start { background: #28a745; }
         .btn-ctrl.doctor { background: #d9534f; grid-column: span 2; }
-        .btn-ctrl.cancel-doc { background: #ffaa00; color: black; grid-column: span 2; display: none; }
+        .btn-ctrl.cancel-doc { background: var(--kpnp-gold); color: black; grid-column: span 2; display: none; }
 
-        .tabs-header { display: flex; border-bottom: 2px solid var(--panel-border); margin-bottom: 12px; }
+        .tabs-header { display: flex; border-bottom: 2px solid var(--panel-border); margin-bottom: 10px; }
         .tab-btn { background: none; border: none; color: var(--text-gray); padding: 6px 10px; cursor: pointer; font-weight: bold; font-size: 11px; }
-        .tab-btn.active { color: #ffaa00; border-bottom: 2px solid #ffaa00; margin-bottom: -2px; }
+        .tab-btn.active { color: var(--kpnp-gold); border-bottom: 2px solid var(--kpnp-gold); margin-bottom: -2px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .config-scroll { max-height: 200px; overflow-y: auto; padding-right: 4px; }
-        .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; color: var(--text-gray); }
-        .config-row select, .config-row input { background: #12141c; border: 1px solid var(--panel-border); color: white; padding: 6px; border-radius: 4px; width: 160px; font-weight: bold;}
+        .config-scroll { max-height: 220px; overflow-y: auto; padding-right: 4px; }
+        .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 11px; color: var(--text-gray); }
+        .config-row select, .config-row input { background: #080a0f; border: 1px solid var(--panel-border); color: white; padding: 5px; border-radius: 4px; width: 160px; font-weight: bold;}
 
-        .history-list { height: 180px; overflow-y: auto; font-size: 11px; font-family: monospace; background: #12141c; padding: 6px; border-radius: 4px; border: 1px solid var(--panel-border); }
-        .history-item { padding: 6px; border-bottom: 1px solid #1a1d26; display: flex; justify-content: space-between; align-items: center; }
+        .history-list { height: 170px; overflow-y: auto; font-size: 11px; font-family: monospace; background: #080a0f; padding: 6px; border-radius: 4px; border: 1px solid var(--panel-border); }
+        .history-item { padding: 5px; border-bottom: 1px solid #181c28; display: flex; justify-content: space-between; align-items: center; }
         .btn-undo-action { background: #d9534f; color: white; border: none; border-radius: 4px; padding: 2px 6px; font-size: 9px; cursor: pointer; font-weight: bold; margin-left: 6px; }
 
-        .history-table-wrapper { max-height: 200px; overflow-y: auto; background: #12141c; border-radius: 6px; border: 1px solid var(--panel-border); }
-        .tkd-table { width: 100%; border-collapse: collapse; font-size: 11px; color: white; text-align: left; }
-        .tkd-table th { background: #0b0c10; color: #ffaa00; padding: 8px; font-weight: bold; position: sticky; top: 0; border-bottom: 1px solid var(--panel-border); }
-        .tkd-table td { padding: 8px; border-bottom: 1px solid #1a1d26; vertical-align: top; }
+        .history-table-wrapper { max-height: 190px; overflow-y: auto; background: #080a0f; border-radius: 6px; border: 1px solid var(--panel-border); }
+        .tkd-table { width: 100%; border-collapse: collapse; font-size: 10px; color: white; text-align: left; }
+        .tkd-table th { background: #07080c; color: var(--kpnp-gold); padding: 6px; font-weight: bold; position: sticky; top: 0; border-bottom: 1px solid var(--panel-border); }
+        .tkd-table td { padding: 6px; border-bottom: 1px solid #181c28; vertical-align: top; }
 
-        .log-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; width: 280px; }
-        .qr-area { display: flex; justify-content: center; background: white; padding: 6px; border-radius: 6px; margin-top: 8px; width: fit-content; margin-left: auto; margin-right: auto;}
+        .log-container { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; width: 280px; }
+        .qr-area { display: flex; justify-content: center; background: white; padding: 5px; border-radius: 6px; margin-top: 6px; width: fit-content; margin-left: auto; margin-right: auto;}
 
         #pantalla-ganador { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999998; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(0,0,0,0.96); }
-        .ganador-box { padding: 35px; border-radius: 20px; border: 3px solid #ffaa00; box-shadow: 0 0 40px rgba(255,170,0,0.3); max-width: 520px; width: 90%; background: #121824; color: white; }
-        .ganador-titulo { font-size: 20px; letter-spacing: 2px; margin-bottom: 5px; color: #ffaa00; font-weight: bold; }
-        .ganador-nombre { font-size: 42px; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .ganador-club { font-size: 18px; opacity: 0.9; margin-bottom: 20px; font-weight: 600; }
+        .ganador-box { padding: 30px; border-radius: 20px; border: 3px solid var(--kpnp-gold); box-shadow: 0 0 40px rgba(255,170,0,0.3); max-width: 540px; width: 90%; background: #121824; color: white; }
+        .ganador-titulo { font-size: 18px; letter-spacing: 2px; margin-bottom: 5px; color: var(--kpnp-gold); font-weight: bold; }
+        .ganador-nombre { font-size: 38px; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .ganador-club { font-size: 16px; opacity: 0.9; margin-bottom: 15px; font-weight: 600; }
 
-        .modal-nuevo-combate-inputs { background: #1a202c; border: 1px solid #2a2f42; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; }
-        .modal-nuevo-combate-inputs label { font-size: 11px; color: #a0aec0; font-weight: bold; display: block; margin-top: 6px; }
-        .modal-nuevo-combate-inputs input { width: 100%; padding: 8px; margin-top: 3px; background: #07090e; border: 1px solid #4a5568; color: white; border-radius: 4px; box-sizing: border-box; font-weight: bold; }
+        .modal-nuevo-combate-inputs { background: #1a202c; border: 1px solid #2a2f42; padding: 12px; border-radius: 10px; margin-bottom: 15px; text-align: left; }
+        .modal-nuevo-combate-inputs label { font-size: 10px; color: #a0aec0; font-weight: bold; display: block; margin-top: 4px; }
+        .modal-nuevo-combate-inputs input, .modal-nuevo-combate-inputs select { width: 100%; padding: 6px; margin-top: 2px; background: #07090e; border: 1px solid #4a5568; color: white; border-radius: 4px; box-sizing: border-box; font-weight: bold; font-size: 11px; }
 
         #mesa-overlay-descanso {
             display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -162,7 +172,7 @@
             padding: 4px; overflow: hidden;
         }
 
-        .header-juez { height: 30px; background: #121824; border: 1px solid #2a2f42; text-align: center; font-weight: 900; border-radius: 6px; color: #ffaa00; font-size: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+        .header-juez { height: 30px; background: #121824; border: 1px solid #2a2f42; text-align: center; font-weight: 900; border-radius: 6px; color: var(--kpnp-gold); font-size: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
         .juez-container-grid { display: grid; grid-template-rows: 1fr 1.8fr 1.4fr 1fr; gap: 4px; height: calc(100dvh - 42px); width: 100%; }
         .juez-split-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; height: 100%; }
         .juez-split-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; height: 100%; }
@@ -179,7 +189,7 @@
             #printable-print-zone, #printable-print-zone * { visibility: visible !important; }
             #printable-print-zone { display: block !important; position: absolute; left: 0; top: 0; width: 100%; color: black !important; font-family: sans-serif; background: white !important; }
             .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-            .print-table th, .print-table td { border: 1px solid #333; padding: 6px; font-size: 11px; text-align: left; color: black !important; }
+            .print-table th, .print-table td { border: 1px solid #333; padding: 5px; font-size: 10px; text-align: left; color: black !important; }
             .print-table th { background: #eee !important; font-weight: bold; }
             .rd-badge { display: inline-block; background: #f0f0f0; border: 1px solid #ccc; padding: 2px 4px; border-radius: 4px; font-size: 9px; margin-right: 4px; color: black; }
         }
@@ -192,27 +202,27 @@
 <div id="modalAcceso">
   <div class="modal-box">
     <h2 style="margin-top: 0; color: #00f2fe; text-transform: uppercase;">Mesa de Control</h2>
-    <p style="font-size: 13px; color: #a0aec0; margin-bottom: 20px;">Configura la sesión del torneo</p>
+    <p style="font-size: 12px; color: #a0aec0; margin-bottom: 20px;">Configura la sesión del torneo</p>
     
-    <div style="text-align: left; margin-bottom: 15px;">
-      <label style="font-size: 12px; color: #cbd5e0;">Nombre del Evento:</label>
-      <input type="text" id="inputNombreEvento" placeholder="Ej: Copa Bogota 2026" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;">
+    <div style="text-align: left; margin-bottom: 12px;">
+      <label style="font-size: 11px; color: #cbd5e0;">Nombre del Evento:</label>
+      <input type="text" id="inputNombreEvento" placeholder="Ej: Copa Bogota 2026" style="width: 100%; padding: 8px; margin-top: 4px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight:bold;">
     </div>
 
-    <div style="text-align: left; margin-bottom: 15px;">
-      <label style="font-size: 12px; color: #cbd5e0;">Número de Área:</label>
-      <input type="number" id="inputNumeroArea" placeholder="Ej: 1" value="1" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;">
+    <div style="text-align: left; margin-bottom: 12px;">
+      <label style="font-size: 11px; color: #cbd5e0;">Número de Área:</label>
+      <input type="number" id="inputNumeroArea" placeholder="Ej: 1" value="1" style="width: 100%; padding: 8px; margin-top: 4px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box; font-weight:bold;">
     </div>
 
     <div style="text-align: left; margin-bottom: 20px;">
-      <label style="font-size: 12px; color: #cbd5e0;">Contraseña de Acceso:</label>
-      <input type="password" id="inputPassword" placeholder="••••••••" style="width: 100%; padding: 10px; margin-top: 5px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;" onkeydown="if(event.key==='Enter') validarEIngresarMesa()">
+      <label style="font-size: 11px; color: #cbd5e0;">Contraseña de Acceso:</label>
+      <input type="password" id="inputPassword" placeholder="••••••••" style="width: 100%; padding: 8px; margin-top: 4px; background: #1a202c; border: 1px solid #4a5568; color: white; border-radius: 6px; box-sizing: border-box;" onkeydown="if(event.key==='Enter') validarEIngresarMesa()">
     </div>
 
-    <button onclick="validarEIngresarMesa()" style="width: 100%; padding: 12px; background: #00f2fe; border: none; color: #000; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 15px; text-transform: uppercase;">
+    <button onclick="validarEIngresarMesa()" style="width: 100%; padding: 12px; background: #00f2fe; border: none; color: #000; font-weight: 900; border-radius: 6px; cursor: pointer; font-size: 14px; text-transform: uppercase;">
       Ingresar a la Mesa
     </button>
-    <p id="mensajeErrorAcceso" style="color: #ff4d4d; font-size: 13px; margin-top: 15px; display: none; font-weight: bold;"></p>
+    <p id="mensajeErrorAcceso" style="color: #ff4d4d; font-size: 12px; margin-top: 15px; display: none; font-weight: bold;"></p>
   </div>
 </div>
 
@@ -225,29 +235,45 @@
         <div class="ganador-club" id="ganador-club-texto">DELEGACIÓN</div>
 
         <div class="modal-nuevo-combate-inputs">
-            <div style="font-size:12px; font-weight:bold; color:#00f2fe; margin-bottom:8px; text-transform:uppercase; text-align:center;">
+            <div style="font-size:11px; font-weight:bold; color:#00f2fe; margin-bottom:6px; text-transform:uppercase; text-align:center;">
                 📝 Datos del Próximo Combate
             </div>
-            <label>Categoría / Peso:</label>
-            <input type="text" id="modal-next-cat" placeholder="Ej: MAYORES AVANZADO">
-
-            <div style="display:flex; gap:8px;">
-                <div style="flex:1;">
-                    <label style="color:#4d7cff;">Nombre Azul:</label>
-                    <input type="text" id="modal-next-az-name" placeholder="Nombre">
-                    <label style="color:#4d7cff;">Delegación Azul:</label>
-                    <input type="text" id="modal-next-az-club" placeholder="Club/Liga">
+            
+            <div style="display:flex; gap:6px;">
+                <div style="flex:1.2;">
+                    <label>Categoría:</label>
+                    <input type="text" id="modal-next-cat" placeholder="Ej: MAYORES">
                 </div>
                 <div style="flex:1;">
-                    <label style="color:#ff4d4d;">Nombre Rojo:</label>
+                    <label>Etapa / Fase:</label>
+                    <select id="modal-next-fase">
+                        <option value="Clasificatorio">Clasificatorio</option>
+                        <option value="16vos">16vos de Final</option>
+                        <option value="Octavos">Octavos de Final</option>
+                        <option value="Cuartos">Cuartos de Final</option>
+                        <option value="Semifinal">Semifinal</option>
+                        <option value="Final">FINAL</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:4px;">
+                <div style="flex:1;">
+                    <label style="color:#4d7cff;">Azul (Nombre | Club | Peso):</label>
+                    <input type="text" id="modal-next-az-name" placeholder="Nombre">
+                    <input type="text" id="modal-next-az-club" placeholder="Delegación">
+                    <input type="text" id="modal-next-az-weight" placeholder="Ej: -58kg">
+                </div>
+                <div style="flex:1;">
+                    <label style="color:#ff4d4d;">Rojo (Nombre | Club | Peso):</label>
                     <input type="text" id="modal-next-rj-name" placeholder="Nombre">
-                    <label style="color:#ff4d4d;">Delegación Rojo:</label>
-                    <input type="text" id="modal-next-rj-club" placeholder="Club/Liga">
+                    <input type="text" id="modal-next-rj-club" placeholder="Delegación">
+                    <input type="text" id="modal-next-rj-weight" placeholder="Ej: -58kg">
                 </div>
             </div>
         </div>
 
-        <button class="btn-ctrl" style="background:#ffaa00; color:black; padding:14px 25px; font-size:13px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; font-weight:bold; width:100%;" onclick="siguienteCombateListo()">➡️ CONFIRMAR E INICIAR SIGUIENTE COMBATE</button>
+        <button class="btn-ctrl" style="background:var(--kpnp-gold); color:black; padding:12px 20px; font-size:12px; border-radius:8px; cursor: pointer; font-weight:900; width:100%;" onclick="siguienteCombateListo()">➡️ CONFIRMAR E INICIAR SIGUIENTE COMBATE</button>
     </div>
 </div>
 
@@ -274,11 +300,14 @@
                 <div class="side b-side">
                     <div class="fighter-name-display" id="lbl-name-azul">AZUL</div>
                     <div class="fighter-club-display" id="lbl-club-azul">CLUB/DELEGACIÓN</div>
+                    <div class="fighter-weight-badge" id="lbl-weight-azul">-58 KG</div>
                     <div class="score-display" id="azul">0</div>
                 </div>
                 
                 <div class="center-column">
-                    <div class="arena-title" style="color: #ffaa00;">ÁREA <span id="displayArea">1</span></div>
+                    <div class="arena-title" style="color: var(--kpnp-gold);">ÁREA <span id="displayArea">1</span></div>
+                    <div class="phase-tag" id="lbl-fase-display">CUARTOS DE FINAL</div>
+
                     <div class="round-display">
                         <div class="round-lbl" id="lbl-round-type">ROUND</div>
                         <div class="round-num" id="round">1</div>
@@ -289,7 +318,7 @@
                     </div>
 
                     <div class="superiority-box" id="panel-superioridad">
-                        <div style="font-size:10px; font-weight:bold; color:#ffaa00; margin-bottom:4px;">DECISIÓN SUPERIORIDAD</div>
+                        <div style="font-size:10px; font-weight:bold; color:var(--kpnp-gold); margin-bottom:4px;">DECISIÓN SUPERIORIDAD</div>
                         <div class="sup-buttons">
                             <button class="btn-sup b" onclick="decidirSuperioridad('azul')">Azul</button>
                             <button class="btn-sup r" onclick="decidirSuperioridad('rojo')">Rojo</button>
@@ -306,44 +335,59 @@
                 <div class="side r-side">
                     <div class="fighter-name-display" id="lbl-name-rojo">ROJO</div>
                     <div class="fighter-club-display" id="lbl-club-rojo">CLUB/DELEGACIÓN</div>
+                    <div class="fighter-weight-badge" id="lbl-weight-rojo">-58 KG</div>
                     <div class="score-display" id="rojo">0</div>
                 </div>
             </div>
 
-            <div class="scoreboard-editor-container">
-                <div class="mesa-title">Controles Manuales de Mesa Central</div>
-                <div class="button-group-mesa">
-                    <button class="btn-m b" onclick="puntoMesa('azul', 1)">+1 Pño</button>
-                    <button class="btn-m b" onclick="puntoMesa('azul', 2)">+2 Peto</button>
-                    <button class="btn-m b" onclick="puntoMesa('azul', 3)">+3 Cab</button>
-                    <button class="btn-m b" onclick="puntoMesa('azul', 4)">+4 G-Peto</button>
-                    <button class="btn-m b" onclick="puntoMesa('azul', 6)">+6 G-Cab</button>
-                    <button class="btn-m r" onclick="puntoMesa('rojo', 1)">+1 Pño</button>
-                    <button class="btn-m r" onclick="puntoMesa('rojo', 2)">+2 Peto</button>
-                    <button class="btn-m r" onclick="puntoMesa('rojo', 3)">+3 Cab</button>
-                    <button class="btn-m r" onclick="puntoMesa('rojo', 4)">+4 G-Peto</button>
-                    <button class="btn-m r" onclick="puntoMesa('rojo', 6)">+6 G-Cab</button>
-                </div>
-                <div class="gam-mesa-row">
-                    <button class="btn-gam-m" onclick="penal('azul')">+1 Gam Azul <span class="hint-key">[Tecl B]</span></button>
-                    <button class="btn-gam-m" onclick="restarPenal('azul')" style="background-color: #5c0000; border-color: #ff4d4d; color: #ffb3b3;">-1 Gam Azul (Corregir)</button>
-                    <button class="btn-gam-m" onclick="restar('azul')">-1 Pts Azul</button>
+            <!-- CONTROLES KPNP DE MESA -->
+            <div class="kpnp-control-panel">
+                <div class="kpnp-grid-split">
+                    <!-- CONTROLES AZUL -->
+                    <div class="kpnp-side-box" style="border-left: 4px solid #0033cc;">
+                        <div class="kpnp-side-title" style="color: #4d7cff;">Mesa Control Azul</div>
+                        <div class="kpnp-btn-row">
+                            <button class="btn-kpnp b" onclick="puntoMesa('azul', 1)">+1 Pño</button>
+                            <button class="btn-kpnp b" onclick="puntoMesa('azul', 2)">+2 Peto</button>
+                            <button class="btn-kpnp b" onclick="puntoMesa('azul', 3)">+3 Cab</button>
+                            <button class="btn-kpnp b" onclick="puntoMesa('azul', 4)">+4 G-Peto</button>
+                            <button class="btn-kpnp b" onclick="puntoMesa('azul', 6)">+6 G-Cab</button>
+                        </div>
+                        <div class="kpnp-gam-row">
+                            <button class="btn-kpnp gam" onclick="penal('azul')">+1 Gam [B]</button>
+                            <button class="btn-kpnp gam-spec" onclick="penalUltimos10Segundos('azul')">🚨 Gam 10s (+2 Rj)</button>
+                            <button class="btn-kpnp gam" onclick="restarPenal('azul')">-1 Gam</button>
+                        </div>
+                    </div>
 
-                    <button class="btn-gam-m" onclick="penal('rojo')">+1 Gam Rojo <span class="hint-key">[Tecl R]</span></button>
-                    <button class="btn-gam-m" onclick="restarPenal('rojo')" style="background-color: #5c0000; border-color: #ff4d4d; color: #ffb3b3;">-1 Gam Rojo (Corregir)</button>
-                    <button class="btn-gam-m" onclick="restar('rojo')">-1 Pts Rojo</button>
+                    <!-- CONTROLES ROJO -->
+                    <div class="kpnp-side-box" style="border-left: 4px solid #a00000;">
+                        <div class="kpnp-side-title" style="color: #ff4d4d;">Mesa Control Rojo</div>
+                        <div class="kpnp-btn-row">
+                            <button class="btn-kpnp r" onclick="puntoMesa('rojo', 1)">+1 Pño</button>
+                            <button class="btn-kpnp r" onclick="puntoMesa('rojo', 2)">+2 Peto</button>
+                            <button class="btn-kpnp r" onclick="puntoMesa('rojo', 3)">+3 Cab</button>
+                            <button class="btn-kpnp r" onclick="puntoMesa('rojo', 4)">+4 G-Peto</button>
+                            <button class="btn-kpnp r" onclick="puntoMesa('rojo', 6)">+6 G-Cab</button>
+                        </div>
+                        <div class="kpnp-gam-row">
+                            <button class="btn-kpnp gam" onclick="penal('rojo')">+1 Gam [R]</button>
+                            <button class="btn-kpnp gam-spec" onclick="penalUltimos10Segundos('rojo')">🚨 Gam 10s (+2 Az)</button>
+                            <button class="btn-kpnp gam" onclick="restarPenal('rojo')">-1 Gam</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="right-panels">
             <div class="panel-box">
-                <div class="mesa-title">Control del Estado de Tiempo</div>
+                <div class="arena-title" style="margin-bottom:8px; text-align:left;">Control del Estado del Tiempo</div>
                 <div class="match-grid">
                     <button class="btn-ctrl start" id="btn-play" onclick="conmutarRelojMesa()">START ROUND <span class="hint-key">[Espacio]</span></button>
                     <button class="btn-ctrl" onclick="pause()">PAUSE</button>
                     <button class="btn-ctrl" onclick="finalizarRound()">FINISH ROUND</button>
-                    <button class="btn-ctrl" style="background: #444;" onclick="forzarSiguienteRoundManual()">FORZAR SIG. ROUND</button>
+                    <button class="btn-ctrl" style="background: #3a3f52;" onclick="forzarSiguienteRoundManual()">FORZAR SIG. ROUND</button>
                     <button class="btn-ctrl doctor" id="btn-medico" onclick="activarDoctor()">🏥 TIEMPO MÉDICO (1:00 MIN)</button>
                     <button class="btn-ctrl cancel-doc" id="btn-cancel-medico" onclick="cancelarDoctorRápido()">⚠️ RETIRAR DOCTOR (REANUDAR)</button>
                 </div>
@@ -357,7 +401,7 @@
                 </div>
 
                 <div id="tab-history" class="tab-content active">
-                    <div style="font-size:10px; color:#a0a5b5; margin-bottom:4px;">Haz clic en <strong>[Corregir]</strong> para deshacer:</div>
+                    <div style="font-size:10px; color:#a0a5b5; margin-bottom:4px;">Acciones registradas en el round:</div>
                     <div class="history-list" id="match-history-list">
                         <div class="history-item" style="color: gray;">Esperando acciones de combate...</div>
                     </div>
@@ -366,25 +410,46 @@
                 <div id="tab-rules" class="tab-content config-scroll">
                     <div class="config-row"><label>Combate Nº:</label><input id="cfg-combate-num" value="1"></div>
                     <div class="config-row"><label>Campeonato:</label><input id="cfg-campeonato" value="TORNEO OFICIAL LIGA BOGOTÁ"></div>
-                    <div class="config-row"><label>Categoría:</label><input id="cfg-cat" value="MAYORES AVANZADO"></div>
+                    <div class="config-row"><label>Categoría:</label><input id="cfg-cat" value="MAYORES"></div>
+                    <div class="config-row">
+                        <label>Etapa / Fase:</label>
+                        <select id="cfg-fase-llave" onchange="actualizarEtapaFaseVisual()">
+                            <option value="Clasificatorio">Clasificatorio</option>
+                            <option value="16vos">16vos de Final</option>
+                            <option value="Octavos">Octavos de Final</option>
+                            <option value="Cuartos" selected>Cuartos de Final</option>
+                            <option value="Semifinal">Semifinal</option>
+                            <option value="Final">FINAL</option>
+                        </select>
+                    </div>
                     <div class="config-row">
                         <label>Modalidad:</label>
-                        <select id="cfg-modalidad-combate">
-                            <option value="ind" selected>Individual (Rounds)</option>
+                        <select id="cfg-modalidad-combate" onchange="conmutarModoPointGap()">
+                            <option value="ind" selected>Individual (Bo3 WT)</option>
                             <option value="equipo">Equipos (TK3 / TK5 Acumulado)</option>
                         </select>
                     </div>
                     <div class="config-row">
-                        <label>Competidor Azul:</label>
-                        <input id="aname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;"><input id="aclub" placeholder="Delegación" oninput="setNombres()" style="width:78px;">
-                    </div>
-                    <div class="config-row">
-                        <label>Competidor Rojo:</label>
-                        <input id="rname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;"><input id="rclub" placeholder="Delegación" oninput="setNombres()" style="width:78px;">
-                    </div>
-                    <div class="config-row">
                         <label>Point Gap (Dif. Pts):</label>
-                        <input type="number" id="cfg-point-gap" value="12" min="0" max="50" style="text-align: center; font-weight: bold;">
+                        <input type="number" id="cfg-point-gap" value="15" readonly style="text-align: center; font-weight: bold; background:#1f2430; color:#ffaa00;">
+                    </div>
+                    <div class="config-row">
+                        <label>Azul (Nombre / Peso):</label>
+                        <input id="aname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;">
+                        <input id="aweight" placeholder="-58kg" oninput="setNombres()" style="width:78px;">
+                    </div>
+                    <div class="config-row">
+                        <label>Azul Delegación:</label>
+                        <input id="aclub" placeholder="Delegación" oninput="setNombres()" style="width:160px;">
+                    </div>
+                    <div class="config-row">
+                        <label>Rojo (Nombre / Peso):</label>
+                        <input id="rname" placeholder="Nombre" oninput="setNombres()" style="width:78px; margin-right:2px;">
+                        <input id="rweight" placeholder="-58kg" oninput="setNombres()" style="width:78px;">
+                    </div>
+                    <div class="config-row">
+                        <label>Rojo Delegación:</label>
+                        <input id="rclub" placeholder="Delegación" oninput="setNombres()" style="width:160px;">
                     </div>
                     <div class="config-row">
                         <label>Límite Gam-jeoms:</label>
@@ -411,8 +476,8 @@
                             <thead>
                                 <tr>
                                     <th>Nº / Hora</th>
-                                    <th>Categoría / Competidores</th>
-                                    <th>Rounds</th>
+                                    <th>Fase / Categoría</th>
+                                    <th>Competidores</th>
                                     <th>Ganador</th>
                                 </tr>
                             </thead>
@@ -423,7 +488,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <button class="btn-ctrl" style="background:#0056b3; width:100%; margin-top:10px; font-size:12px;" onclick="imprimirHistorialDelDia()">🖨️ IMPRIMIR / DESCARGAR PDF (ÁREA)</button>
+                    <button class="btn-ctrl" style="background:#0056b3; width:100%; margin-top:8px; font-size:11px;" onclick="imprimirHistorialDelDia()">🖨️ IMPRIMIR / DESCARGAR PDF (ÁREA)</button>
                 </div>
 
                 <div class="qr-area" id="qrcode"></div>
@@ -489,25 +554,27 @@
                     .side { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2vh; }
                     .side.b { background:#0033cc; }
                     .side.r { background:#a00000; }
-                    .name { font-size:6vh; font-weight:900; text-transform:uppercase; text-shadow:0 4px 8px rgba(0,0,0,0.6); text-align:center; max-width:95%; }
-                    .club-sub { font-size:3vh; opacity:0.8; font-weight:bold; margin-top:1vh; text-transform:uppercase; }
-                    .score { font-size:38vh; font-family:'Arial Black', sans-serif; font-weight:900; line-height:0.85; text-shadow:0 10px 20px rgba(0,0,0,0.8); margin-top:2vh; }
-                    .center { width:26vw; background:linear-gradient(to right, rgba(160,0,0,0.3) 0%, #000 15%, #000 85%, rgba(0,51,204,0.3) 100%); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:4vh 0; box-sizing:border-box; z-index:5; }
-                    .lbl { font-size:2.5vh; color:#a0a5b5; font-weight:bold; letter-spacing:3px; text-transform:uppercase; }
-                    .r-num { font-size:10vh; font-weight:900; color:#ffaa00; line-height:1; }
-                    .time { background:#151821; border:3px solid #ffaa00; color:white; font-size:10vh; padding:1vh 3vh; border-radius:15px; font-family:monospace; font-weight:bold; }
-                    .gam-num { font-size:7vh; font-weight:900; color:white; }
-                    .rw-dot { font-size: 2.8vh; font-weight: bold; padding: 0.5vh 2vh; border-radius: 8px; background: #222633; border: 2px solid #2a2f42; color: #666; width: 80%; text-align: center; }
+                    .name { font-size:5.5vh; font-weight:900; text-transform:uppercase; text-shadow:0 4px 8px rgba(0,0,0,0.6); text-align:center; max-width:95%; }
+                    .club-sub { font-size:2.8vh; opacity:0.85; font-weight:bold; margin-top:0.5vh; text-transform:uppercase; }
+                    .weight-sub { font-size:2.2vh; background:rgba(0,0,0,0.4); padding:0.4vh 1.5vw; border-radius:6px; margin-top:1vh; font-weight:bold; }
+                    .score { font-size:36vh; font-family:'Arial Black', sans-serif; font-weight:900; line-height:0.85; text-shadow:0 10px 20px rgba(0,0,0,0.8); margin-top:1vh; }
+                    .center { width:26vw; background:linear-gradient(to right, rgba(160,0,0,0.3) 0%, #000 15%, #000 85%, rgba(0,51,204,0.3) 100%); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:3vh 0; box-sizing:border-box; z-index:5; }
+                    .lbl { font-size:2.2vh; color:#a0a5b5; font-weight:bold; letter-spacing:2px; text-transform:uppercase; }
+                    .tv-fase-badge { font-size:2vh; color:#ffaa00; font-weight:800; border:1.5px solid #ffaa00; padding:0.3vh 1vw; border-radius:6px; text-transform:uppercase; margin-top:0.5vh; }
+                    .r-num { font-size:9vh; font-weight:900; color:#ffaa00; line-height:1; }
+                    .time { background:#151821; border:3px solid #ffaa00; color:white; font-size:9.5vh; padding:0.8vh 2.5vh; border-radius:15px; font-family:monospace; font-weight:bold; }
+                    .gam-num { font-size:6.5vh; font-weight:900; color:white; }
+                    .rw-dot { font-size: 2.5vh; font-weight: bold; padding: 0.5vh 2vh; border-radius: 8px; background: #222633; border: 2px solid #2a2f42; color: #666; width: 80%; text-align: center; }
                     #tv-pantalla-ganador, #tv-pantalla-descanso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.96); }
-                    .tv-ganador-box, .tv-descanso-box { padding: 6vh; border-radius: 35px; border: 5px solid #ffaa00; max-width: 70%; width: 60%; text-align:center; }
+                    .tv-ganador-box, .tv-descanso-box { padding: 5vh; border-radius: 30px; border: 4px solid #ffaa00; max-width: 70%; width: 60%; text-align:center; }
                     .tv-descanso-box { background: #110a00; border-color: #ff5500; box-shadow: 0 0 50px rgba(255, 85, 0, 0.4); }
-                    .tv-ganador-titulo, .tv-descanso-titulo { font-size: 4vh; color: #ffaa00; font-weight: bold; }
+                    .tv-ganador-titulo, .tv-descanso-titulo { font-size: 3.5vh; color: #ffaa00; font-weight: bold; }
                     .tv-descanso-titulo { color: #ff5500; letter-spacing: 2px; }
-                    .tv-ganador-nombre { font-size: 8vh; font-weight: 900; text-transform: uppercase; }
-                    .tv-descanso-tiempo-gigante { font-size: 18vh; font-family: monospace; font-weight: bold; color: white; margin-top: 2vh; text-shadow: 0 0 20px rgba(255,255,255,0.4); }
-                    .tv-ganador-club { font-size: 4vh; opacity: 0.9; }
-                    .tv-log-container { position: absolute; top: 3vh; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 1vh; width: 22vw; }
-                    .tv-combate-tag { background: #ffaa00; color: black; font-weight: 900; padding: 0.4vh 1.5vw; border-radius: 6px; font-size: 2.3vh; display: inline-block; margin-top: 0.8vh; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+                    .tv-ganador-nombre { font-size: 7.5vh; font-weight: 900; text-transform: uppercase; }
+                    .tv-descanso-tiempo-gigante { font-size: 16vh; font-family: monospace; font-weight: bold; color: white; margin-top: 1vh; text-shadow: 0 0 20px rgba(255,255,255,0.4); }
+                    .tv-ganador-club { font-size: 3.5vh; opacity: 0.9; }
+                    .tv-log-container { position: absolute; top: 2vh; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 1vh; width: 22vw; }
+                    .tv-combate-tag { background: #ffaa00; color: black; font-weight: 900; padding: 0.3vh 1.2vw; border-radius: 6px; font-size: 2vh; display: inline-block; margin-top: 0.5vh; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
                 </style>
                 <div class="tv-log-container" id="tv-visual-log-container"></div>
                 <div id="tv-pantalla-ganador">
@@ -527,23 +594,25 @@
                     <div class="side r">
                         <div class="name" id="tv-name-rojo">ROJO</div>
                         <div class="club-sub" id="tv-club-rojo">CLUB</div>
+                        <div class="weight-sub" id="tv-weight-rojo">-58 KG</div>
                         <div class="score" id="tv-rojo">0</div>
                     </div>
                     <div class="center">
                         <div style="text-align:center;">
                             <div class="lbl">ÁREA ${params.get('area') || "1"}</div>
                             <div class="tv-combate-tag" id="tv-combate-label">COMBATE #${params.get('combate') || "1"}</div>
+                            <div class="tv-fase-badge" id="tv-fase-label">CUARTOS DE FINAL</div>
                         </div>
                         <div style="text-align:center;">
                             <div class="lbl" id="tv-lbl-round">ROUND</div>
                             <div class="r-num" id="tv-round">1</div>
                         </div>
-                        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1vh;">
+                        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 0.8vh;">
                             <div class="rw-dot" id="tv-rw-rojo">ROJO: 0</div>
                             <div class="rw-dot" id="tv-rw-azul">AZUL: 0</div>
                         </div>
                         <div class="time" id="tv-tiempo">2:00</div>
-                        <div style="display:flex; justify-content:space-around; width:100%; font-size:2.5vh; font-weight:bold; color:#a0a5b5;">
+                        <div style="display:flex; justify-content:space-around; width:100%; font-size:2.2vh; font-weight:bold; color:#a0a5b5;">
                             <div style="text-align:center;">GAM<div class="gam-num" id="tv-gRojo">0</div></div>
                             <div style="text-align:center;">GAM<div class="gam-num" id="tv-gAzul">0</div></div>
                         </div>
@@ -551,6 +620,7 @@
                     <div class="side b">
                         <div class="name" id="tv-name-azul">AZUL</div>
                         <div class="club-sub" id="tv-club-azul">CLUB</div>
+                        <div class="weight-sub" id="tv-weight-azul">-58 KG</div>
                         <div class="score" id="tv-azul">0</div>
                     </div>
                 </div>
@@ -644,6 +714,27 @@
             } catch(e){}
         }
     };
+
+    function conmutarModoPointGap() {
+        const mod = document.getElementById("cfg-modalidad-combate").value;
+        const inputGap = document.getElementById("cfg-point-gap");
+        if (mod === "ind") {
+            inputGap.value = "15";
+            inputGap.readOnly = true;
+            inputGap.style.background = "#1f2430";
+            inputGap.style.color = "#ffaa00";
+        } else {
+            inputGap.readOnly = false;
+            inputGap.style.background = "#080a0f";
+            inputGap.style.color = "white";
+        }
+    }
+
+    function actualizarEtapaFaseVisual() {
+        const faseSel = document.getElementById("cfg-fase-llave").value;
+        document.getElementById("lbl-fase-display").innerText = faseSel.toUpperCase();
+        actualizarTV();
+    }
 
     function generarQRJuez() {
         const contenedorQR = document.getElementById("qrcode");
@@ -753,12 +844,10 @@
         db.collection("Eventos").doc(EVENTO_ACTUAL).onSnapshot(async (doc) => {
             const areaNum = parseInt(AREA_ACTUAL);
 
-            // Si el evento fue eliminado o el área fue suspendida:
             if (!doc.exists || doc.data().estado === "bloqueado" || (doc.data().areasBloqueadas || []).includes(areaNum)) {
                 if(intervaloSincronizacion) clearInterval(intervaloSincronizacion);
                 pause();
 
-                // Borramos el registro activo en vivo antes de recargar
                 try {
                     await db.collection("Eventos").doc(EVENTO_ACTUAL).collection("AreasActivas").doc(`Area_${AREA_ACTUAL}`).delete();
                 } catch(e){}
@@ -809,7 +898,7 @@
     function evaluarPointGap() {
         if(bloqueoCombatePorVictoria || enModoDescanso) return false;
         
-        const limiteGap = parseInt(document.getElementById("cfg-point-gap").value) || 0;
+        const limiteGap = parseInt(document.getElementById("cfg-point-gap").value) || 15;
         if(limiteGap <= 0) return false;
 
         const dif = Math.abs(azul - rojo);
@@ -820,7 +909,7 @@
             const colorGanador = azul > rojo ? "AZUL" : "ROJO";
             const nomGanador = colorGanador === "AZUL" ? document.getElementById("lbl-name-azul").innerText : document.getElementById("lbl-name-rojo").innerText;
             
-            mostrarNotificacion(`⚡ VENTAJA DE ${dif} PTS (POINT GAP). ${colorGanador} GANA ESTE ROUND.`, 4500);
+            mostrarNotificacion(`⚡ VENTAJA DE ${dif} PTS (POINT GAP WT 2026). ${colorGanador} GANA ESTE ROUND.`, 4500);
             
             estadisticasRounds.push({ 
                 round: round, 
@@ -828,7 +917,7 @@
                 gamAzul: gAzul, 
                 ptsRojo: rojo, 
                 gamRojo: gRojo, 
-                nota: `Diferencia de Puntos (${dif} Pts)` 
+                nota: `Victoria por Point Gap (+${dif} Pts)` 
             });
 
             if(colorGanador === "AZUL") wAzul++; else wRojo++;
@@ -860,6 +949,47 @@
         evaluarPointGap();
     }
 
+    function penalUltimos10Segundos(equipoSancionado) {
+        if (bloqueoCombatePorVictoria || enModoDescanso) return;
+
+        if (intervalo && intervalo !== "ESPERANDO_VALIDACION") {
+            mostrarNotificacion("⚠️ REGLAMENTO TKD: Pausa el combate para aplicar el Gam-jeom de 10 segundos.");
+            return;
+        }
+
+        interfazSonidos.playFalta();
+
+        if (equipoSancionado === 'azul') {
+            gAzul++;
+            rojo += 2;
+            dispararLogVisual('azul', 2, 'Gam-jeom Ult 10s (+2 Rj)');
+        } else {
+            gRojo++;
+            azul += 2;
+            dispararLogVisual('rojo', 2, 'Gam-jeom Ult 10s (+2 Az)');
+        }
+
+        const idAccion = Date.now();
+        historialAcciones.unshift({ 
+            id: idAccion, 
+            tipo: 'falta_10s', 
+            equipo: equipoSancionado, 
+            puntos: 2, 
+            procedencia: 'Gam-jeom Ult 10s (WT 2026)' 
+        });
+
+        actualizar();
+        renderizarHistorialConCorrecion();
+        mostrarNotificacion(`🚨 GAM-JEOM ÚLTIMOS 10 SEC (+2 PTS RIVAL) AL COMPETIDOR ${equipoSancionado.toUpperCase()}`, 3500);
+
+        if (evaluarPointGap()) return;
+        
+        let maxGam = parseInt(document.getElementById("cfg-max-gamjeoms").value) || 5;
+        if (gAzul >= maxGam || gRojo >= maxGam) {
+            evaluarSiguientePasoDeRounds();
+        }
+    }
+
     function deshacerAccion(idAccion) {
         const idx = historialAcciones.findIndex(a => a.id === idAccion);
         if(idx === -1) return;
@@ -871,6 +1001,9 @@
         } else if(accion.tipo === 'falta') {
             if(accion.equipo === 'rojo') { gRojo = Math.max(0, gRojo - 1); azul = Math.max(0, azul - 1); }
             else { gAzul = Math.max(0, gAzul - 1); rojo = Math.max(0, rojo - 1); }
+        } else if(accion.tipo === 'falta_10s') {
+            if(accion.equipo === 'rojo') { gRojo = Math.max(0, gRojo - 1); azul = Math.max(0, azul - 2); }
+            else { gAzul = Math.max(0, gAzul - 1); rojo = Math.max(0, rojo - 2); }
         }
 
         historialAcciones.splice(idx, 1);
@@ -926,10 +1059,15 @@
         let rj = document.getElementById("rname").value || "ROJO";
         let clB = document.getElementById("aclub").value || "CLUB/DELEGACIÓN";
         let clR = document.getElementById("rclub").value || "CLUB/DELEGACIÓN";
+        let wB = document.getElementById("aweight").value || "-58 KG";
+        let wR = document.getElementById("rweight").value || "-58 KG";
+
         document.getElementById("lbl-name-azul").innerText = az;
         document.getElementById("lbl-name-rojo").innerText = rj;
         document.getElementById("lbl-club-azul").innerText = clB;
         document.getElementById("lbl-club-rojo").innerText = clR;
+        document.getElementById("lbl-weight-azul").innerText = wB;
+        document.getElementById("lbl-weight-rojo").innerText = wR;
         actualizarTV();
     }
 
@@ -999,13 +1137,6 @@
         actualizar();
     }
 
-    function restar(equipo) {
-        if(bloqueoCombatePorVictoria || enModoDescanso) return;
-        if(equipo === 'azul' && azul > 0) { azul--; }
-        if(equipo === 'rojo' && rojo > 0) { rojo--; }
-        actualizar();
-    }
-
     function actualizar() {
         document.getElementById("azul").innerText = azul;
         document.getElementById("rojo").innerText = rojo;
@@ -1039,10 +1170,10 @@
             document.getElementById("btn-play").style.background = "#d9534f";
         } else if (enModoDescanso) {
             document.getElementById("btn-play").innerHTML = `DESCANSO CORRIENDO <span class="hint-key">[Espacio]</span>`;
-            document.getElementById("btn-play").style.background = "#ffaa00";
+            document.getElementById("btn-play").style.background = "var(--kpnp-gold)";
         } else {
             document.getElementById("btn-play").innerHTML = `ROUND CORRIENDO <span class="hint-key">[Espacio]</span>`;
-            document.getElementById("btn-play").style.background = "#ffaa00";
+            document.getElementById("btn-play").style.background = "var(--kpnp-gold)";
         }
 
         intervalo = setInterval(() => {
@@ -1193,11 +1324,14 @@
             evento: EVENTO_ACTUAL || "general",
             area: AREA_ACTUAL,
             num: document.getElementById("cfg-combate-num").value,
+            fase: document.getElementById("cfg-fase-llave").value,
             categoria: document.getElementById("cfg-cat").value,
             modalidad: document.getElementById("cfg-modalidad-combate").value === "ind" ? "Individual" : "TK3/TK5 Equipos",
             az: document.getElementById("lbl-name-azul").innerText,
+            pesoAzul: document.getElementById("lbl-weight-azul").innerText,
             clubAzul: document.getElementById("lbl-club-azul").innerText,
             rj: document.getElementById("lbl-name-rojo").innerText,
+            pesoRojo: document.getElementById("lbl-weight-rojo").innerText,
             clubRojo: document.getElementById("lbl-club-rojo").innerText,
             res: dictamenText, 
             ganador: dictamenText.includes("AZUL") ? "AZUL" : "ROJO",
@@ -1231,8 +1365,10 @@
         document.getElementById("modal-next-cat").value = document.getElementById("cfg-cat").value;
         document.getElementById("modal-next-az-name").value = "";
         document.getElementById("modal-next-az-club").value = "";
+        document.getElementById("modal-next-az-weight").value = document.getElementById("lbl-weight-azul").innerText;
         document.getElementById("modal-next-rj-name").value = "";
         document.getElementById("modal-next-rj-club").value = "";
+        document.getElementById("modal-next-rj-weight").value = document.getElementById("lbl-weight-rojo").innerText;
 
         pLocal.style.display = "flex";
 
@@ -1260,16 +1396,22 @@
 
     function siguienteCombateListo() {
         const nCat = document.getElementById("modal-next-cat").value.trim();
+        const nFase = document.getElementById("modal-next-fase").value;
         const nAzName = document.getElementById("modal-next-az-name").value.trim();
         const nAzClub = document.getElementById("modal-next-az-club").value.trim();
+        const nAzWeight = document.getElementById("modal-next-az-weight").value.trim();
         const nRjName = document.getElementById("modal-next-rj-name").value.trim();
         const nRjClub = document.getElementById("modal-next-rj-club").value.trim();
+        const nRjWeight = document.getElementById("modal-next-rj-weight").value.trim();
 
         if(nCat) document.getElementById("cfg-cat").value = nCat;
+        document.getElementById("cfg-fase-llave").value = nFase;
         document.getElementById("aname").value = nAzName;
         document.getElementById("aclub").value = nAzClub;
+        document.getElementById("aweight").value = nAzWeight;
         document.getElementById("rname").value = nRjName;
         document.getElementById("rclub").value = nRjClub;
+        document.getElementById("rweight").value = nRjWeight;
 
         if(canal) canal.publish('p', { type: 'UNLOCK_WINNER' }); 
         removerPantallaGanadorLocalYTV();
@@ -1282,6 +1424,7 @@
         enModoDescanso = false; enModoDoctor = false; bloqueoCombatePorVictoria = false; estadisticasRounds = [];
         document.getElementById("lbl-round-type").innerText = "ROUND"; document.getElementById("lbl-round-type").style.color = "#a0a5b5";
         
+        actualizarEtapaFaseVisual();
         setNombres(); cambiarConfigTiempo();
         renderizarHistorialConCorrecion();
         actualizar();
@@ -1306,11 +1449,13 @@
         if(combatesFinalizadosLogs.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="color: gray; text-align: center; padding: 15px;">No hay registros archivados.</td></tr>'; return; }
         let html = '';
         combatesFinalizadosLogs.forEach(c => {
-            let roundsDesglose = c.detalles ? c.detalles.map(r => `R${r.round}: A:${r.ptsAzul}(${r.gamAzul}G) | R:${r.ptsRojo}(${r.gamRojo}G)`).join(" <br> ") : "-";
             html += `<tr>
-                <td style="font-weight:bold; color:#ffaa00;">#${c.num}<br><small style="color:gray">${c.hora || ''}</small></td>
-                <td><strong>${c.categoria}</strong> <small style="color:#00f2fe;">(${c.modalidad || 'Ind'})</small><br><span style="color:#4d7cff">Az: ${c.az}</span> vs <span style="color:#ff4d4d">Rj: ${c.rj}</span></td>
-                <td style="font-size:10px;">${roundsDesglose}</td>
+                <td style="font-weight:bold; color:var(--kpnp-gold);">#${c.num}<br><small style="color:gray">${c.hora || ''}</small></td>
+                <td><strong>${c.fase || 'Clasificatorio'}</strong><br><small style="color:#00f2fe;">${c.categoria}</small></td>
+                <td>
+                    <span style="color:#4d7cff">Az: ${c.az} (${c.pesoAzul})</span><br>
+                    <span style="color:#ff4d4d">Rj: ${c.rj} (${c.pesoRojo})</span>
+                </td>
                 <td style="font-weight:bold; color:#28a745;">${c.ganador}<br><small>${c.res}</small></td>
             </tr>`;
         });
@@ -1380,8 +1525,8 @@
                             <thead>
                                 <tr>
                                     <th>COMBATE / HORA</th>
-                                    <th>CATEGORÍA / MOD.</th>
-                                    <th>COMPETIDORES</th>
+                                    <th>FASE Y CATEGORÍA</th>
+                                    <th>COMPETIDORES Y PESO</th>
                                     <th>DESGLOSE POR ROUND</th>
                                     <th>GANADOR Y DICTAMEN</th>
                                 </tr>
@@ -1389,13 +1534,13 @@
                             <tbody>`;
                             
             datosParaImprimir.forEach(c => {
-                let rSub = c.detalles ? c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G)</span>`).join(" ") : "-";
+                let rSub = c.detalles ? c.detalles.map(r => `<span class="rd-badge">R${r.round} -> Az:${r.ptsAzul}(${r.gamAzul}G) | Rj:${r.ptsRojo}(${r.gamRojo}G) ${r.nota ? '['+r.nota+']':''}</span>`).join(" ") : "-";
                 html += `<tr>
                     <td style="text-align:center;font-weight:bold;">#${c.num}<br><small>${c.hora || ''}</small></td>
-                    <td><strong>${c.categoria}</strong><br><small>(${c.modalidad || 'Ind'})</small></td>
+                    <td><strong>${c.fase || 'Clasificatorio'}</strong><br><small>Cat: ${c.categoria} (${c.modalidad || 'Ind'})</small></td>
                     <td>
-                        <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.clubAzul || 'SIN CLUB'})<br>
-                        <span style="color:#a0a5b5; font-weight:bold;">ROJO:</span> ${c.rj} (${c.clubRojo || 'SIN CLUB'})
+                        <span style="color:#0033cc; font-weight:bold;">AZUL:</span> ${c.az} (${c.pesoAzul || 'S/P'}) - ${c.clubAzul || 'SIN CLUB'}<br>
+                        <span style="color:#a0a5b5; font-weight:bold;">ROJO:</span> ${c.rj} (${c.pesoRojo || 'S/P'}) - ${c.clubRojo || 'SIN CLUB'}
                     </td>
                     <td>${rSub}</td>
                     <td style="font-weight:bold;color:green;">${c.ganador || ''}<br><small>${c.res}</small></td>
@@ -1439,6 +1584,9 @@
         if (doc.getElementById("tv-name-rojo")) doc.getElementById("tv-name-rojo").innerText = document.getElementById("lbl-name-rojo").innerText;
         if (doc.getElementById("tv-club-azul")) doc.getElementById("tv-club-azul").innerText = document.getElementById("lbl-club-azul").innerText;
         if (doc.getElementById("tv-club-rojo")) doc.getElementById("tv-club-rojo").innerText = document.getElementById("lbl-club-rojo").innerText;
+        if (doc.getElementById("tv-weight-azul")) doc.getElementById("tv-weight-azul").innerText = document.getElementById("lbl-weight-azul").innerText;
+        if (doc.getElementById("tv-weight-rojo")) doc.getElementById("tv-weight-rojo").innerText = document.getElementById("lbl-weight-rojo").innerText;
+        if (doc.getElementById("tv-fase-label")) doc.getElementById("tv-fase-label").innerText = document.getElementById("lbl-fase-display").innerText;
         if (doc.getElementById("tv-azul")) doc.getElementById("tv-azul").innerText = azul;
         if (doc.getElementById("tv-rojo")) doc.getElementById("tv-rojo").innerText = rojo;
         if (doc.getElementById("tv-tiempo")) doc.getElementById("tv-tiempo").innerText = document.getElementById("tiempo").innerText;
