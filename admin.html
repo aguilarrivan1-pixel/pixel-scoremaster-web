@@ -329,7 +329,6 @@
             arrBloqueadas = arrBloqueadas.filter(a => a !== numArea);
         } else {
             arrBloqueadas.push(numArea);
-            // Si la suspendemos, eliminamos su documento activo de la base de datos inmediatamente
             try {
                 await db.collection("Eventos").doc(evId).collection("AreasActivas").doc(`Area_${numArea}`).delete();
             } catch(e) {}
@@ -397,7 +396,6 @@
                 const evId = (data.evento || '').toLowerCase();
                 const numArea = parseInt(data.area);
 
-                // Si no existe la configuración del evento en Firebase, limpiamos este documento fantasma
                 if (evId && !dictEventosConfig[evId]) {
                     doc.ref.delete().catch(()=>{});
                     return;
@@ -407,21 +405,22 @@
                     const cfgEv = dictEventosConfig[evId] || {};
                     const esAreaBloqueada = (cfgEv.areasBloqueadas || []).includes(numArea);
 
-                    // Si la señal tiene más de 12 segundos sin actualización, consideramos la mesa offline y borramos
                     let ultimaActualizacionMs = data.ultimaActualizacion ? data.ultimaActualizacion.toMillis() : 0;
                     if (ahora - ultimaActualizacionMs > 12000) {
                         doc.ref.delete().catch(()=>{});
                         return;
                     }
 
-                    // Muestra únicamente las áreas que están activas y NO suspendidas
                     if (!esAreaBloqueada) {
                         contador++;
                         html += `
                         <div class="area-box active">
                             <div style="font-size:10px; font-weight:bold; color:var(--accent-cyan); text-transform:uppercase;">${data.evento || 'EVENTO'}</div>
                             <div style="font-size:12px; font-weight:bold; color:#ffaa00;">ÁREA ${data.area} (R${data.round})</div>
-                            <div style="font-size:16px; font-weight:900; margin: 2px 0;">
+                            <div style="font-size:10px; font-weight:800; color:#cbd5e0; text-transform:uppercase; margin-top:2px;">
+                                ${data.fase || 'FASE'} - ${data.categoria || 'CATEGORÍA'}
+                            </div>
+                            <div style="font-size:16px; font-weight:900; margin: 4px 0;">
                                 <span style="color:#0033cc;">${data.azul}</span> vs <span style="color:#a0a5b5;">${data.rojo}</span>
                             </div>
                             <div style="font-family:monospace; color:#20c997; font-weight:bold; font-size:12px;">⏱️ ${data.tiempo}</div>
@@ -514,7 +513,7 @@
     async function confirmarYEliminarEventoActual() {
         if(eventoSeleccionadoFiltro === "TODOS") return;
 
-        const confirmacion = confirm(`⚠️ ¿Estás seguro de que deseas ELIMINAR POR COMPLETO el evento "${eventoSeleccionadoFiltro}", sus áreas activas y todos sus combates registrados?\n\nEsta acción no se puede deshacer.`);
+        const confirmacion = confirm(`⚠️ ¿Estás seguro de que deseas ELIMINAR POR COMPLETO el evento "${eventoSeleccionadoFiltro}", sus áreas activas, llaves y todos sus combates registrados?\n\nEsta acción no se puede deshacer.`);
         if(!confirmacion) return;
 
         mostrarToast("Eliminando evento de Firebase...");
@@ -537,7 +536,13 @@
                 batch.delete(aDoc.ref);
             });
 
-            // 3. Eliminar el documento de configuración del evento
+            // 3. Eliminar llaves y partidas registradas
+            const snapLlaves = await db.collection("Eventos").doc(evId).collection("LlavesPartidas").get();
+            snapLlaves.forEach(lDoc => {
+                batch.delete(lDoc.ref);
+            });
+
+            // 4. Eliminar el documento principal del evento
             batch.delete(db.collection("Eventos").doc(evId));
 
             await batch.commit();
