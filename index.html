@@ -104,7 +104,6 @@
         .gamjeom-row { display: flex; justify-content: space-around; width: 100%; font-size: 10px; color: var(--text-gray); font-weight: bold; }
         .gamjeom-counter { font-size: 18px; color: white; font-weight: 900; }
 
-        /* BOTONERA KPNP COMPACTA Y OPTIMIZADA */
         .kpnp-control-panel { background: #0c0f17; border: 1px solid #1f2638; border-radius: 10px; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
         .kpnp-grid-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         
@@ -145,7 +144,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* PANEL DE CONFIGURACIÓN Y TABLAS AMPLIADO VERTICALMENTE */
         .config-scroll { max-height: calc(100dvh - 310px); overflow-y: auto; padding-right: 4px; }
         .config-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 10.5px; color: var(--text-gray); }
         .config-row select, .config-row input { background: #080a0f; border: 1px solid var(--panel-border); color: white; padding: 5px; border-radius: 4px; width: 160px; font-weight: bold; font-size: 10.5px;}
@@ -160,8 +158,6 @@
         .tkd-table td { padding: 5px; border-bottom: 1px solid #181c28; vertical-align: top; }
 
         .log-container { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 5px; pointer-events: none; width: 260px; }
-        
-        /* QR AMPLIO Y CENTRADO */
         .qr-area { display: flex; justify-content: center; background: white; padding: 6px; border-radius: 8px; margin-top: 10px; width: fit-content; margin-left: auto; margin-right: auto;}
 
         #pantalla-ganador { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999998; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: rgba(0,0,0,0.96); }
@@ -968,7 +964,11 @@
             }
             if(d.type === 'LOCK_WINNER') { renderizarPantallaGanadorLocalYTV(d.color, d.name, d.club); return; }
             if(d.type === 'UNLOCK_WINNER') { removerPantallaGanadorLocalYTV(); return; }
-            if(bloqueoCombatePorVictoria || enModoDescanso) return;
+            
+            // 🛑 SEGURIDAD: Los jueces SOLO pueden marcar puntos si el tiempo está corriendo
+            if(bloqueoCombatePorVictoria || enModoDescanso || enModoDoctor || !intervalo || intervalo === "ESPERANDO_VALIDACION") {
+                return; 
+            }
 
             const jId = msg.connectionId ? msg.connectionId.substring(0, 3) : "Jz";
             if (modoJueces === 1) {
@@ -1502,7 +1502,6 @@
         try {
             await db.collection("HistorialOficial").add(registroCombate);
             
-            // Sincroniza resultado directo para la Llave del Torneo en Firebase
             await db.collection("Eventos").doc(EVENTO_ACTUAL).collection("LlavesPartidas").add({
                 combateNum: document.getElementById("cfg-combate-num").value,
                 fase: document.getElementById("cfg-fase-llave").value,
